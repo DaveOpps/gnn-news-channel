@@ -29,6 +29,13 @@ export async function PUT(req: Request, { params }: Params) {
   if (body.excerpt !== undefined) patch.excerpt = String(body.excerpt).trim();
   if (body.body !== undefined) patch.body = String(body.body).trim();
   if (body.author !== undefined) patch.author = String(body.author).trim() || "Newsroom";
+  if (body.coAuthors !== undefined)
+    patch.coAuthors = Array.isArray(body.coAuthors)
+      ? body.coAuthors.map((n: unknown) => String(n).trim()).filter(Boolean)
+      : String(body.coAuthors)
+          .split(",")
+          .map((n: string) => n.trim())
+          .filter(Boolean);
   if (body.imageUrl !== undefined)
     patch.imageUrl = String(body.imageUrl).trim() || undefined;
   if (body.category !== undefined && CATEGORIES.some((c) => c.slug === body.category))

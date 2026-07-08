@@ -11,6 +11,7 @@ import ShareButtons from "@/components/ShareButtons";
 import CommentsSection from "@/components/CommentsSection";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import StarRating from "@/components/StarRating";
+import { formatByline } from "@/lib/types";
 import {
   getBySlug,
   getByCategory,
@@ -81,7 +82,9 @@ export default async function ArticlePage({ params }: Props) {
               {article.excerpt}
             </p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-6 text-sm text-neutral-500">
-              <span className="font-semibold text-ink">By {article.author}</span>
+              <span className="font-semibold text-ink">
+                {formatByline(article.author, article.coAuthors)}
+              </span>
               <span>
                 {new Date(article.publishedAt).toLocaleDateString("en-US", {
                   weekday: "long",

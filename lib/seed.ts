@@ -244,7 +244,15 @@ const RAW: Omit<Article, "rating">[] = [
 // Editorial quality ratings (0–5) by seed order; drafts left unrated.
 const SEED_RATINGS = [5, 4, 4, 5, 5, 4, 3, 4, 3, 4, 3, 4, 4, 0];
 
+// Additional editors credited on some stories, by seed order.
+const SEED_COAUTHORS: Record<number, string[]> = {
+  0: ["Abena Osei"], // climate summit — co-written
+  4: ["Nana Adjoa"], // world cup thriller
+  2: ["Kwame Mensah"], // digital rights bill
+};
+
 export const SEED_ARTICLES: Article[] = RAW.map((a, i) => ({
   ...a,
   rating: SEED_RATINGS[i] ?? 0,
+  coAuthors: SEED_COAUTHORS[i] ?? [],
 }));

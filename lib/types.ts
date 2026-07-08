@@ -27,6 +27,17 @@ export function categoryMeta(slug: string) {
   );
 }
 
+/** Combined byline, e.g. "By Kwame Mensah", "By A and B", "By A, B and C". */
+export function formatByline(author: string, coAuthors?: string[]): string {
+  const names = [author, ...(coAuthors ?? [])]
+    .map((n) => n.trim())
+    .filter(Boolean);
+  if (names.length === 0) return "By Newsroom";
+  if (names.length === 1) return `By ${names[0]}`;
+  if (names.length === 2) return `By ${names[0]} and ${names[1]}`;
+  return `By ${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
 export interface Comment {
   id: string;
   articleId: string;
@@ -48,7 +59,8 @@ export interface Article {
   excerpt: string;
   body: string; // paragraphs separated by blank lines
   category: Category;
-  author: string;
+  author: string; // lead editor / writer
+  coAuthors?: string[]; // additional editors who wrote the story
   imageUrl?: string;
   tags: string[];
   status: "published" | "draft";

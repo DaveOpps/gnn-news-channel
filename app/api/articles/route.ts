@@ -29,6 +29,12 @@ export async function POST(req: Request) {
     body: String(body.body).trim(),
     category,
     author: String(body.author ?? "Newsroom").trim() || "Newsroom",
+    coAuthors: Array.isArray(body.coAuthors)
+      ? body.coAuthors.map((n: unknown) => String(n).trim()).filter(Boolean)
+      : String(body.coAuthors ?? "")
+          .split(",")
+          .map((n) => n.trim())
+          .filter(Boolean),
     imageUrl: body.imageUrl ? String(body.imageUrl).trim() : undefined,
     tags: Array.isArray(body.tags)
       ? body.tags.map((t: unknown) => String(t).trim()).filter(Boolean)

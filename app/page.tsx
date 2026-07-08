@@ -8,7 +8,7 @@ import NewsletterSignup from "@/components/NewsletterSignup";
 import TrendingStories from "@/components/TrendingStories";
 import CategorySection from "@/components/CategorySection";
 import { getPublished, getBreaking, getFeatured, getTrending } from "@/lib/store";
-import { CATEGORIES } from "@/lib/types";
+import { CATEGORIES, formatByline } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +51,7 @@ export default function HomePage() {
                       {hero.excerpt}
                     </p>
                     <p className="text-white/60 text-xs mt-4 font-medium">
-                      By {hero.author} · {timeAgo(hero.publishedAt)}
+                      {formatByline(hero.author, hero.coAuthors)} · {timeAgo(hero.publishedAt)}
                     </p>
                   </div>
                 </div>
@@ -130,7 +130,7 @@ export default function HomePage() {
                         </h3>
                       </Link>
                       <p className="text-white/50 text-xs mt-3 font-medium">
-                        By {a.author} · {timeAgo(a.publishedAt)}
+                        {formatByline(a.author, a.coAuthors)} · {timeAgo(a.publishedAt)}
                       </p>
                     </div>
                   </article>

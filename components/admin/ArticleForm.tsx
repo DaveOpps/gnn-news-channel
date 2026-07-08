@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Article, CATEGORIES } from "@/lib/types";
+import { Article, CATEGORIES, formatByline } from "@/lib/types";
 import StarRating from "@/components/StarRating";
 
 export default function ArticleForm({ article }: { article?: Article }) {
@@ -15,6 +15,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
   const [body, setBody] = useState(article?.body ?? "");
   const [category, setCategory] = useState<string>(article?.category ?? "world");
   const [author, setAuthor] = useState(article?.author ?? "");
+  const [coAuthors, setCoAuthors] = useState(article?.coAuthors?.join(", ") ?? "");
   const [imageUrl, setImageUrl] = useState(article?.imageUrl ?? "");
   const [tags, setTags] = useState(article?.tags.join(", ") ?? "");
   const [status, setStatus] = useState<string>(article?.status ?? "published");
@@ -58,6 +59,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
         body,
         category,
         author,
+        coAuthors,
         imageUrl,
         tags,
         status,
@@ -177,7 +179,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
 
           <div>
             <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-              Author
+              Lead Editor
             </label>
             <input
               value={author}
@@ -185,6 +187,30 @@ export default function ArticleForm({ article }: { article?: Article }) {
               placeholder="Reporter name"
               className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all"
             />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
+              Co-editors{" "}
+              <span className="normal-case font-normal text-neutral-500">
+                (additional writers, comma-separated)
+              </span>
+            </label>
+            <input
+              value={coAuthors}
+              onChange={(e) => setCoAuthors(e.target.value)}
+              placeholder="e.g. Abena Osei, Yaw Darko"
+              className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all"
+            />
+            <p className="text-xs text-neutral-400 mt-1.5">
+              Byline preview:{" "}
+              <span className="font-semibold text-neutral-600">
+                {formatByline(
+                  author || "Newsroom",
+                  coAuthors.split(",").map((n) => n.trim()).filter(Boolean)
+                )}
+              </span>
+            </p>
           </div>
         </div>
 

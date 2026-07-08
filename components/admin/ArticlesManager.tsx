@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Article, CATEGORIES, categoryMeta } from "@/lib/types";
+import { Article, CATEGORIES, categoryMeta, formatByline } from "@/lib/types";
 import StarRating from "@/components/StarRating";
 
 export default function ArticlesManager({ initial }: { initial: Article[] }) {
@@ -124,7 +124,11 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
                     >
                       {a.title}
                     </Link>
-                    <span className="text-xs text-neutral-400 font-medium">by {a.author}</span>
+                    <span className="text-xs text-neutral-400 font-medium">
+                      {a.coAuthors && a.coAuthors.length > 0
+                        ? `${formatByline(a.author, a.coAuthors).replace(/^By /, "")}`
+                        : `by ${a.author}`}
+                    </span>
                   </td>
                   <td className="px-4 py-4">
                     <span
