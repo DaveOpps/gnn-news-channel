@@ -3,7 +3,7 @@ import type { Article, Category } from "@/lib/types";
 import ArticleCard from "./ArticleCard";
 
 interface CategorySectionProps {
-  category: Category;
+  category: { slug: Category; label: string; color: string };
   articles: Article[];
 }
 
