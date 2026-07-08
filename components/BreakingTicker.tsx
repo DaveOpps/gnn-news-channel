@@ -7,13 +7,13 @@ export default function BreakingTicker({ articles }: { articles: Article[] }) {
   const loop = [...articles, ...articles];
 
   return (
-    <div className="bg-brand text-white flex items-stretch overflow-hidden">
-      <div className="bg-ink px-4 py-2 flex items-center gap-2 shrink-0 z-10">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+    <div className="bg-brand text-white flex items-stretch overflow-hidden shadow-md border-b-2 border-brand-accent">
+      <div className="bg-neutral-dark px-6 py-3 flex items-center gap-3 shrink-0 z-10">
+        <span className="relative flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-accent"></span>
         </span>
-        <span className="font-black text-xs tracking-[0.2em] uppercase">Breaking</span>
+        <span className="font-black text-xs tracking-[0.3em] uppercase text-brand-accent">⚡ LIVE</span>
       </div>
       <div className="flex-1 overflow-hidden flex items-center">
         <div className="ticker-track">
@@ -21,9 +21,9 @@ export default function BreakingTicker({ articles }: { articles: Article[] }) {
             <Link
               key={`${a.id}-${i}`}
               href={`/article/${a.slug}`}
-              className="px-8 text-sm font-semibold hover:underline underline-offset-2 flex items-center gap-3"
+              className="px-8 text-sm font-bold hover:text-brand-accent transition-colors underline-offset-2 hover:underline flex items-center gap-3 whitespace-nowrap"
             >
-              <span className="text-white/60">●</span>
+              <span className="text-brand-accent">●</span>
               {a.title}
             </Link>
           ))}
