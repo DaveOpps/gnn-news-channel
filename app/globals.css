@@ -22,6 +22,7 @@
   --color-brand-secondary: var(--brand-secondary);
   --color-brand-accent: var(--brand-accent);
   --color-ink: var(--ink);
+  --color-neutral-dark: var(--ink);
   --color-neutral-light: var(--neutral-light);
   --color-neutral-gray: var(--neutral-gray);
   --color-border-light: var(--border-light);
