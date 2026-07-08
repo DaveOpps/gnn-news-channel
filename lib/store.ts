@@ -8,40 +8,80 @@ const DATA_FILE = path.join(DATA_DIR, "articles.json");
 const COMMENTS_FILE = path.join(DATA_DIR, "comments.json");
 const SUBSCRIBERS_FILE = path.join(DATA_DIR, "subscribers.json");
 
+/**
+ * On a writable filesystem (local dev) we persist to JSON files.
+ * On a read-only serverless filesystem (e.g. Vercel) the first write attempt
+ * throws EROFS/EACCES; we then transparently fall back to an in-memory store
+ * seeded from the bundled data. State survives while the instance stays warm
+ * and resets on cold starts — good enough to browse and demo, not durable.
+ */
+let useMemory = false;
+const memStore: Record<string, unknown> = {};
+
+function clone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 function readJson<T>(file: string, fallback: T): T {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(file)) return fallback;
+  if (useMemory) {
+    if (!(file in memStore)) memStore[file] = clone(fallback);
+    return memStore[file] as T;
+  }
   try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (!fs.existsSync(file)) return fallback;
     return JSON.parse(fs.readFileSync(file, "utf-8")) as T;
   } catch {
-    return fallback;
+    useMemory = true;
+    if (!(file in memStore)) memStore[file] = clone(fallback);
+    return memStore[file] as T;
   }
 }
 
 function writeJson(file: string, data: unknown) {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf-8");
-}
-
-function ensureFile() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(SEED_ARTICLES, null, 2), "utf-8");
+  if (useMemory) {
+    memStore[file] = data;
+    return;
+  }
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf-8");
+  } catch {
+    useMemory = true;
+    memStore[file] = data;
   }
 }
 
 function readAll(): Article[] {
-  ensureFile();
+  if (useMemory) {
+    if (!(DATA_FILE in memStore)) memStore[DATA_FILE] = clone(SEED_ARTICLES);
+    return memStore[DATA_FILE] as Article[];
+  }
   try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (!fs.existsSync(DATA_FILE)) {
+      fs.writeFileSync(DATA_FILE, JSON.stringify(SEED_ARTICLES, null, 2), "utf-8");
+    }
     return JSON.parse(fs.readFileSync(DATA_FILE, "utf-8")) as Article[];
   } catch {
-    return [...SEED_ARTICLES];
+    useMemory = true;
+    if (!(DATA_FILE in memStore)) memStore[DATA_FILE] = clone(SEED_ARTICLES);
+    return memStore[DATA_FILE] as Article[];
   }
 }
 
 function writeAll(articles: Article[]) {
-  ensureFile();
-  fs.writeFileSync(DATA_FILE, JSON.stringify(articles, null, 2), "utf-8");
+  if (useMemory) {
+    memStore[DATA_FILE] = articles;
+    return;
+  }
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(DATA_FILE, JSON.stringify(articles, null, 2), "utf-8");
+  } catch {
+    useMemory = true;
+    memStore[DATA_FILE] = articles;
+  }
 }
 
 export function slugify(title: string): string {
