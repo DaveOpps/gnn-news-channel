@@ -83,25 +83,33 @@ export default function ArticleForm({ article }: { article?: Article }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
       <div className="flex items-center justify-between">
-        <h1 className="font-black text-2xl">
-          {isEdit ? "Edit Article" : "New Article"}
-        </h1>
-        <Link href="/admin/articles" className="text-sm font-semibold text-neutral-500 hover:text-ink">
-          ← Back to articles
+        <div>
+          <h1 className="font-black text-3xl text-neutral-dark">
+            {isEdit ? "Edit Article" : "Create New Article"}
+          </h1>
+          <p className="text-neutral-gray text-sm mt-1">{isEdit ? "Update story details" : "Add a story to Ghana News Network"}</p>
+        </div>
+        <Link href="/admin/articles" className="text-sm font-bold text-neutral-500 hover:text-brand transition-colors">
+          ← Back
         </Link>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
-          {error}
+        <div className="bg-red-50 border-l-4 border-brand text-red-700 text-sm px-5 py-4 rounded">
+          <p className="font-bold">Error</p>
+          <p className="text-sm mt-1">{error}</p>
         </div>
       )}
 
-      <div className="bg-white shadow-sm p-6 space-y-5">
+      <div className="bg-white shadow-lg rounded-lg p-7 space-y-6">
+        <div className="border-l-4 border-brand pl-4 pb-4">
+          <p className="text-xs text-brand font-black uppercase tracking-widest">Story Content</p>
+        </div>
+        
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
             Headline *
           </label>
           <input
@@ -109,12 +117,12 @@ export default function ArticleForm({ article }: { article?: Article }) {
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="Write a strong, clear headline…"
-            className="w-full border border-neutral-300 px-4 py-3 text-lg font-bold focus:outline-none focus:border-brand"
+            className="w-full border-2 border-neutral-300 px-4 py-3 text-lg font-bold focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
             Excerpt / Standfirst
           </label>
           <textarea
@@ -122,13 +130,13 @@ export default function ArticleForm({ article }: { article?: Article }) {
             onChange={(e) => setExcerpt(e.target.value)}
             rows={2}
             placeholder="One or two sentences summarising the story…"
-            className="w-full border border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
+            className="w-full border-2 border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-            Story Body * <span className="normal-case font-normal">(separate paragraphs with a blank line)</span>
+          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
+            Story Body * <span className="normal-case font-normal text-neutral-500">(separate paragraphs with a blank line)</span>
           </label>
           <textarea
             value={body}
@@ -136,50 +144,56 @@ export default function ArticleForm({ article }: { article?: Article }) {
             required
             rows={14}
             placeholder="Write the full story here…"
-            className="w-full border border-neutral-300 px-4 py-3 text-sm leading-relaxed focus:outline-none focus:border-brand font-mono"
+            className="w-full border-2 border-neutral-300 px-4 py-3 text-sm leading-relaxed focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all font-mono"
           />
         </div>
       </div>
 
-      <div className="bg-white shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-            Section
-          </label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full border border-neutral-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-brand"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.label}
-              </option>
-            ))}
-          </select>
+      <div className="bg-white shadow-lg rounded-lg p-7 space-y-6">
+        <div className="border-l-4 border-brand-secondary pl-4 pb-4">
+          <p className="text-xs text-brand-secondary font-black uppercase tracking-widest">Metadata & Publishing</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
+              Section
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all font-semibold"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
+              Author
+            </label>
+            <input
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              placeholder="Reporter name"
+              className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-            Author
-          </label>
-          <input
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            placeholder="Reporter name"
-            className="w-full border border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-            Story Image <span className="normal-case font-normal">(upload a file or paste a URL — a styled placeholder is used if empty)</span>
+          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
+            Story Image <span className="normal-case font-normal text-neutral-500">(upload or paste URL)</span>
           </label>
           <div className="flex flex-col sm:flex-row gap-3">
             <label
-              className={`shrink-0 cursor-pointer bg-ink hover:bg-black text-white text-xs font-bold uppercase tracking-widest px-5 py-2.5 flex items-center gap-2 transition-colors ${uploading ? "opacity-60 pointer-events-none" : ""}`}
+              className={`shrink-0 cursor-pointer bg-gradient-to-r from-brand to-brand-dark hover:shadow-lg text-white text-xs font-black uppercase tracking-widest px-5 py-2.5 flex items-center gap-2 transition-all rounded ${uploading ? "opacity-60 pointer-events-none" : ""}`}
             >
-              {uploading ? "Uploading…" : "📷 Upload Image"}
+              {uploading ? "Uploading…" : "📷 Upload"}
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
@@ -191,13 +205,13 @@ export default function ArticleForm({ article }: { article?: Article }) {
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://… or /uploads/…"
-              className="flex-1 border border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
+              className="flex-1 border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
             />
             {imageUrl && (
               <button
                 type="button"
                 onClick={() => setImageUrl("")}
-                className="shrink-0 text-xs font-semibold text-red-600 hover:underline"
+                className="shrink-0 text-xs font-bold text-red-600 hover:text-red-800 transition-colors"
               >
                 Remove
               </button>
@@ -208,71 +222,79 @@ export default function ArticleForm({ article }: { article?: Article }) {
             <img
               src={imageUrl}
               alt="Story image preview"
-              className="mt-3 h-40 w-auto object-cover border border-neutral-200"
+              className="mt-4 h-48 w-auto object-cover border-2 border-neutral-200 rounded"
             />
           )}
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-            Tags <span className="normal-case font-normal">(comma-separated)</span>
+          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
+            Tags <span className="normal-case font-normal text-neutral-500">(comma-separated)</span>
           </label>
           <input
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             placeholder="economy, election, ghana"
-            className="w-full border border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
+            className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
           />
         </div>
       </div>
 
-      <div className="bg-white shadow-sm p-6 flex flex-wrap items-center gap-8">
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-            Status
-          </label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="border border-neutral-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-brand"
-          >
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-          </select>
+      <div className="bg-white shadow-lg rounded-lg p-7 space-y-5">
+        <div className="border-l-4 border-brand-accent pl-4 pb-2">
+          <p className="text-xs text-brand-accent font-black uppercase tracking-widest">Publication Options</p>
         </div>
 
-        <label className="flex items-center gap-2.5 cursor-pointer select-none pt-5">
-          <input
-            type="checkbox"
-            checked={isBreaking}
-            onChange={(e) => setIsBreaking(e.target.checked)}
-            className="w-4 h-4 accent-[#cc0000]"
-          />
-          <span className="text-sm font-semibold">🚨 Breaking news (shows in ticker)</span>
-        </label>
+        <div className="flex items-center gap-6 pb-4">
+          <div>
+            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="border-2 border-neutral-300 px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all font-semibold"
+            >
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+        </div>
 
-        <label className="flex items-center gap-2.5 cursor-pointer select-none pt-5">
-          <input
-            type="checkbox"
-            checked={isFeatured}
-            onChange={(e) => setIsFeatured(e.target.checked)}
-            className="w-4 h-4 accent-[#cc0000]"
-          />
-          <span className="text-sm font-semibold">⭐ Featured (hero candidate)</span>
-        </label>
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer select-none p-3 hover:bg-neutral-50 rounded transition-colors">
+            <input
+              type="checkbox"
+              checked={isBreaking}
+              onChange={(e) => setIsBreaking(e.target.checked)}
+              className="w-5 h-5 accent-brand rounded"
+            />
+            <span className="text-sm font-bold text-neutral-dark">🚨 Breaking News (featured in live ticker)</span>
+          </label>
+
+          <label className="flex items-center gap-3 cursor-pointer select-none p-3 hover:bg-neutral-50 rounded transition-colors">
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={(e) => setIsFeatured(e.target.checked)}
+              className="w-5 h-5 accent-brand rounded"
+            />
+            <span className="text-sm font-bold text-neutral-dark">⭐ Featured Story (hero section candidate)</span>
+          </label>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
         <button
           type="submit"
           disabled={saving}
-          className="bg-brand hover:bg-brand-dark disabled:opacity-60 text-white font-bold px-8 py-3 uppercase tracking-widest text-sm transition-colors"
+          className="bg-gradient-to-r from-brand to-brand-dark hover:shadow-lg disabled:opacity-60 text-white font-black px-8 py-3 uppercase tracking-widest text-sm transition-all shadow-md rounded"
         >
-          {saving ? "Saving…" : isEdit ? "Save Changes" : "Publish Article"}
+          {saving ? "Saving…" : isEdit ? "Save Changes" : "Create Article"}
         </button>
         <Link
           href="/admin/articles"
-          className="text-sm font-semibold text-neutral-500 hover:text-ink"
+          className="text-sm font-bold text-neutral-500 hover:text-brand transition-colors"
         >
           Cancel
         </Link>

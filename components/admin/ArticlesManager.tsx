@@ -49,30 +49,33 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-black text-2xl">Articles ({filtered.length})</h1>
+        <div>
+          <h1 className="font-black text-3xl text-neutral-dark">Articles</h1>
+          <p className="text-neutral-gray text-sm mt-1">{filtered.length} article{filtered.length !== 1 ? 's' : ''} found</p>
+        </div>
         <Link
           href="/admin/articles/new"
-          className="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 uppercase tracking-wider transition-colors"
+          className="bg-gradient-to-r from-brand to-brand-dark hover:shadow-lg text-white font-black text-sm px-6 py-3 uppercase tracking-widest transition-all shadow-md"
         >
-          + New Article
+          + Create Article
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="bg-white shadow-sm p-4 flex flex-wrap gap-3">
+      <div className="bg-white shadow-lg rounded-lg p-5 flex flex-wrap gap-4">
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search titles…"
-          className="flex-1 min-w-48 border border-neutral-300 px-4 py-2 text-sm focus:outline-none focus:border-brand"
+          placeholder="Search article titles…"
+          className="flex-1 min-w-48 border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all font-medium"
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="border border-neutral-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-brand"
+          className="border-2 border-neutral-300 px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded font-semibold"
         >
           <option value="all">All sections</option>
           {CATEGORIES.map((c) => (
@@ -84,7 +87,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="border border-neutral-300 px-3 py-2 text-sm bg-white focus:outline-none focus:border-brand"
+          className="border-2 border-neutral-300 px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded font-semibold"
         >
           <option value="all">All statuses</option>
           <option value="published">Published</option>
@@ -93,17 +96,17 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white shadow-sm overflow-x-auto">
+      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-              <th className="px-5 py-3">Title</th>
-              <th className="px-3 py-3">Section</th>
-              <th className="px-3 py-3">Status</th>
-              <th className="px-3 py-3 text-center">Breaking</th>
-              <th className="px-3 py-3 text-center">Featured</th>
-              <th className="px-3 py-3 text-right">Views</th>
-              <th className="px-5 py-3 text-right">Actions</th>
+            <tr className="bg-gradient-to-r from-brand to-brand-dark border-b-2 border-brand-accent text-left text-[10px] uppercase tracking-[0.1em] font-black text-white">
+              <th className="px-6 py-4">Title</th>
+              <th className="px-4 py-4">Section</th>
+              <th className="px-4 py-4">Status</th>
+              <th className="px-4 py-4 text-center">Breaking</th>
+              <th className="px-4 py-4 text-center">Featured</th>
+              <th className="px-4 py-4 text-right">Views</th>
+              <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">
@@ -111,25 +114,25 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
               const meta = categoryMeta(a.category);
               const isBusy = busy === a.id;
               return (
-                <tr key={a.id} className={isBusy ? "opacity-50" : ""}>
-                  <td className="px-5 py-3.5 max-w-md">
+                <tr key={a.id} className={`hover:bg-neutral-50 transition-colors ${isBusy ? "opacity-50" : ""}`}>
+                  <td className="px-6 py-4 max-w-md">
                     <Link
                       href={`/admin/articles/${a.id}`}
-                      className="font-semibold hover:text-brand line-clamp-1"
+                      className="font-bold text-neutral-dark hover:text-brand transition-colors line-clamp-1"
                     >
                       {a.title}
                     </Link>
-                    <span className="text-xs text-neutral-400">by {a.author}</span>
+                    <span className="text-xs text-neutral-400 font-medium">by {a.author}</span>
                   </td>
-                  <td className="px-3 py-3.5">
+                  <td className="px-4 py-4">
                     <span
-                      className="text-[10px] font-black uppercase tracking-wider text-white px-2 py-0.5"
+                      className="text-[9px] font-black uppercase tracking-wider text-white px-2.5 py-1 rounded"
                       style={{ backgroundColor: meta.color }}
                     >
                       {meta.label}
                     </span>
                   </td>
-                  <td className="px-3 py-3.5">
+                  <td className="px-4 py-4">
                     <button
                       disabled={isBusy}
                       onClick={() =>
@@ -137,7 +140,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
                           status: a.status === "published" ? "draft" : "published",
                         })
                       }
-                      className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full transition-colors ${
+                      className={`text-[9px] font-black uppercase px-3 py-1.5 rounded-full transition-colors cursor-pointer ${
                         a.status === "published"
                           ? "bg-green-100 text-green-700 hover:bg-green-200"
                           : "bg-amber-100 text-amber-700 hover:bg-amber-200"
@@ -147,47 +150,47 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
                       {a.status}
                     </button>
                   </td>
-                  <td className="px-3 py-3.5 text-center">
+                  <td className="px-4 py-4 text-center">
                     <button
                       disabled={isBusy}
                       onClick={() => patch(a.id, { isBreaking: !a.isBreaking })}
-                      className={`text-lg leading-none ${a.isBreaking ? "" : "grayscale opacity-30"}`}
+                      className={`text-xl leading-none transition-opacity cursor-pointer ${a.isBreaking ? "opacity-100" : "grayscale opacity-30 hover:opacity-60"}`}
                       title="Toggle breaking"
                     >
                       🚨
                     </button>
                   </td>
-                  <td className="px-3 py-3.5 text-center">
+                  <td className="px-4 py-4 text-center">
                     <button
                       disabled={isBusy}
                       onClick={() => patch(a.id, { isFeatured: !a.isFeatured })}
-                      className={`text-lg leading-none ${a.isFeatured ? "" : "grayscale opacity-30"}`}
+                      className={`text-xl leading-none transition-opacity cursor-pointer ${a.isFeatured ? "opacity-100" : "grayscale opacity-30 hover:opacity-60"}`}
                       title="Toggle featured"
                     >
                       ⭐
                     </button>
                   </td>
-                  <td className="px-3 py-3.5 text-right text-neutral-500">
+                  <td className="px-4 py-4 text-right text-neutral-600 font-semibold">
                     {a.views.toLocaleString()}
                   </td>
-                  <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                  <td className="px-6 py-4 text-right whitespace-nowrap space-x-3">
                     <Link
                       href={`/article/${a.slug}`}
                       target="_blank"
-                      className="text-xs font-semibold text-neutral-500 hover:text-ink mr-3"
+                      className="text-xs font-bold text-neutral-500 hover:text-brand transition-colors"
                     >
                       View
                     </Link>
                     <Link
                       href={`/admin/articles/${a.id}`}
-                      className="text-xs font-semibold text-blue-600 hover:underline mr-3"
+                      className="text-xs font-bold text-brand-secondary hover:text-brand transition-colors"
                     >
                       Edit
                     </Link>
                     <button
                       disabled={isBusy}
                       onClick={() => remove(a.id, a.title)}
-                      className="text-xs font-semibold text-red-600 hover:underline"
+                      className="text-xs font-bold text-red-600 hover:text-red-800 transition-colors"
                     >
                       Delete
                     </button>
@@ -197,7 +200,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-5 py-12 text-center text-neutral-400">
+                <td colSpan={7} className="px-6 py-12 text-center text-neutral-400 font-medium">
                   No articles match your filters.
                 </td>
               </tr>

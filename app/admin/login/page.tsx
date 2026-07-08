@@ -34,28 +34,41 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-ink flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <span className="bg-brand text-white font-black text-4xl px-3 py-1.5 leading-none inline-block">
-            GNN
-          </span>
-          <p className="text-white/60 text-xs font-semibold tracking-[0.3em] uppercase mt-4">
-            Newsroom Admin
+    <div className="min-h-screen bg-gradient-to-br from-neutral-dark via-neutral-dark to-brand/20 flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Decorative accent elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-brand/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-brand-secondary/5 rounded-full blur-3xl"></div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo Section */}
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <div className="bg-gradient-to-r from-brand to-brand-dark text-white font-black text-5xl px-4 py-2 leading-none">
+              GNN
+            </div>
+          </div>
+          <h2 className="text-white font-black text-2xl mb-2">Ghana News Network</h2>
+          <p className="text-white/60 text-sm font-semibold tracking-[0.15em] uppercase">
+            Newsroom Admin Portal
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow-2xl p-8 space-y-5">
-          <h1 className="font-black text-xl text-ink">Sign in to the newsroom</h1>
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="bg-white shadow-2xl p-8 space-y-6 rounded-lg">
+          <div>
+            <h1 className="font-black text-2xl text-neutral-dark mb-2">Sign In</h1>
+            <p className="text-neutral-gray text-sm">Access the GNN newsroom</p>
+          </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
-              {error}
+            <div className="bg-red-50 border-l-4 border-brand text-red-700 text-sm px-4 py-4 rounded">
+              <p className="font-semibold">Login Error</p>
+              <p className="text-sm mt-1">{error}</p>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
               Username
             </label>
             <input
@@ -64,13 +77,13 @@ export default function AdminLoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               required
               autoFocus
-              className="w-full border border-neutral-300 px-4 py-2.5 focus:outline-none focus:border-brand"
+              className="w-full border-2 border-neutral-300 px-4 py-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all rounded font-medium"
               placeholder="admin"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
               Password
             </label>
             <input
@@ -78,7 +91,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-neutral-300 px-4 py-2.5 focus:outline-none focus:border-brand"
+              className="w-full border-2 border-neutral-300 px-4 py-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all rounded font-medium"
               placeholder="••••••••"
             />
           </div>
@@ -86,18 +99,23 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand hover:bg-brand-dark disabled:opacity-60 text-white font-bold py-3 uppercase tracking-widest text-sm transition-colors"
+            className="w-full bg-gradient-to-r from-brand to-brand-dark hover:shadow-lg disabled:opacity-60 text-white font-black py-3 uppercase tracking-widest text-sm transition-all rounded"
           >
             {loading ? "Signing in…" : "Sign In"}
           </button>
 
-          <p className="text-xs text-neutral-400 text-center">
-            Demo credentials: <code className="font-mono">admin / gnn2026</code>
-          </p>
+          <div className="bg-neutral-50 p-4 rounded border border-neutral-200">
+            <p className="text-xs text-neutral-500 font-medium">Demo Credentials:</p>
+            <p className="text-sm font-bold text-neutral-dark mt-2">
+              <span className="text-brand">username:</span> admin<br/>
+              <span className="text-brand">password:</span> gnn2026
+            </p>
+          </div>
         </form>
 
-        <p className="text-center mt-6">
-          <Link href="/" className="text-white/50 hover:text-white text-sm">
+        {/* Back Link */}
+        <p className="text-center mt-8">
+          <Link href="/" className="text-white/60 hover:text-white text-sm font-medium transition-colors">
             ← Back to GNN.com
           </Link>
         </p>
