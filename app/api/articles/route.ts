@@ -39,6 +39,7 @@ export async function POST(req: Request) {
     status: body.status === "draft" ? "draft" : "published",
     isBreaking: Boolean(body.isBreaking),
     isFeatured: Boolean(body.isFeatured),
+    rating: Math.max(0, Math.min(5, Math.round(Number(body.rating) || 0))),
   });
   return NextResponse.json(article, { status: 201 });
 }

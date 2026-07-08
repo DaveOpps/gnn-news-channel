@@ -37,6 +37,8 @@ export async function PUT(req: Request, { params }: Params) {
     patch.status = body.status === "draft" ? "draft" : "published";
   if (body.isBreaking !== undefined) patch.isBreaking = Boolean(body.isBreaking);
   if (body.isFeatured !== undefined) patch.isFeatured = Boolean(body.isFeatured);
+  if (body.rating !== undefined)
+    patch.rating = Math.max(0, Math.min(5, Math.round(Number(body.rating) || 0)));
   if (body.tags !== undefined)
     patch.tags = Array.isArray(body.tags)
       ? body.tags.map((t: unknown) => String(t).trim()).filter(Boolean)

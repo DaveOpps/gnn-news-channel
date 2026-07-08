@@ -54,6 +54,7 @@ export interface Article {
   status: "published" | "draft";
   isBreaking: boolean;
   isFeatured: boolean;
+  rating: number; // editorial quality rating, 0–5 (0 = unrated)
   views: number;
   publishedAt: string; // ISO
   updatedAt: string; // ISO

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Article, CATEGORIES, categoryMeta } from "@/lib/types";
+import StarRating from "@/components/StarRating";
 
 export default function ArticlesManager({ initial }: { initial: Article[] }) {
   const [articles, setArticles] = useState<Article[]>(initial);
@@ -105,6 +106,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
               <th className="px-4 py-4">Status</th>
               <th className="px-4 py-4 text-center">Breaking</th>
               <th className="px-4 py-4 text-center">Featured</th>
+              <th className="px-4 py-4 text-center">Rating</th>
               <th className="px-4 py-4 text-right">Views</th>
               <th className="px-6 py-4 text-right">Actions</th>
             </tr>
@@ -170,6 +172,14 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
                       ⭐
                     </button>
                   </td>
+                  <td className="px-4 py-4 text-center">
+                    <StarRating
+                      value={a.rating ?? 0}
+                      onChange={(v) => patch(a.id, { rating: v })}
+                      size="sm"
+                      disabled={isBusy}
+                    />
+                  </td>
                   <td className="px-4 py-4 text-right text-neutral-600 font-semibold">
                     {a.views.toLocaleString()}
                   </td>
@@ -200,7 +210,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-neutral-400 font-medium">
+                <td colSpan={8} className="px-6 py-12 text-center text-neutral-400 font-medium">
                   No articles match your filters.
                 </td>
               </tr>

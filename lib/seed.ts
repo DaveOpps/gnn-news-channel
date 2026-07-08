@@ -1,6 +1,6 @@
 import { Article } from "./types";
 
-export const SEED_ARTICLES: Article[] = [
+const RAW: Omit<Article, "rating">[] = [
   {
     id: "a1",
     slug: "world-leaders-gather-for-emergency-climate-summit-in-accra",
@@ -240,3 +240,11 @@ export const SEED_ARTICLES: Article[] = [
     updatedAt: "2026-07-06T15:00:00.000Z",
   },
 ];
+
+// Editorial quality ratings (0–5) by seed order; drafts left unrated.
+const SEED_RATINGS = [5, 4, 4, 5, 5, 4, 3, 4, 3, 4, 3, 4, 4, 0];
+
+export const SEED_ARTICLES: Article[] = RAW.map((a, i) => ({
+  ...a,
+  rating: SEED_RATINGS[i] ?? 0,
+}));

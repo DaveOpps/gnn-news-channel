@@ -10,6 +10,7 @@ import ReadingProgress from "@/components/ReadingProgress";
 import ShareButtons from "@/components/ShareButtons";
 import CommentsSection from "@/components/CommentsSection";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import StarRating from "@/components/StarRating";
 import {
   getBySlug,
   getByCategory,
@@ -91,6 +92,13 @@ export default async function ArticlePage({ params }: Props) {
               </span>
               <span>· {timeAgo(article.publishedAt)}</span>
               <span>· {article.views.toLocaleString()} views</span>
+              {(article.rating ?? 0) > 0 && (
+                <span className="flex items-center gap-1.5">
+                  ·
+                  <StarRating value={article.rating} size="sm" />
+                  <span className="font-semibold">Editor&apos;s rating</span>
+                </span>
+              )}
             </div>
             <div className="mt-5 pb-6 border-b border-neutral-200">
               <ShareButtons title={article.title} />

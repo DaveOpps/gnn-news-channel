@@ -17,6 +17,11 @@ export default function AdminDashboard() {
   const pendingComments = countPendingComments();
   const subscriberCount = getSubscribers().length;
 
+  const rated = all.filter((a) => (a.rating ?? 0) > 0);
+  const avgRating = rated.length
+    ? rated.reduce((sum, a) => sum + a.rating, 0) / rated.length
+    : 0;
+
   const stats: { label: string; value: string | number; accent: string; href?: string }[] = [
     { label: "Total Articles", value: all.length, accent: "#d92e1d" },
     { label: "Published", value: published.length, accent: "#047857" },
@@ -34,6 +39,11 @@ export default function AdminDashboard() {
       value: subscriberCount,
       accent: "#0052a3",
       href: "/admin/subscribers",
+    },
+    {
+      label: "Avg. Rating",
+      value: avgRating ? `${avgRating.toFixed(1)}★` : "—",
+      accent: "#f59e0b",
     },
   ];
 
@@ -53,7 +63,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
         {stats.map((s) => {
           const card = (
             <div

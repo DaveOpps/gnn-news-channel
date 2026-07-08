@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Article, CATEGORIES } from "@/lib/types";
+import StarRating from "@/components/StarRating";
 
 export default function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
   const [status, setStatus] = useState<string>(article?.status ?? "published");
   const [isBreaking, setIsBreaking] = useState(article?.isBreaking ?? false);
   const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
+  const [rating, setRating] = useState<number>(article?.rating ?? 0);
 
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -61,6 +63,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
         status,
         isBreaking,
         isFeatured,
+        rating,
       };
       const res = await fetch(
         isEdit ? `/api/articles/${article!.id}` : "/api/articles",
@@ -245,7 +248,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
           <p className="text-xs text-brand-accent font-black uppercase tracking-widest">Publication Options</p>
         </div>
 
-        <div className="flex items-center gap-6 pb-4">
+        <div className="flex flex-wrap items-start gap-10 pb-4">
           <div>
             <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
               Status
@@ -258,6 +261,27 @@ export default function ArticleForm({ article }: { article?: Article }) {
               <option value="published">Published</option>
               <option value="draft">Draft</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
+              Editorial Quality Rating
+            </label>
+            <div className="flex items-center gap-3 h-[42px]">
+              <StarRating value={rating} onChange={setRating} size="lg" />
+              <span className="text-xs font-bold text-neutral-500">
+                {rating > 0 ? `${rating}/5` : "Unrated"}
+              </span>
+              {rating > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setRating(0)}
+                  className="text-xs font-bold text-red-600 hover:text-red-800 transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
