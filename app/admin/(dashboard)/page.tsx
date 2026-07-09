@@ -50,21 +50,21 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         {stats.map((s) => {
           const card = (
             <div
-              className="bg-white shadow-sm p-5 border-t-4 h-full hover:shadow-md transition-shadow"
-              style={{ borderTopColor: s.accent }}
+              className="admin-card p-6 border-l-4 h-full group hover:border-l-brand"
+              style={{ borderLeftColor: s.accent }}
             >
-              <p className="text-3xl font-black">{s.value}</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mt-1">
+              <p className="text-4xl font-black text-neutral-900">{s.value}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-neutral-500 mt-2.5">
                 {s.label}
               </p>
             </div>
           );
           return s.href ? (
-            <Link key={s.label} href={s.href}>
+            <Link key={s.label} href={s.href} className="block">
               {card}
             </Link>
           ) : (
@@ -75,38 +75,38 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent articles */}
-        <div className="lg:col-span-2 bg-white shadow-sm">
+        <div className="lg:col-span-2 admin-card">
           <div className="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
-            <h2 className="font-black text-sm uppercase tracking-wider">Recent Articles</h2>
-            <Link href="/admin/articles" className="text-xs font-semibold text-brand hover:underline">
+            <h2 className="font-black text-sm uppercase tracking-widest text-neutral-900">Recent Articles</h2>
+            <Link href="/admin/articles" className="text-xs font-bold text-brand hover:text-brand-dark transition-colors">
               Manage all →
             </Link>
           </div>
           <ul className="divide-y divide-neutral-100">
             {recent.map((a) => (
-              <li key={a.id} className="px-6 py-3.5 flex items-center gap-4">
+              <li key={a.id} className="px-6 py-3.5 flex items-center gap-4 hover:bg-neutral-50 transition-colors">
                 <span
-                  className="text-[10px] font-black uppercase tracking-wider text-white px-2 py-0.5 shrink-0"
+                  className="text-[10px] font-black uppercase tracking-wider text-white px-2.5 py-1 shrink-0 rounded"
                   style={{ backgroundColor: categoryMeta(a.category).color }}
                 >
                   {categoryMeta(a.category).label}
                 </span>
                 <Link
                   href={`/admin/articles/${a.id}`}
-                  className="flex-1 min-w-0 font-semibold text-sm truncate hover:text-brand"
+                  className="flex-1 min-w-0 font-semibold text-sm truncate hover:text-brand transition-colors"
                 >
                   {a.title}
                 </Link>
                 <span
-                  className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full shrink-0 ${
+                  className={`admin-badge shrink-0 ${
                     a.status === "published"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-amber-100 text-amber-700"
+                      ? "admin-badge-success"
+                      : "admin-badge-warning"
                   }`}
                 >
                   {a.status}
                 </span>
-                <span className="text-xs text-neutral-400 shrink-0 w-16 text-right">
+                <span className="text-xs text-neutral-400 shrink-0 w-16 text-right whitespace-nowrap">
                   {timeAgo(a.updatedAt)}
                 </span>
               </li>
@@ -117,40 +117,43 @@ export default function AdminDashboard() {
         {/* Sidebar widgets */}
         <div className="space-y-6">
           {topStory && (
-            <div className="bg-white shadow-sm p-6">
-              <h2 className="font-black text-sm uppercase tracking-wider mb-3">
-                🔥 Top Story by Views
+            <div className="admin-card p-6 border-l-4 border-l-brand">
+              <h2 className="font-black text-sm uppercase tracking-widest text-neutral-900 mb-3">
+                🔥 Top Story
               </h2>
               <Link
                 href={`/article/${topStory.slug}`}
                 target="_blank"
-                className="font-bold leading-snug hover:text-brand"
+                className="font-bold leading-snug text-neutral-900 hover:text-brand transition-colors line-clamp-2"
               >
                 {topStory.title}
               </Link>
-              <p className="text-sm text-neutral-500 mt-2">
-                {topStory.views.toLocaleString()} views · {categoryMeta(topStory.category).label}
+              <p className="text-sm text-neutral-500 mt-3 flex items-center gap-2">
+                <span className="inline-block">📊</span>
+                {topStory.views.toLocaleString()} views
               </p>
             </div>
           )}
 
-          <div className="bg-white shadow-sm p-6">
-            <h2 className="font-black text-sm uppercase tracking-wider mb-4">
-              Stories by Section
+          <div className="admin-card p-6">
+            <h2 className="font-black text-sm uppercase tracking-widest text-neutral-900 mb-4">
+              Content by Section
             </h2>
-            <ul className="space-y-2.5">
+            <ul className="space-y-3">
               {CATEGORIES.map((c) => {
                 const count = all.filter((a) => a.category === c.slug).length;
                 const max = Math.max(1, ...CATEGORIES.map((cc) => all.filter((a) => a.category === cc.slug).length));
                 return (
                   <li key={c.slug} className="text-sm">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-semibold">{c.label}</span>
-                      <span className="text-neutral-500">{count}</span>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="font-semibold text-neutral-700">{c.label}</span>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: `${c.color}20`, color: c.color }}>
+                        {count}
+                      </span>
                     </div>
-                    <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full"
+                        className="h-full rounded-full transition-all duration-300"
                         style={{ width: `${(count / max) * 100}%`, backgroundColor: c.color }}
                       ></div>
                     </div>

@@ -51,42 +51,52 @@ export default function CommentsManager({
     }
   }
 
-  const tab = (value: typeof filter, label: string) => (
+  const tab = (value: typeof filter, label: string, count?: number) => (
     <button
       onClick={() => setFilter(value)}
-      className={`px-4 py-2 text-sm font-bold uppercase tracking-wider transition-colors ${
+      className={`px-4 py-2.5 text-sm font-bold uppercase tracking-wider border-b-2 transition-all ${
         filter === value
-          ? "bg-ink text-white"
-          : "bg-white text-neutral-500 hover:text-ink"
+          ? "border-b-brand text-neutral-900"
+          : "border-b-transparent text-neutral-500 hover:text-neutral-700"
       }`}
     >
       {label}
+      {count !== undefined && count > 0 && (
+        <span className="ml-2 inline-flex items-center justify-center w-5 h-5 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">
+          {count}
+        </span>
+      )}
     </button>
   );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-black text-2xl">
-          Comments{" "}
-          {pendingCount > 0 && (
-            <span className="ml-2 text-sm bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full align-middle">
-              {pendingCount} awaiting review
-            </span>
-          )}
-        </h1>
-        <div className="flex shadow-sm">
-          {tab("pending", "Pending")}
-          {tab("approved", "Approved")}
-          {tab("all", "All")}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="font-black text-2xl text-neutral-900">Comments</h1>
+          <p className="text-sm text-neutral-500">{filtered.length} in this view</p>
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-neutral-200 bg-white admin-card rounded-none border-x-0 border-t-0">
+        {tab("pending", "Pending", pendingCount > 0 ? pendingCount : undefined)}
+        {tab("approved", "Approved")}
+        {tab("all", "All")}
+      </div>
+
       {filtered.length === 0 ? (
-        <div className="bg-white shadow-sm px-6 py-16 text-center text-neutral-400">
-          {filter === "pending"
-            ? "🎉 No comments waiting for review."
-            : "No comments here yet."}
+        <div className="admin-card px-6 py-16 text-center">
+          <p className="text-lg text-neutral-400 mb-2">
+            {filter === "pending"
+              ? "🎉 No comments waiting for review"
+              : "No comments here yet"}
+          </p>
+          <p className="text-sm text-neutral-400">
+            {filter === "pending"
+              ? "Check back soon for new submissions"
+              : "Comments will appear here once submitted"}
+          </p>
         </div>
       ) : (
         <ul className="space-y-4">
@@ -96,46 +106,52 @@ export default function CommentsManager({
             return (
               <li
                 key={c.id}
-                className={`bg-white shadow-sm p-5 ${isBusy ? "opacity-50" : ""}`}
+                className={`admin-card p-6 border-l-4 transition-all ${
+                  c.status === "pending"
+                    ? "border-l-amber-400"
+                    : "border-l-green-400"
+                } ${isBusy ? "opacity-50 pointer-events-none" : ""}`}
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm">
-                      <span className="font-bold">{c.name}</span>{" "}
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <p className="font-bold text-neutral-900">{c.name}</p>
                       <span
-                        className={`ml-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                        className={`admin-badge ${
                           c.status === "approved"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-amber-100 text-amber-700"
+                            ? "admin-badge-success"
+                            : "admin-badge-warning"
                         }`}
                       >
                         {c.status}
                       </span>
-                    </p>
-                    <p className="text-sm text-neutral-700 mt-2 leading-relaxed whitespace-pre-line">
+                    </div>
+                    <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line mb-3">
                       {c.text}
                     </p>
-                    <p className="text-xs text-neutral-400 mt-3">
-                      {new Date(c.createdAt).toLocaleString()} · on{" "}
+                    <p className="text-xs text-neutral-500 flex flex-wrap gap-2 items-center">
+                      <span>{new Date(c.createdAt).toLocaleString()}</span>
+                      <span className="text-neutral-300">·</span>
+                      <span>on</span>
                       {article ? (
                         <Link
                           href={`/article/${article.slug}`}
                           target="_blank"
-                          className="text-brand hover:underline"
+                          className="text-brand font-semibold hover:underline"
                         >
                           {article.title}
                         </Link>
                       ) : (
-                        <em>deleted article</em>
+                        <em className="text-neutral-400">deleted article</em>
                       )}
                     </p>
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-2 shrink-0 sm:flex-col">
                     {c.status === "pending" ? (
                       <button
                         disabled={isBusy}
                         onClick={() => setStatus(c.id, "approved")}
-                        className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 transition-colors"
+                        className="admin-button admin-button-primary text-xs px-4 py-2"
                       >
                         ✓ Approve
                       </button>
@@ -143,7 +159,7 @@ export default function CommentsManager({
                       <button
                         disabled={isBusy}
                         onClick={() => setStatus(c.id, "pending")}
-                        className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 transition-colors"
+                        className="admin-button text-xs px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white transition-colors"
                       >
                         Unapprove
                       </button>
@@ -151,7 +167,7 @@ export default function CommentsManager({
                     <button
                       disabled={isBusy}
                       onClick={() => remove(c.id)}
-                      className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 transition-colors"
+                      className="admin-button text-xs px-4 py-2 bg-red-600 hover:bg-red-700 text-white transition-colors"
                     >
                       Delete
                     </button>
