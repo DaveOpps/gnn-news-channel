@@ -88,6 +88,46 @@ export interface LiveUpdate {
   createdAt: string; // ISO
 }
 
+/**
+ * A snapshot of a story's content taken *before* an edit lands, so any save
+ * can be walked back. Only content fields are captured — flag toggles
+ * (breaking, featured, rating) don't deserve a revision.
+ */
+export interface Revision {
+  id: string;
+  articleId: string;
+  at: string; // ISO
+  editorId?: string;
+  editorName: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body: string;
+  category: Category;
+  tags: string[];
+  imageUrl?: string;
+  metaDescription?: string;
+}
+
+/** The fields whose change is worth remembering. */
+export const REVISIONED_FIELDS = [
+  "title",
+  "slug",
+  "excerpt",
+  "body",
+  "category",
+  "tags",
+  "imageUrl",
+  "metaDescription",
+] as const;
+
+export type BulkAction =
+  | "publish"
+  | "unpublish"
+  | "trash"
+  | "feature"
+  | "unfeature";
+
 /** A single page view, kept compact — there are a lot of these. */
 export interface ViewEvent {
   a: string; // articleId

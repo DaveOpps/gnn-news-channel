@@ -51,7 +51,10 @@ export default async function AdminLayout({
           <LogoutButton />
         </div>
 
-        <div className="flex items-center gap-3 border-t border-zinc-800/80 p-4">
+        <Link
+          href="/admin/account"
+          className="flex items-center gap-3 border-t border-zinc-800/80 p-4 transition-colors hover:bg-zinc-900/60"
+        >
           <EditorAvatar name={me.name} photoUrl={me.photoUrl} size={36} />
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-zinc-100">{me.name}</p>
@@ -59,7 +62,8 @@ export default async function AdminLayout({
               {me.role === "admin" ? "Administrator" : me.title || "Editor"}
             </p>
           </div>
-        </div>
+          <Icon.Pen className="ml-auto h-3.5 w-3.5 shrink-0 text-zinc-600" />
+        </Link>
       </aside>
 
       {/* Main */}

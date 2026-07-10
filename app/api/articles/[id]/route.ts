@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { getCurrentEditor, canEditArticle } from "@/lib/auth";
-import { getById, updateArticle, trashArticle, recordArticleAction } from "@/lib/store";
+import {
+  getById,
+  updateArticle,
+  trashArticle,
+  recordArticleAction,
+  addRevision,
+  touchesContent,
+} from "@/lib/store";
 import { parseSchedule } from "@/lib/schedule";
 import { ActivityAction, Article, CATEGORIES } from "@/lib/types";
 
@@ -73,6 +80,10 @@ export async function PUT(req: Request, { params }: Params) {
           .split(",")
           .map((t: string) => t.trim())
           .filter(Boolean);
+
+  // Snapshot before the edit lands — but only when the *content* changed, so
+  // toggling "breaking" doesn't bury the history in noise.
+  if (touchesContent(existing, patch)) addRevision(existing, me);
 
   const updated = updateArticle(id, patch);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });

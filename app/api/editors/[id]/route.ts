@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentEditor } from "@/lib/auth";
 import { updateEditor, deleteEditor, getEditorById } from "@/lib/store";
+import { verifyPassword } from "@/lib/password";
 import { toPublicEditor } from "@/lib/types";
 
 type Params = { params: Promise<{ id: string }> };
@@ -23,6 +24,19 @@ export async function PUT(req: Request, { params }: Params) {
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+
+  // Changing *your own* password requires proving you know the current one —
+  // otherwise a borrowed session is enough to lock the real owner out.
+  // An admin resetting someone else's password does not need it.
+  if (body.password && isSelf) {
+    const stored = getEditorById(id)!;
+    if (!verifyPassword(String(body.currentPassword ?? ""), stored.passwordHash)) {
+      return NextResponse.json(
+        { error: "Your current password is incorrect" },
+        { status: 403 }
+      );
+    }
+  }
 
   const result = updateEditor(id, {
     name: body.name !== undefined ? String(body.name) : undefined,

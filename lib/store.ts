@@ -14,6 +14,8 @@ import {
   MediaItem,
   MediaItemWithUsage,
   PublicEditor,
+  REVISIONED_FIELDS,
+  Revision,
   Subscriber,
   TrendingEntry,
   ViewEvent,
@@ -31,6 +33,7 @@ const ACTIVITY_FILE = path.join(DATA_DIR, "activity.json");
 const LIVE_FILE = path.join(DATA_DIR, "live-updates.json");
 const CURATION_FILE = path.join(DATA_DIR, "curation.json");
 const MEDIA_FILE = path.join(DATA_DIR, "media.json");
+const REVISIONS_FILE = path.join(DATA_DIR, "revisions.json");
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
 const ENGAGEMENT_FILE = path.join(DATA_DIR, "engagement.json");
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
@@ -410,7 +413,76 @@ export function purgeArticle(id: string): boolean {
     delete engagement[id];
     writeJson(ENGAGEMENT_FILE, engagement);
   }
+  const revisions = readJson<Revision[]>(REVISIONS_FILE, []);
+  writeJson(
+    REVISIONS_FILE,
+    revisions.filter((r) => r.articleId !== id)
+  );
   return true;
+}
+
+// ---- Revision history ----
+
+/** Deep enough to walk back a bad day, shallow enough not to grow forever. */
+const MAX_REVISIONS_PER_ARTICLE = 20;
+
+/** True when a patch touches anything worth remembering. */
+export function touchesContent(
+  current: Article,
+  patch: Partial<Omit<Article, "id">>
+): boolean {
+  return REVISIONED_FIELDS.some((field) => {
+    if (patch[field] === undefined) return false;
+    const a = patch[field];
+    const b = current[field];
+    if (Array.isArray(a) && Array.isArray(b)) return a.join(" ") !== b.join(" ");
+    return a !== b;
+  });
+}
+
+/** Snapshot the article as it stands, before an edit overwrites it. */
+export function addRevision(
+  article: Article,
+  editor: { id: string; name: string } | null
+): Revision {
+  const all = readJson<Revision[]>(REVISIONS_FILE, []);
+  const revision: Revision = {
+    id: `r${Date.now()}${Math.floor(Math.random() * 1000)}`,
+    articleId: article.id,
+    at: new Date().toISOString(),
+    editorId: editor?.id,
+    editorName: editor?.name ?? "Someone",
+    title: article.title,
+    slug: article.slug,
+    excerpt: article.excerpt,
+    body: article.body,
+    category: article.category,
+    tags: [...article.tags],
+    imageUrl: article.imageUrl,
+    metaDescription: article.metaDescription,
+  };
+  all.push(revision);
+
+  // Trim this article's history only — other articles keep theirs.
+  const mine = all
+    .filter((r) => r.articleId === article.id)
+    .sort((a, b) => b.at.localeCompare(a.at));
+  const keep = new Set(mine.slice(0, MAX_REVISIONS_PER_ARTICLE).map((r) => r.id));
+  writeJson(
+    REVISIONS_FILE,
+    all.filter((r) => r.articleId !== article.id || keep.has(r.id))
+  );
+  return revision;
+}
+
+export function getRevisions(articleId: string): Revision[] {
+  return readJson<Revision[]>(REVISIONS_FILE, [])
+    .filter((r) => r.articleId === articleId)
+    .sort((a, b) => b.at.localeCompare(a.at));
+}
+
+export function getRevisionById(id: string): Revision | undefined {
+  return readJson<Revision[]>(REVISIONS_FILE, []).find((r) => r.id === id);
 }
 
 // ---- Live blog updates ----

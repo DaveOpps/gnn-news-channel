@@ -141,12 +141,23 @@ export default function ArticleForm({ article }: { article?: Article }) {
               : "Write a story and publish it to Ghana News Network."}
           </p>
         </div>
-        <Link
-          href="/admin/articles"
-          className="text-sm text-zinc-500 transition-colors hover:text-zinc-900"
-        >
-          ← Back to articles
-        </Link>
+        <div className="flex items-center gap-4">
+          {isEdit && (
+            <Link
+              href={`/admin/articles/${article!.id}/history`}
+              className="inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
+            >
+              <Icon.Clock className="h-4 w-4" />
+              Version history
+            </Link>
+          )}
+          <Link
+            href="/admin/articles"
+            className="text-sm text-zinc-500 transition-colors hover:text-zinc-900"
+          >
+            ← Back to articles
+          </Link>
+        </div>
       </div>
 
       {error && (
