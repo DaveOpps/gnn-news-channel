@@ -4,6 +4,7 @@ import { getCurrentEditor } from "@/lib/auth";
 import { countPendingComments, getTrashed } from "@/lib/store";
 import LogoutButton from "@/components/admin/LogoutButton";
 import SidebarNav from "@/components/admin/SidebarNav";
+import CommandPalette from "@/components/admin/CommandPalette";
 import EditorAvatar from "@/components/EditorAvatar";
 import { Icon } from "@/components/admin/ui";
 
@@ -19,6 +20,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-zinc-50">
+      <CommandPalette isAdmin={me.role === "admin"} />
       {/* Sidebar */}
       <aside className="sticky top-0 flex min-h-screen w-64 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
         <div className="flex h-16 items-center border-b border-zinc-800/80 px-5">
@@ -74,6 +76,12 @@ export default async function AdminLayout({
             <p className="text-xs text-zinc-500">Ghana News Network</p>
           </div>
           <div className="flex items-center gap-3">
+            <span className="hidden items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-400 sm:inline-flex">
+              Search
+              <kbd className="rounded border border-zinc-200 bg-zinc-50 px-1 py-0.5 text-[10px] font-medium text-zinc-500">
+                ⌘K
+              </kbd>
+            </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Signed in

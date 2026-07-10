@@ -18,7 +18,7 @@ import {
   getByCategory,
   getBreaking,
   incrementViews,
-  getApprovedComments,
+  getCommentThreads,
   getEditorForArticle,
   getBySlugForPreview,
   getLiveUpdates,
@@ -75,7 +75,7 @@ export default async function ArticlePage({ params, searchParams }: Props) {
   const related = getByCategory(article.category)
     .filter((a) => a.id !== article.id)
     .slice(0, 3);
-  const comments = getApprovedComments(article.id);
+  const comments = getCommentThreads(article.id);
   const liveUpdates = article.isLiveBlog ? getLiveUpdates(article.id) : [];
   const bylineEditor = getEditorForArticle(article);
   const words = article.body.split(/\s+/).length;

@@ -38,13 +38,50 @@ export function formatByline(author: string, coAuthors?: string[]): string {
   return `By ${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
+export type CommentStatus = "pending" | "approved" | "spam";
+
 export interface Comment {
   id: string;
   articleId: string;
   name: string;
   text: string;
-  status: "pending" | "approved";
+  status: CommentStatus;
+  parentId?: string; // set when this is a reply
+  isEditorReply?: boolean; // an official newsroom response
+  editorId?: string;
   createdAt: string; // ISO
+}
+
+/** A top-level comment with its approved replies attached. */
+export interface CommentThread extends Comment {
+  replies: Comment[];
+}
+
+export type CommentBulkAction = "approve" | "spam" | "delete";
+
+/** Word filters that quarantine a comment on arrival. */
+export interface ModerationSettings {
+  blockedTerms: string[]; // matched anywhere in the body
+  blockedNames: string[]; // matched against the commenter's name
+}
+
+export const DEFAULT_MODERATION: ModerationSettings = {
+  blockedTerms: [],
+  blockedNames: [],
+};
+
+/** Case-insensitive substring match against either list. */
+export function looksLikeSpam(
+  name: string,
+  text: string,
+  settings: ModerationSettings
+): boolean {
+  const haystack = text.toLowerCase();
+  const who = name.toLowerCase();
+  return (
+    settings.blockedTerms.some((t) => t.trim() && haystack.includes(t.trim().toLowerCase())) ||
+    settings.blockedNames.some((n) => n.trim() && who.includes(n.trim().toLowerCase()))
+  );
 }
 
 export interface Subscriber {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Comment } from "@/lib/types";
+import { CommentThread } from "@/lib/types";
 
 function timeAgoShort(iso: string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -17,7 +17,7 @@ export default function CommentsSection({
   initial,
 }: {
   articleId: string;
-  initial: Comment[];
+  initial: CommentThread[];
 }) {
   const [name, setName] = useState("");
   const [text, setText] = useState("");
@@ -110,7 +110,7 @@ export default function CommentsSection({
               >
                 {c.name.charAt(0).toUpperCase()}
               </span>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-sm">
                   <span className="font-bold">{c.name}</span>{" "}
                   <span className="text-neutral-400 text-xs">
@@ -120,6 +120,29 @@ export default function CommentsSection({
                 <p className="text-sm text-neutral-700 mt-1 leading-relaxed whitespace-pre-line">
                   {c.text}
                 </p>
+
+                {c.replies.length > 0 && (
+                  <ul className="mt-4 space-y-4 border-l-2 border-neutral-200 pl-4">
+                    {c.replies.map((r) => (
+                      <li key={r.id}>
+                        <p className="text-sm">
+                          <span className="font-bold">{r.name}</span>
+                          {r.isEditorReply && (
+                            <span className="ml-2 bg-brand px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white align-middle">
+                              Editor
+                            </span>
+                          )}{" "}
+                          <span className="text-neutral-400 text-xs">
+                            · {timeAgoShort(r.createdAt)}
+                          </span>
+                        </p>
+                        <p className="text-sm text-neutral-700 mt-1 leading-relaxed whitespace-pre-line">
+                          {r.text}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </li>
           ))}

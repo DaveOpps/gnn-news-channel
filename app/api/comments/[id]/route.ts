@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentEditor } from "@/lib/auth";
+import { CommentStatus } from "@/lib/types";
 import {
   setCommentStatus,
   deleteComment,
@@ -17,7 +18,9 @@ export async function PUT(req: Request, { params }: Params) {
   }
   const { id } = await params;
   const body = await req.json().catch(() => ({}));
-  const status = body?.status === "approved" ? "approved" : "pending";
+  const raw = String(body?.status ?? "");
+  const status: CommentStatus =
+    raw === "approved" ? "approved" : raw === "spam" ? "spam" : "pending";
   const updated = setCommentStatus(id, status);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

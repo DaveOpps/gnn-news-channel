@@ -5,7 +5,13 @@ import {
   ActivityEvent,
   Article,
   Comment,
+  CommentBulkAction,
+  CommentStatus,
+  CommentThread,
   Curation,
+  DEFAULT_MODERATION,
+  ModerationSettings,
+  looksLikeSpam,
   Editor,
   EditorRole,
   EditorStats,
@@ -34,6 +40,7 @@ const LIVE_FILE = path.join(DATA_DIR, "live-updates.json");
 const CURATION_FILE = path.join(DATA_DIR, "curation.json");
 const MEDIA_FILE = path.join(DATA_DIR, "media.json");
 const REVISIONS_FILE = path.join(DATA_DIR, "revisions.json");
+const MODERATION_FILE = path.join(DATA_DIR, "moderation.json");
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
 const ENGAGEMENT_FILE = path.join(DATA_DIR, "engagement.json");
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
@@ -740,6 +747,22 @@ export function getApprovedComments(articleId: string): Comment[] {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/**
+ * Approved top-level comments, each carrying its approved replies oldest-first
+ * (a conversation reads forwards, even though the threads themselves are
+ * newest-first).
+ */
+export function getCommentThreads(articleId: string): CommentThread[] {
+  const approved = getApprovedComments(articleId);
+  const tops = approved.filter((c) => !c.parentId);
+  return tops.map((top) => ({
+    ...top,
+    replies: approved
+      .filter((c) => c.parentId === top.id)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+  }));
+}
+
 export function getAllComments(): Comment[] {
   return readJson<Comment[]>(COMMENTS_FILE, []).sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt)
@@ -755,14 +778,20 @@ export function countPendingComments(): number {
     .length;
 }
 
+export function countSpamComments(): number {
+  return readJson<Comment[]>(COMMENTS_FILE, []).filter((c) => c.status === "spam").length;
+}
+
+/** A reader comment. Blocked words send it straight to the spam tray. */
 export function addComment(articleId: string, name: string, text: string): Comment {
   const comments = readJson<Comment[]>(COMMENTS_FILE, []);
+  const settings = getModerationSettings();
   const comment: Comment = {
     id: `c${Date.now()}${Math.floor(Math.random() * 1000)}`,
     articleId,
     name: name.slice(0, 60),
     text: text.slice(0, 2000),
-    status: "pending",
+    status: looksLikeSpam(name, text, settings) ? "spam" : "pending",
     createdAt: new Date().toISOString(),
   };
   comments.push(comment);
@@ -770,9 +799,35 @@ export function addComment(articleId: string, name: string, text: string): Comme
   return comment;
 }
 
+/** An official newsroom response. Published immediately — an editor is trusted. */
+export function addEditorReply(
+  parentId: string,
+  text: string,
+  editor: { id: string; name: string }
+): Comment | undefined {
+  const comments = readJson<Comment[]>(COMMENTS_FILE, []);
+  const parent = comments.find((c) => c.id === parentId);
+  if (!parent) return undefined;
+
+  const reply: Comment = {
+    id: `c${Date.now()}${Math.floor(Math.random() * 1000)}`,
+    articleId: parent.articleId,
+    name: editor.name,
+    text: text.slice(0, 2000),
+    status: "approved",
+    parentId,
+    isEditorReply: true,
+    editorId: editor.id,
+    createdAt: new Date().toISOString(),
+  };
+  comments.push(reply);
+  writeJson(COMMENTS_FILE, comments);
+  return reply;
+}
+
 export function setCommentStatus(
   id: string,
-  status: "pending" | "approved"
+  status: CommentStatus
 ): Comment | undefined {
   const comments = readJson<Comment[]>(COMMENTS_FILE, []);
   const idx = comments.findIndex((c) => c.id === id);
@@ -782,12 +837,57 @@ export function setCommentStatus(
   return comments[idx];
 }
 
+/** Deleting a comment takes its replies with it — an orphan reply is nonsense. */
 export function deleteComment(id: string): boolean {
   const comments = readJson<Comment[]>(COMMENTS_FILE, []);
-  const next = comments.filter((c) => c.id !== id);
+  const next = comments.filter((c) => c.id !== id && c.parentId !== id);
   if (next.length === comments.length) return false;
   writeJson(COMMENTS_FILE, next);
   return true;
+}
+
+/** Apply one action across many comments in a single write. */
+export function bulkComments(
+  ids: string[],
+  action: CommentBulkAction
+): { updated: number } {
+  const comments = readJson<Comment[]>(COMMENTS_FILE, []);
+  const target = new Set(ids);
+
+  if (action === "delete") {
+    const next = comments.filter((c) => !target.has(c.id) && !target.has(c.parentId ?? ""));
+    writeJson(COMMENTS_FILE, next);
+    return { updated: comments.length - next.length };
+  }
+
+  let updated = 0;
+  for (const c of comments) {
+    if (target.has(c.id)) {
+      c.status = action === "approve" ? "approved" : "spam";
+      updated++;
+    }
+  }
+  writeJson(COMMENTS_FILE, comments);
+  return { updated };
+}
+
+// ---- Moderation settings ----
+
+export function getModerationSettings(): ModerationSettings {
+  const raw = readJson<ModerationSettings | null>(MODERATION_FILE, null);
+  if (!raw || !Array.isArray(raw.blockedTerms) || !Array.isArray(raw.blockedNames)) {
+    return DEFAULT_MODERATION;
+  }
+  return raw;
+}
+
+export function setModerationSettings(settings: ModerationSettings): ModerationSettings {
+  const clean: ModerationSettings = {
+    blockedTerms: settings.blockedTerms.map((t) => t.trim()).filter(Boolean).slice(0, 200),
+    blockedNames: settings.blockedNames.map((n) => n.trim()).filter(Boolean).slice(0, 200),
+  };
+  writeJson(MODERATION_FILE, clean);
+  return clean;
 }
 
 // ---- Newsletter subscribers ----
