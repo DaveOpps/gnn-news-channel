@@ -45,6 +45,14 @@ export default function SidebarNav({
   ];
 
   if (isAdmin) {
+    // Front-page arrangement sits with the other content tools, above the
+    // account-management screens.
+    items.splice(3, 0, {
+      href: "/admin/homepage",
+      label: "Homepage",
+      icon: <Icon.Dashboard className="h-[18px] w-[18px]" />,
+      exact: true,
+    });
     items.push({
       href: "/admin/editors",
       label: "Editors",

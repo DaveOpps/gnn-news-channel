@@ -7,7 +7,13 @@ import ArticleImage from "@/components/ArticleImage";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import TrendingStories from "@/components/TrendingStories";
 import CategorySection from "@/components/CategorySection";
-import { getPublished, getBreaking, getFeatured, getTrending } from "@/lib/store";
+import {
+  getPublished,
+  getBreaking,
+  getFeatured,
+  getTrending,
+  getHomepage,
+} from "@/lib/store";
 import { CATEGORIES, formatByline } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -16,11 +22,10 @@ export default function HomePage() {
   const published = getPublished();
   const breaking = getBreaking();
   const trending = getTrending(6);
-
   const featured = getFeatured();
-  const hero = featured[0] ?? published[0];
-  const heroSide = published.filter((a) => a.id !== hero?.id).slice(0, 4);
-  const latest = published.filter((a) => a.id !== hero?.id).slice(4, 10);
+
+  // Honours the curation board, falling back to automatic ordering.
+  const { hero, topStories: heroSide, latest } = getHomepage();
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -41,6 +46,15 @@ export default function HomePage() {
                 </Link>
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/98 via-black/80 to-transparent p-8 pt-32 pointer-events-none">
                   <div className="pointer-events-auto">
+                    {hero.isLiveBlog && (
+                      <span className="mr-2 inline-flex items-center gap-1.5 bg-brand px-2 py-0.5 align-middle text-[10px] font-black uppercase tracking-[0.15em] text-white">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+                        </span>
+                        Live
+                      </span>
+                    )}
                     <CategoryBadge category={hero.category} />
                     <Link href={`/article/${hero.slug}`}>
                       <h1 className="text-white font-black text-3xl md:text-5xl leading-tight mt-4 hover:text-brand-accent transition-colors">

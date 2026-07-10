@@ -39,6 +39,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
   const [scheduledFor, setScheduledFor] = useState(toLocalInput(article?.scheduledFor));
   const [isBreaking, setIsBreaking] = useState(article?.isBreaking ?? false);
   const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
+  const [isLiveBlog, setIsLiveBlog] = useState(article?.isLiveBlog ?? false);
   const [rating, setRating] = useState<number>(article?.rating ?? 0);
 
   const [error, setError] = useState("");
@@ -87,6 +88,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
             : undefined,
         isBreaking,
         isFeatured,
+        isLiveBlog,
         rating,
       };
       const res = await fetch(
@@ -390,6 +392,32 @@ export default function ArticleForm({ article }: { article?: Article }) {
               <span className="block text-sm font-medium text-zinc-900">Featured story</span>
               <span className="block text-xs text-zinc-500">
                 Candidate for the homepage hero and Editor&apos;s Picks.
+              </span>
+            </span>
+          </label>
+
+          <label className="flex cursor-pointer select-none items-start gap-3 p-4 transition-colors hover:bg-zinc-50/70">
+            <input
+              type="checkbox"
+              checked={isLiveBlog}
+              onChange={(e) => setIsLiveBlog(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-zinc-300 accent-[var(--brand)]"
+            />
+            <span>
+              <span className="block text-sm font-medium text-zinc-900">Live blog</span>
+              <span className="block text-xs text-zinc-500">
+                Rolling timestamped updates below the story, with a LIVE badge.
+                {isEdit && isLiveBlog && (
+                  <>
+                    {" "}
+                    <Link
+                      href={`/admin/articles/${article!.id}/live`}
+                      className="font-medium text-brand hover:underline"
+                    >
+                      Open the live console →
+                    </Link>
+                  </>
+                )}
               </span>
             </span>
           </label>

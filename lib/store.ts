@@ -5,9 +5,11 @@ import {
   ActivityEvent,
   Article,
   Comment,
+  Curation,
   Editor,
   EditorRole,
   EditorStats,
+  LiveUpdate,
   PublicEditor,
   Subscriber,
   isArticleLive,
@@ -21,6 +23,8 @@ const DATA_FILE = path.join(DATA_DIR, "articles.json");
 const COMMENTS_FILE = path.join(DATA_DIR, "comments.json");
 const SUBSCRIBERS_FILE = path.join(DATA_DIR, "subscribers.json");
 const ACTIVITY_FILE = path.join(DATA_DIR, "activity.json");
+const LIVE_FILE = path.join(DATA_DIR, "live-updates.json");
+const CURATION_FILE = path.join(DATA_DIR, "curation.json");
 const EDITORS_FILE = path.join(DATA_DIR, "editors.json");
 
 /**
@@ -284,7 +288,135 @@ export function purgeArticle(id: string): boolean {
     COMMENTS_FILE,
     comments.filter((c) => c.articleId !== id)
   );
+  const updates = readJson<LiveUpdate[]>(LIVE_FILE, []);
+  writeJson(
+    LIVE_FILE,
+    updates.filter((u) => u.articleId !== id)
+  );
   return true;
+}
+
+// ---- Live blog updates ----
+
+/** Newest first — a live blog reads top-down like a wire feed. */
+export function getLiveUpdates(articleId: string): LiveUpdate[] {
+  return readJson<LiveUpdate[]>(LIVE_FILE, [])
+    .filter((u) => u.articleId === articleId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export function countLiveUpdates(articleId: string): number {
+  return readJson<LiveUpdate[]>(LIVE_FILE, []).filter((u) => u.articleId === articleId)
+    .length;
+}
+
+export function addLiveUpdate(
+  articleId: string,
+  body: string,
+  editor: { id: string; name: string },
+  isKey = false
+): LiveUpdate {
+  const updates = readJson<LiveUpdate[]>(LIVE_FILE, []);
+  const update: LiveUpdate = {
+    id: `u${Date.now()}${Math.floor(Math.random() * 1000)}`,
+    articleId,
+    body: body.slice(0, 5000),
+    isKey,
+    editorId: editor.id,
+    editorName: editor.name,
+    createdAt: new Date().toISOString(),
+  };
+  updates.push(update);
+  writeJson(LIVE_FILE, updates);
+  return update;
+}
+
+export function getLiveUpdateById(id: string): LiveUpdate | undefined {
+  return readJson<LiveUpdate[]>(LIVE_FILE, []).find((u) => u.id === id);
+}
+
+export function setLiveUpdateKey(id: string, isKey: boolean): LiveUpdate | undefined {
+  const updates = readJson<LiveUpdate[]>(LIVE_FILE, []);
+  const idx = updates.findIndex((u) => u.id === id);
+  if (idx < 0) return undefined;
+  updates[idx].isKey = isKey;
+  writeJson(LIVE_FILE, updates);
+  return updates[idx];
+}
+
+export function deleteLiveUpdate(id: string): boolean {
+  const updates = readJson<LiveUpdate[]>(LIVE_FILE, []);
+  const next = updates.filter((u) => u.id !== id);
+  if (next.length === updates.length) return false;
+  writeJson(LIVE_FILE, next);
+  return true;
+}
+
+// ---- Homepage curation ----
+
+export function getCuration(): Curation | null {
+  const c = readJson<Curation | null>(CURATION_FILE, null);
+  return c && Array.isArray(c.topStoryIds) ? c : null;
+}
+
+export function setCuration(
+  heroId: string | undefined,
+  topStoryIds: string[],
+  updatedBy?: string
+): Curation {
+  const curation: Curation = {
+    heroId: heroId || undefined,
+    topStoryIds: topStoryIds.slice(0, 8),
+    updatedAt: new Date().toISOString(),
+    updatedBy,
+  };
+  writeJson(CURATION_FILE, curation);
+  return curation;
+}
+
+export function clearCuration() {
+  writeJson(CURATION_FILE, null);
+}
+
+/**
+ * The front page, honouring manual curation but never trusting it blindly:
+ * a curated story that has since been unpublished or trashed simply drops out
+ * and the automatic pick fills the gap.
+ */
+export function getHomepage(): {
+  hero?: Article;
+  topStories: Article[];
+  latest: Article[];
+  isCurated: boolean;
+} {
+  const published = getPublished();
+  if (published.length === 0) {
+    return { topStories: [], latest: [], isCurated: false };
+  }
+
+  const curation = getCuration();
+  const byId = new Map(published.map((a) => [a.id, a]));
+
+  const curatedHero = curation?.heroId ? byId.get(curation.heroId) : undefined;
+  const hero = curatedHero ?? published.find((a) => a.isFeatured) ?? published[0];
+
+  const curatedTop = (curation?.topStoryIds ?? [])
+    .map((id) => byId.get(id))
+    .filter((a): a is Article => Boolean(a) && a!.id !== hero.id);
+
+  const topStories = curatedTop.length
+    ? curatedTop.slice(0, 4)
+    : published.filter((a) => a.id !== hero.id).slice(0, 4);
+
+  const usedIds = new Set([hero.id, ...topStories.map((a) => a.id)]);
+  const latest = published.filter((a) => !usedIds.has(a.id)).slice(0, 6);
+
+  return {
+    hero,
+    topStories,
+    latest,
+    isCurated: Boolean(curatedHero || curatedTop.length),
+  };
 }
 
 // ---- Activity log ----

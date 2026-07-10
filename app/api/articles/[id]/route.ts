@@ -61,6 +61,7 @@ export async function PUT(req: Request, { params }: Params) {
   }
   if (body.isBreaking !== undefined) patch.isBreaking = Boolean(body.isBreaking);
   if (body.isFeatured !== undefined) patch.isFeatured = Boolean(body.isFeatured);
+  if (body.isLiveBlog !== undefined) patch.isLiveBlog = Boolean(body.isLiveBlog);
   if (body.rating !== undefined)
     patch.rating = Math.max(0, Math.min(5, Math.round(Number(body.rating) || 0)));
   if (body.tags !== undefined)

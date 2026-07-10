@@ -69,10 +69,33 @@ export interface Article {
   deletedAt?: string; // ISO — set when trashed; absent means active
   isBreaking: boolean;
   isFeatured: boolean;
+  isLiveBlog?: boolean; // rolling, timestamped updates instead of a static story
   rating: number; // editorial quality rating, 0–5 (0 = unrated)
   views: number;
   publishedAt: string; // ISO
   updatedAt: string; // ISO
+}
+
+/** One rolling entry on a live blog, newest shown first. */
+export interface LiveUpdate {
+  id: string;
+  articleId: string;
+  body: string;
+  isKey?: boolean; // highlighted as a key development
+  editorId?: string;
+  editorName: string;
+  createdAt: string; // ISO
+}
+
+/**
+ * Manual homepage arrangement. Anything left unset falls back to the
+ * automatic ordering, so a half-filled board never empties the front page.
+ */
+export interface Curation {
+  heroId?: string;
+  topStoryIds: string[]; // ordered
+  updatedAt: string; // ISO
+  updatedBy?: string;
 }
 
 export type ArticleStatus = "published" | "draft" | "scheduled";
@@ -123,7 +146,11 @@ export type ActivityAction =
   | "comment.deleted"
   | "editor.added"
   | "editor.updated"
-  | "editor.removed";
+  | "editor.removed"
+  | "live.posted"
+  | "live.deleted"
+  | "homepage.curated"
+  | "homepage.reset";
 
 export interface ActivityEvent {
   id: string;
@@ -150,6 +177,10 @@ export const ACTIVITY_LABELS: Record<ActivityAction, string> = {
   "editor.added": "added editor",
   "editor.updated": "updated editor",
   "editor.removed": "removed editor",
+  "live.posted": "posted a live update on",
+  "live.deleted": "removed a live update from",
+  "homepage.curated": "rearranged",
+  "homepage.reset": "reset",
 };
 
 /** "admin" manages editor accounts and every article; "editor" owns only their own. */

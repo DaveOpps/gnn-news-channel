@@ -21,7 +21,9 @@ import {
   getApprovedComments,
   getEditorForArticle,
   getBySlugForPreview,
+  getLiveUpdates,
 } from "@/lib/store";
+import LiveFeed from "@/components/LiveFeed";
 import { verifyPreviewToken } from "@/lib/auth";
 import { effectiveStatus } from "@/lib/types";
 
@@ -71,6 +73,7 @@ export default async function ArticlePage({ params, searchParams }: Props) {
     .filter((a) => a.id !== article.id)
     .slice(0, 3);
   const comments = getApprovedComments(article.id);
+  const liveUpdates = article.isLiveBlog ? getLiveUpdates(article.id) : [];
   const bylineEditor = getEditorForArticle(article);
   const paragraphs = article.body.split(/\n\s*\n/).filter(Boolean);
   const words = article.body.split(/\s+/).length;
@@ -97,6 +100,15 @@ export default async function ArticlePage({ params, searchParams }: Props) {
         <article className="bg-white shadow-sm">
           <div className="p-6 md:p-10 pb-0 md:pb-0">
             <div className="flex items-center gap-3 mb-4">
+              {article.isLiveBlog && (
+                <span className="inline-flex items-center gap-1.5 bg-brand px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.15em] text-white">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+                  </span>
+                  Live
+                </span>
+              )}
               <CategoryBadge category={article.category} />
               {article.isBreaking && (
                 <span className="bg-ink text-white text-[10px] font-black tracking-[0.15em] uppercase px-2 py-0.5">
@@ -162,6 +174,8 @@ export default async function ArticlePage({ params, searchParams }: Props) {
             {paragraphs.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
+
+            {article.isLiveBlog && <LiveFeed updates={liveUpdates} />}
 
             {article.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-neutral-200">

@@ -61,6 +61,7 @@ export async function POST(req: Request) {
     scheduledFor: schedule.scheduledFor,
     isBreaking: Boolean(body.isBreaking),
     isFeatured: Boolean(body.isFeatured),
+    isLiveBlog: Boolean(body.isLiveBlog),
     rating: Math.max(0, Math.min(5, Math.round(Number(body.rating) || 0))),
   });
 
