@@ -1,4 +1,5 @@
-import { Article } from "./types";
+import { Article, Editor } from "./types";
+import { hashPassword } from "./password";
 
 const RAW: Omit<Article, "rating">[] = [
   {
@@ -256,3 +257,22 @@ export const SEED_ARTICLES: Article[] = RAW.map((a, i) => ({
   rating: SEED_RATINGS[i] ?? 0,
   coAuthors: SEED_COAUTHORS[i] ?? [],
 }));
+
+/**
+ * The bootstrap admin. Always present, so the newsroom is never locked out —
+ * including on Vercel, where `data/editors.json` can't be written and the store
+ * falls back to this seed on every cold start.
+ *
+ * Real editor accounts are created from /admin/editors and persist locally.
+ */
+export const SEED_EDITORS: Editor[] = [
+  {
+    id: "ed_admin",
+    name: "Newsroom Admin",
+    username: (process.env.ADMIN_USER || "admin").toLowerCase(),
+    passwordHash: hashPassword(process.env.ADMIN_PASS || "gnn2026"),
+    title: "Editor-in-Chief",
+    role: "admin",
+    createdAt: "2026-07-08T00:00:00.000Z",
+  },
+];

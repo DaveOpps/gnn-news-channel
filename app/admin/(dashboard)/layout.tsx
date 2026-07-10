@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth";
+import { getCurrentEditor } from "@/lib/auth";
 import LogoutButton from "@/components/admin/LogoutButton";
+import EditorAvatar from "@/components/EditorAvatar";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  if (!(await isAuthenticated())) {
+  const me = await getCurrentEditor();
+  if (!me) {
     redirect("/admin/login");
   }
 
@@ -61,7 +63,32 @@ export default async function AdminLayout({
           >
             📧 Subscribers
           </Link>
+          <Link
+            href="/admin/analytics"
+            className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
+          >
+            📈 Editor Performance
+          </Link>
+          {me.role === "admin" && (
+            <Link
+              href="/admin/editors"
+              className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
+            >
+              👥 Editors
+            </Link>
+          )}
         </nav>
+
+        {/* Signed-in editor */}
+        <div className="p-4 border-t border-white/10 flex items-center gap-3">
+          <EditorAvatar name={me.name} photoUrl={me.photoUrl} size={38} />
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-white truncate">{me.name}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-accent">
+              {me.role === "admin" ? "Admin" : "Editor"}
+            </p>
+          </div>
+        </div>
 
         {/* View Site Link */}
         <div className="p-4 border-t border-white/10">
@@ -91,7 +118,7 @@ export default async function AdminLayout({
           <div className="flex items-center gap-4">
             <span className="text-xs bg-green-100 text-green-700 font-bold px-3 py-1.5 rounded-full flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              Editor Active
+              Signed in as {me.name}
             </span>
           </div>
         </header>

@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
-import { getAll, createArticle } from "@/lib/store";
+import { getCurrentEditor } from "@/lib/auth";
+import { getAll, createArticle, getEditorById } from "@/lib/store";
 import { CATEGORIES, Category } from "@/lib/types";
 
 export async function GET() {
-  if (!(await isAuthenticated())) {
+  if (!(await getCurrentEditor())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return NextResponse.json(getAll());
 }
 
 export async function POST(req: Request) {
-  if (!(await isAuthenticated())) {
+  const me = await getCurrentEditor();
+  if (!me) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const body = await req.json().catch(() => null);
@@ -22,13 +23,21 @@ export async function POST(req: Request) {
     ? body.category
     : "world";
 
+  // A story belongs to whoever wrote it. Admins may file on another editor's
+  // behalf by passing authorId; everyone else is credited to themselves.
+  let author = me;
+  if (body.authorId && me.role === "admin") {
+    author = getEditorById(String(body.authorId)) ?? me;
+  }
+
   const article = createArticle({
     title: String(body.title).trim(),
     slug: body.slug ? String(body.slug) : undefined,
     excerpt: String(body.excerpt ?? "").trim(),
     body: String(body.body).trim(),
     category,
-    author: String(body.author ?? "Newsroom").trim() || "Newsroom",
+    author: author.name,
+    authorId: author.id,
     coAuthors: Array.isArray(body.coAuthors)
       ? body.coAuthors.map((n: unknown) => String(n).trim()).filter(Boolean)
       : String(body.coAuthors ?? "")

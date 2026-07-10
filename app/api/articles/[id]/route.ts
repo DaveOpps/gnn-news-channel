@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
+import { getCurrentEditor, canEditArticle } from "@/lib/auth";
 import { getById, updateArticle, deleteArticle } from "@/lib/store";
 import { Article, CATEGORIES } from "@/lib/types";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Params) {
-  if (!(await isAuthenticated())) {
+  if (!(await getCurrentEditor())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
@@ -16,10 +16,16 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 export async function PUT(req: Request, { params }: Params) {
-  if (!(await isAuthenticated())) {
+  const me = await getCurrentEditor();
+  if (!me) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
+  const existing = getById(id);
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!canEditArticle(me, existing)) {
+    return NextResponse.json({ error: "This story belongs to another editor" }, { status: 403 });
+  }
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
 
@@ -28,7 +34,11 @@ export async function PUT(req: Request, { params }: Params) {
   if (body.slug !== undefined) patch.slug = String(body.slug);
   if (body.excerpt !== undefined) patch.excerpt = String(body.excerpt).trim();
   if (body.body !== undefined) patch.body = String(body.body).trim();
-  if (body.author !== undefined) patch.author = String(body.author).trim() || "Newsroom";
+  // Only an admin may reassign a story's byline to a different editor.
+  if (body.author !== undefined && me.role === "admin")
+    patch.author = String(body.author).trim() || "Newsroom";
+  if (body.authorId !== undefined && me.role === "admin")
+    patch.authorId = String(body.authorId).trim() || undefined;
   if (body.coAuthors !== undefined)
     patch.coAuthors = Array.isArray(body.coAuthors)
       ? body.coAuthors.map((n: unknown) => String(n).trim()).filter(Boolean)
@@ -60,10 +70,16 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-  if (!(await isAuthenticated())) {
+  const me = await getCurrentEditor();
+  if (!me) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
+  const existing = getById(id);
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!canEditArticle(me, existing)) {
+    return NextResponse.json({ error: "This story belongs to another editor" }, { status: 403 });
+  }
   if (!deleteArticle(id)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

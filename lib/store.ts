@@ -1,12 +1,23 @@
 import fs from "fs";
 import path from "path";
-import { Article, Comment, Subscriber } from "./types";
-import { SEED_ARTICLES } from "./seed";
+import {
+  Article,
+  Comment,
+  Editor,
+  EditorRole,
+  EditorStats,
+  PublicEditor,
+  Subscriber,
+  toPublicEditor,
+} from "./types";
+import { SEED_ARTICLES, SEED_EDITORS } from "./seed";
+import { hashPassword } from "./password";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "articles.json");
 const COMMENTS_FILE = path.join(DATA_DIR, "comments.json");
 const SUBSCRIBERS_FILE = path.join(DATA_DIR, "subscribers.json");
+const EDITORS_FILE = path.join(DATA_DIR, "editors.json");
 
 /**
  * On a writable filesystem (local dev) we persist to JSON files.
@@ -188,7 +199,7 @@ export function updateArticle(
   const current = all[idx];
 
   if (patch.slug !== undefined) {
-    let slug = slugify(patch.slug || current.title) || current.slug;
+    const slug = slugify(patch.slug || current.title) || current.slug;
     let unique = slug;
     let n = 2;
     while (all.some((a) => a.slug === unique && a.id !== id)) unique = `${slug}-${n++}`;
@@ -296,4 +307,184 @@ export function removeSubscriber(email: string): boolean {
   if (next.length === subs.length) return false;
   writeJson(SUBSCRIBERS_FILE, next);
   return true;
+}
+
+// ---- Editors (accounts) ----
+//
+// Seeded with a bootstrap admin so the newsroom is never locked out. Editors
+// added here persist to data/editors.json locally; on Vercel's read-only FS the
+// store falls back to the seed on each cold start (same caveat as articles).
+
+function readEditors(): Editor[] {
+  // Clone the seed: on a writable FS readJson hands back the fallback *by
+  // reference* when the file is missing, and callers push/mutate the result.
+  return readJson<Editor[]>(EDITORS_FILE, clone(SEED_EDITORS));
+}
+
+export function getEditors(): Editor[] {
+  return readEditors().sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Credential-free list, safe to hand to client components. */
+export function getPublicEditors(): PublicEditor[] {
+  return getEditors().map(toPublicEditor);
+}
+
+export function getEditorById(id: string): Editor | undefined {
+  return readEditors().find((e) => e.id === id);
+}
+
+export function getEditorByUsername(username: string): Editor | undefined {
+  const handle = username.trim().toLowerCase();
+  return readEditors().find((e) => e.username === handle);
+}
+
+export type EditorResult =
+  | { ok: true; editor: Editor }
+  | { ok: false; reason: string };
+
+export function createEditor(input: {
+  name: string;
+  username: string;
+  password: string;
+  photoUrl?: string;
+  title?: string;
+  role?: EditorRole;
+}): EditorResult {
+  const name = input.name.trim();
+  const username = input.username.trim().toLowerCase();
+  const password = input.password;
+
+  if (name.length < 2) return { ok: false, reason: "Name is too short" };
+  if (!/^[a-z0-9._-]{3,24}$/.test(username)) {
+    return {
+      ok: false,
+      reason: "Username must be 3–24 characters: letters, numbers, . _ - only",
+    };
+  }
+  if (password.length < 6) {
+    return { ok: false, reason: "Password must be at least 6 characters" };
+  }
+
+  const all = readEditors();
+  if (all.some((e) => e.username === username)) {
+    return { ok: false, reason: "That username is already taken" };
+  }
+
+  const editor: Editor = {
+    id: `ed${Date.now()}${Math.floor(Math.random() * 1000)}`,
+    name,
+    username,
+    passwordHash: hashPassword(password),
+    photoUrl: input.photoUrl?.trim() || undefined,
+    title: input.title?.trim() || undefined,
+    role: input.role === "admin" ? "admin" : "editor",
+    createdAt: new Date().toISOString(),
+  };
+  all.push(editor);
+  writeJson(EDITORS_FILE, all);
+  return { ok: true, editor };
+}
+
+export function updateEditor(
+  id: string,
+  patch: {
+    name?: string;
+    username?: string;
+    password?: string;
+    photoUrl?: string;
+    title?: string;
+    role?: EditorRole;
+  }
+): EditorResult {
+  const all = readEditors();
+  const idx = all.findIndex((e) => e.id === id);
+  if (idx < 0) return { ok: false, reason: "Editor not found" };
+  const current = all[idx];
+  const next: Editor = { ...current };
+
+  if (patch.name !== undefined) {
+    const name = patch.name.trim();
+    if (name.length < 2) return { ok: false, reason: "Name is too short" };
+    next.name = name;
+  }
+  if (patch.username !== undefined) {
+    const username = patch.username.trim().toLowerCase();
+    if (!/^[a-z0-9._-]{3,24}$/.test(username)) {
+      return { ok: false, reason: "Invalid username" };
+    }
+    if (all.some((e) => e.username === username && e.id !== id)) {
+      return { ok: false, reason: "That username is already taken" };
+    }
+    next.username = username;
+  }
+  if (patch.password) {
+    if (patch.password.length < 6) {
+      return { ok: false, reason: "Password must be at least 6 characters" };
+    }
+    next.passwordHash = hashPassword(patch.password);
+  }
+  if (patch.photoUrl !== undefined) next.photoUrl = patch.photoUrl.trim() || undefined;
+  if (patch.title !== undefined) next.title = patch.title.trim() || undefined;
+
+  if (patch.role !== undefined && patch.role !== current.role) {
+    // Never demote the last remaining admin — that would lock everyone out.
+    if (current.role === "admin" && all.filter((e) => e.role === "admin").length === 1) {
+      return { ok: false, reason: "This is the only admin — promote someone else first" };
+    }
+    next.role = patch.role;
+  }
+
+  all[idx] = next;
+  writeJson(EDITORS_FILE, all);
+  return { ok: true, editor: next };
+}
+
+export function deleteEditor(id: string): { ok: boolean; reason?: string } {
+  const all = readEditors();
+  const target = all.find((e) => e.id === id);
+  if (!target) return { ok: false, reason: "Editor not found" };
+  if (target.role === "admin" && all.filter((e) => e.role === "admin").length === 1) {
+    return { ok: false, reason: "Can't remove the only admin" };
+  }
+  writeJson(
+    EDITORS_FILE,
+    all.filter((e) => e.id !== id)
+  );
+  // Their articles stay published; the byline keeps the stored author name.
+  return { ok: true };
+}
+
+/** True when this article belongs to the given editor (id link, or legacy name match). */
+export function isAuthoredBy(article: Article, editor: Editor | PublicEditor): boolean {
+  if (article.authorId) return article.authorId === editor.id;
+  return article.author.trim().toLowerCase() === editor.name.trim().toLowerCase();
+}
+
+/** The editor account behind an article's byline, if one exists. */
+export function getEditorForArticle(article: Article): PublicEditor | undefined {
+  const match = readEditors().find((e) => isAuthoredBy(article, e));
+  return match ? toPublicEditor(match) : undefined;
+}
+
+/** Per-editor performance, sorted by total views. Powers the analytics board. */
+export function getEditorStats(): EditorStats[] {
+  const articles = readAll();
+  return getEditors()
+    .map((editor) => {
+      const mine = articles.filter((a) => isAuthoredBy(a, editor));
+      const published = mine.filter((a) => a.status === "published");
+      const rated = mine.filter((a) => a.rating > 0);
+      return {
+        editor: toPublicEditor(editor),
+        published: published.length,
+        drafts: mine.length - published.length,
+        totalViews: published.reduce((sum, a) => sum + a.views, 0),
+        avgRating: rated.length
+          ? Math.round((rated.reduce((s, a) => s + a.rating, 0) / rated.length) * 10) / 10
+          : 0,
+        breaking: mine.filter((a) => a.isBreaking).length,
+      };
+    })
+    .sort((a, b) => b.totalViews - a.totalViews);
 }

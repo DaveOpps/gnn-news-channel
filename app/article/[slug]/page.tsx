@@ -11,6 +11,7 @@ import ShareButtons from "@/components/ShareButtons";
 import CommentsSection from "@/components/CommentsSection";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import StarRating from "@/components/StarRating";
+import EditorAvatar from "@/components/EditorAvatar";
 import { formatByline } from "@/lib/types";
 import {
   getBySlug,
@@ -18,6 +19,7 @@ import {
   getBreaking,
   incrementViews,
   getApprovedComments,
+  getEditorForArticle,
 } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +53,7 @@ export default async function ArticlePage({ params }: Props) {
     .filter((a) => a.id !== article.id)
     .slice(0, 3);
   const comments = getApprovedComments(article.id);
+  const bylineEditor = getEditorForArticle(article);
   const paragraphs = article.body.split(/\n\s*\n/).filter(Boolean);
   const words = article.body.split(/\s+/).length;
   const readMinutes = Math.max(1, Math.round(words / 200));
@@ -82,8 +85,22 @@ export default async function ArticlePage({ params }: Props) {
               {article.excerpt}
             </p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-6 text-sm text-neutral-500">
-              <span className="font-semibold text-ink">
-                {formatByline(article.author, article.coAuthors)}
+              <span className="flex items-center gap-2.5">
+                <EditorAvatar
+                  name={bylineEditor?.name ?? article.author}
+                  photoUrl={bylineEditor?.photoUrl}
+                  size={40}
+                />
+                <span className="flex flex-col leading-tight">
+                  <span className="font-semibold text-ink">
+                    {formatByline(article.author, article.coAuthors)}
+                  </span>
+                  {bylineEditor?.title && (
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                      {bylineEditor.title}
+                    </span>
+                  )}
+                </span>
               </span>
               <span>
                 {new Date(article.publishedAt).toLocaleDateString("en-US", {
