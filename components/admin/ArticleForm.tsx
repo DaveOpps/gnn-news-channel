@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Article, CATEGORIES, formatByline } from "@/lib/types";
 import StarRating from "@/components/StarRating";
+import RichBodyEditor from "./RichBodyEditor";
+import MediaPicker from "./MediaPicker";
 import { Card, Icon, btnPrimary, btnSecondary, input, microLabel } from "./ui";
 
 /** ISO → the "YYYY-MM-DDTHH:mm" shape a datetime-local input expects, in local time. */
@@ -45,6 +47,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -178,16 +181,9 @@ export default function ArticleForm({ article }: { article?: Article }) {
 
         <div>
           <label className={label}>
-            Story body <span className={hint}>— separate paragraphs with a blank line</span>
+            Story body <span className={hint}>— formatting, images and embeds supported</span>
           </label>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            required
-            rows={14}
-            placeholder="Write the full story here…"
-            className={`${input} font-mono text-[13px] leading-relaxed`}
-          />
+          <RichBodyEditor value={body} onChange={setBody} />
         </div>
       </Card>
 
@@ -275,6 +271,13 @@ export default function ArticleForm({ article }: { article?: Article }) {
               className="hidden"
             />
           </label>
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            className={`${btnSecondary} shrink-0`}
+          >
+            Choose from library
+          </button>
           <input
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
@@ -301,6 +304,12 @@ export default function ArticleForm({ article }: { article?: Article }) {
             className="h-44 w-auto rounded-lg border border-zinc-200 object-cover"
           />
         )}
+
+        <MediaPicker
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onSelect={({ url }) => setImageUrl(url)}
+        />
       </Card>
 
       {/* Publishing */}

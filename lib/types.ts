@@ -87,6 +87,27 @@ export interface LiveUpdate {
   createdAt: string; // ISO
 }
 
+/** An uploaded image. The filename is the id — it is already unique. */
+export interface MediaItem {
+  filename: string;
+  url: string; // /uploads/<filename>
+  size: number; // bytes
+  alt?: string;
+  uploadedBy?: string;
+  createdAt: string; // ISO
+}
+
+/** A media item plus where it is currently used. */
+export interface MediaItemWithUsage extends MediaItem {
+  usedBy: { id: string; title: string }[];
+}
+
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 /**
  * Manual homepage arrangement. Anything left unset falls back to the
  * automatic ordering, so a half-filled board never empties the front page.

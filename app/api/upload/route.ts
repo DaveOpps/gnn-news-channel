@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { isAuthenticated } from "@/lib/auth";
+import { getCurrentEditor } from "@/lib/auth";
+import { recordMedia } from "@/lib/store";
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 const MAX_BYTES = 8 * 1024 * 1024; // 8 MB
 
 export async function POST(req: Request) {
-  if (!(await isAuthenticated())) {
+  const me = await getCurrentEditor();
+  if (!me) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const form = await req.formData().catch(() => null);
@@ -37,5 +39,15 @@ export async function POST(req: Request) {
   fs.mkdirSync(uploadDir, { recursive: true });
   fs.writeFileSync(path.join(uploadDir, filename), Buffer.from(await file.arrayBuffer()));
 
-  return NextResponse.json({ url: `/uploads/${filename}` }, { status: 201 });
+  const item = {
+    filename,
+    url: `/uploads/${filename}`,
+    size: file.size,
+    alt: typeof form?.get("alt") === "string" ? String(form.get("alt")) : undefined,
+    uploadedBy: me.name,
+    createdAt: new Date().toISOString(),
+  };
+  recordMedia(item);
+
+  return NextResponse.json(item, { status: 201 });
 }

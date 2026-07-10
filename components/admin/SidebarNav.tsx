@@ -33,6 +33,7 @@ export default function SidebarNav({
       icon: <Icon.Comments className="h-[18px] w-[18px]" />,
       badge: pendingComments,
     },
+    { href: "/admin/media", label: "Media", icon: <Icon.Image className="h-[18px] w-[18px]" /> },
     { href: "/admin/subscribers", label: "Subscribers", icon: <Icon.Mail className="h-[18px] w-[18px]" /> },
     { href: "/admin/analytics", label: "Performance", icon: <Icon.Chart className="h-[18px] w-[18px]" /> },
     { href: "/admin/activity", label: "Activity", icon: <Icon.Trend className="h-[18px] w-[18px]" /> },

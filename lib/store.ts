@@ -10,6 +10,8 @@ import {
   EditorRole,
   EditorStats,
   LiveUpdate,
+  MediaItem,
+  MediaItemWithUsage,
   PublicEditor,
   Subscriber,
   isArticleLive,
@@ -25,6 +27,8 @@ const SUBSCRIBERS_FILE = path.join(DATA_DIR, "subscribers.json");
 const ACTIVITY_FILE = path.join(DATA_DIR, "activity.json");
 const LIVE_FILE = path.join(DATA_DIR, "live-updates.json");
 const CURATION_FILE = path.join(DATA_DIR, "curation.json");
+const MEDIA_FILE = path.join(DATA_DIR, "media.json");
+const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const EDITORS_FILE = path.join(DATA_DIR, "editors.json");
 
 /**
@@ -349,6 +353,92 @@ export function deleteLiveUpdate(id: string): boolean {
   const next = updates.filter((u) => u.id !== id);
   if (next.length === updates.length) return false;
   writeJson(LIVE_FILE, next);
+  return true;
+}
+
+// ---- Media library ----
+
+/**
+ * The uploads directory is the source of truth for *what exists*; media.json
+ * only carries the extras (alt text, who uploaded it). That way a file dropped
+ * in by hand still shows up, and a stale record never points at nothing.
+ */
+export function getMediaItems(): MediaItem[] {
+  let files: string[] = [];
+  try {
+    files = fs.existsSync(UPLOAD_DIR) ? fs.readdirSync(UPLOAD_DIR) : [];
+  } catch {
+    return [];
+  }
+
+  const meta = readJson<Record<string, Partial<MediaItem>>>(MEDIA_FILE, {});
+
+  return files
+    .filter((f) => !f.startsWith(".") && /\.(jpe?g|png|webp|gif|avif)$/i.test(f))
+    .map((filename) => {
+      let size = 0;
+      let mtime = new Date();
+      try {
+        const st = fs.statSync(path.join(UPLOAD_DIR, filename));
+        size = st.size;
+        mtime = st.mtime;
+      } catch {
+        /* file vanished between readdir and stat */
+      }
+      const m = meta[filename] ?? {};
+      return {
+        filename,
+        url: `/uploads/${filename}`,
+        size: m.size ?? size,
+        alt: m.alt,
+        uploadedBy: m.uploadedBy,
+        createdAt: m.createdAt ?? mtime.toISOString(),
+      };
+    })
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export function recordMedia(item: MediaItem) {
+  const meta = readJson<Record<string, Partial<MediaItem>>>(MEDIA_FILE, {});
+  meta[item.filename] = item;
+  writeJson(MEDIA_FILE, meta);
+}
+
+export function setMediaAlt(filename: string, alt: string): boolean {
+  const meta = readJson<Record<string, Partial<MediaItem>>>(MEDIA_FILE, {});
+  meta[filename] = { ...(meta[filename] ?? {}), alt: alt.slice(0, 300) };
+  writeJson(MEDIA_FILE, meta);
+  return true;
+}
+
+/** Which live/active stories reference this image, as a hero or inline. */
+export function getMediaUsage(url: string): { id: string; title: string }[] {
+  return readAll()
+    .filter((a) => !a.deletedAt)
+    .filter((a) => a.imageUrl === url || a.body.includes(url))
+    .map((a) => ({ id: a.id, title: a.title }));
+}
+
+export function getMediaWithUsage(): MediaItemWithUsage[] {
+  return getMediaItems().map((m) => ({ ...m, usedBy: getMediaUsage(m.url) }));
+}
+
+export function deleteMediaFile(filename: string): boolean {
+  // Never let a traversal escape the uploads directory.
+  const safe = path.basename(filename);
+  const target = path.join(UPLOAD_DIR, safe);
+  if (!target.startsWith(UPLOAD_DIR)) return false;
+
+  try {
+    if (!fs.existsSync(target)) return false;
+    fs.unlinkSync(target);
+  } catch {
+    return false;
+  }
+
+  const meta = readJson<Record<string, Partial<MediaItem>>>(MEDIA_FILE, {});
+  delete meta[safe];
+  writeJson(MEDIA_FILE, meta);
   return true;
 }
 

@@ -24,6 +24,7 @@ import {
   getLiveUpdates,
 } from "@/lib/store";
 import LiveFeed from "@/components/LiveFeed";
+import ArticleBody from "@/components/ArticleBody";
 import { verifyPreviewToken } from "@/lib/auth";
 import { effectiveStatus } from "@/lib/types";
 
@@ -75,7 +76,6 @@ export default async function ArticlePage({ params, searchParams }: Props) {
   const comments = getApprovedComments(article.id);
   const liveUpdates = article.isLiveBlog ? getLiveUpdates(article.id) : [];
   const bylineEditor = getEditorForArticle(article);
-  const paragraphs = article.body.split(/\n\s*\n/).filter(Boolean);
   const words = article.body.split(/\s+/).length;
   const readMinutes = Math.max(1, Math.round(words / 200));
 
@@ -171,9 +171,7 @@ export default async function ArticlePage({ params, searchParams }: Props) {
           </div>
 
           <div className="p-6 md:p-10 article-body text-neutral-800">
-            {paragraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
+            <ArticleBody body={article.body} />
 
             {article.isLiveBlog && <LiveFeed updates={liveUpdates} />}
 
