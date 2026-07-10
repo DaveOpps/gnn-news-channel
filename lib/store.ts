@@ -9,11 +9,14 @@ import {
   Editor,
   EditorRole,
   EditorStats,
+  EngagementMap,
   LiveUpdate,
   MediaItem,
   MediaItemWithUsage,
   PublicEditor,
   Subscriber,
+  TrendingEntry,
+  ViewEvent,
   isArticleLive,
   toPublicEditor,
 } from "./types";
@@ -28,7 +31,12 @@ const ACTIVITY_FILE = path.join(DATA_DIR, "activity.json");
 const LIVE_FILE = path.join(DATA_DIR, "live-updates.json");
 const CURATION_FILE = path.join(DATA_DIR, "curation.json");
 const MEDIA_FILE = path.join(DATA_DIR, "media.json");
+const EVENTS_FILE = path.join(DATA_DIR, "events.json");
+const ENGAGEMENT_FILE = path.join(DATA_DIR, "engagement.json");
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+
+/** Views are high volume — keep a bounded window, not an archive. */
+const MAX_EVENTS = 20_000;
 const EDITORS_FILE = path.join(DATA_DIR, "editors.json");
 
 /**
@@ -168,7 +176,107 @@ export function incrementViews(id: string) {
   if (idx >= 0) {
     all[idx].views += 1;
     writeAll(all);
+    recordViewEvent(id);
   }
+}
+
+// ---- Traffic events ----
+
+function recordViewEvent(articleId: string) {
+  const events = readJson<ViewEvent[]>(EVENTS_FILE, []);
+  events.push({ a: articleId, t: Date.now() });
+  writeJson(EVENTS_FILE, events.length > MAX_EVENTS ? events.slice(-MAX_EVENTS) : events);
+}
+
+export function getViewEvents(sinceMs?: number): ViewEvent[] {
+  const events = readJson<ViewEvent[]>(EVENTS_FILE, []);
+  return sinceMs ? events.filter((e) => e.t >= sinceMs) : events;
+}
+
+/** Daily totals for the last `days` days, oldest first, including empty days. */
+export function getViewsByDay(days = 14): { date: string; label: string; count: number }[] {
+  const events = getViewEvents();
+  const buckets = new Map<string, number>();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const out: { date: string; label: string; count: number }[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    buckets.set(key, 0);
+    out.push({
+      date: key,
+      label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+      count: 0,
+    });
+  }
+
+  for (const e of events) {
+    const key = new Date(e.t).toISOString().slice(0, 10);
+    if (buckets.has(key)) buckets.set(key, (buckets.get(key) ?? 0) + 1);
+  }
+  for (const row of out) row.count = buckets.get(row.date) ?? 0;
+  return out;
+}
+
+/**
+ * What is accelerating, not merely what is big. Compares views in the last
+ * `hours` against the window immediately before it.
+ */
+export function getTrendingByVelocity(hours = 6, limit = 6): TrendingEntry[] {
+  const now = Date.now();
+  const windowMs = hours * 3600_000;
+  const events = getViewEvents(now - windowMs * 2);
+
+  const recent = new Map<string, number>();
+  const previous = new Map<string, number>();
+  for (const e of events) {
+    const m = e.t >= now - windowMs ? recent : previous;
+    m.set(e.a, (m.get(e.a) ?? 0) + 1);
+  }
+
+  const live = new Map(getPublished().map((a) => [a.id, a]));
+
+  return [...recent.entries()]
+    .map(([id, count]) => {
+      const article = live.get(id);
+      if (!article) return null;
+      const prev = previous.get(id) ?? 0;
+      return {
+        article,
+        recent: count,
+        previous: prev,
+        velocity: count / hours,
+        change: prev > 0 ? ((count - prev) / prev) * 100 : null,
+      };
+    })
+    .filter((x): x is TrendingEntry => x !== null)
+    .sort((a, b) => b.recent - a.recent || b.velocity - a.velocity)
+    .slice(0, limit);
+}
+
+// ---- Engagement (scroll depth / read completion) ----
+
+export function recordEngagement(articleId: string, depth: number, seconds: number) {
+  const map = readJson<EngagementMap>(ENGAGEMENT_FILE, {});
+  const clampedDepth = Math.max(0, Math.min(100, Math.round(depth)));
+  const clampedSeconds = Math.max(0, Math.min(3600, Math.round(seconds)));
+
+  const agg = map[articleId] ?? { samples: 0, depthSum: 0, secondsSum: 0, completed: 0 };
+  agg.samples += 1;
+  agg.depthSum += clampedDepth;
+  agg.secondsSum += clampedSeconds;
+  if (clampedDepth >= 90) agg.completed += 1;
+
+  map[articleId] = agg;
+  writeJson(ENGAGEMENT_FILE, map);
+}
+
+export function getEngagementMap(): EngagementMap {
+  return readJson<EngagementMap>(ENGAGEMENT_FILE, {});
 }
 
 // ---- Admin (all active articles) ----
@@ -297,6 +405,11 @@ export function purgeArticle(id: string): boolean {
     LIVE_FILE,
     updates.filter((u) => u.articleId !== id)
   );
+  const engagement = readJson<EngagementMap>(ENGAGEMENT_FILE, {});
+  if (id in engagement) {
+    delete engagement[id];
+    writeJson(ENGAGEMENT_FILE, engagement);
+  }
   return true;
 }
 

@@ -51,6 +51,9 @@ export async function POST(req: Request) {
           .map((n) => n.trim())
           .filter(Boolean),
     imageUrl: body.imageUrl ? String(body.imageUrl).trim() : undefined,
+    metaDescription: body.metaDescription
+      ? String(body.metaDescription).trim().slice(0, 320)
+      : undefined,
     tags: Array.isArray(body.tags)
       ? body.tags.map((t: unknown) => String(t).trim()).filter(Boolean)
       : String(body.tags ?? "")

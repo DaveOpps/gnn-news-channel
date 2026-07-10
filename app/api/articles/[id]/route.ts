@@ -49,6 +49,8 @@ export async function PUT(req: Request, { params }: Params) {
           .filter(Boolean);
   if (body.imageUrl !== undefined)
     patch.imageUrl = String(body.imageUrl).trim() || undefined;
+  if (body.metaDescription !== undefined)
+    patch.metaDescription = String(body.metaDescription).trim().slice(0, 320) || undefined;
   if (body.category !== undefined && CATEGORIES.some((c) => c.slug === body.category))
     patch.category = body.category;
   if (body.status !== undefined) {

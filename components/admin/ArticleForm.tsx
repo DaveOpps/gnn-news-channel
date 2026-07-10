@@ -7,6 +7,7 @@ import { Article, CATEGORIES, formatByline } from "@/lib/types";
 import StarRating from "@/components/StarRating";
 import RichBodyEditor from "./RichBodyEditor";
 import MediaPicker from "./MediaPicker";
+import SeoPanel from "./SeoPanel";
 import { Card, Icon, btnPrimary, btnSecondary, input, microLabel } from "./ui";
 
 /** ISO → the "YYYY-MM-DDTHH:mm" shape a datetime-local input expects, in local time. */
@@ -37,6 +38,8 @@ export default function ArticleForm({ article }: { article?: Article }) {
   const [coAuthors, setCoAuthors] = useState(article?.coAuthors?.join(", ") ?? "");
   const [imageUrl, setImageUrl] = useState(article?.imageUrl ?? "");
   const [tags, setTags] = useState(article?.tags.join(", ") ?? "");
+  const [slug, setSlug] = useState(article?.slug ?? "");
+  const [metaDescription, setMetaDescription] = useState(article?.metaDescription ?? "");
   const [status, setStatus] = useState<string>(article?.status ?? "published");
   const [scheduledFor, setScheduledFor] = useState(toLocalInput(article?.scheduledFor));
   const [isBreaking, setIsBreaking] = useState(article?.isBreaking ?? false);
@@ -84,6 +87,8 @@ export default function ArticleForm({ article }: { article?: Article }) {
         coAuthors,
         imageUrl,
         tags,
+        slug,
+        metaDescription,
         status,
         scheduledFor:
           status === "scheduled" && scheduledFor
@@ -311,6 +316,18 @@ export default function ArticleForm({ article }: { article?: Article }) {
           onSelect={({ url }) => setImageUrl(url)}
         />
       </Card>
+
+      {/* Search & social */}
+      <SeoPanel
+        title={title}
+        slug={slug}
+        onSlugChange={setSlug}
+        metaDescription={metaDescription}
+        onMetaChange={setMetaDescription}
+        excerpt={excerpt}
+        imageUrl={imageUrl}
+        tags={tags}
+      />
 
       {/* Publishing */}
       <Card className="space-y-5 p-6">

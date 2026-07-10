@@ -25,6 +25,7 @@ import {
 } from "@/lib/store";
 import LiveFeed from "@/components/LiveFeed";
 import ArticleBody from "@/components/ArticleBody";
+import ReaderTracker from "@/components/ReaderTracker";
 import { verifyPreviewToken } from "@/lib/auth";
 import { effectiveStatus } from "@/lib/types";
 
@@ -39,12 +40,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = getBySlug(slug);
   if (!article) return { title: "Story not found" };
+  const description = article.metaDescription?.trim() || article.excerpt;
   return {
     title: article.title,
-    description: article.excerpt,
+    description,
     openGraph: {
       title: article.title,
-      description: article.excerpt,
+      description,
       type: "article",
       ...(article.imageUrl ? { images: [article.imageUrl] } : {}),
     },
@@ -82,6 +84,8 @@ export default async function ArticlePage({ params, searchParams }: Props) {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-50">
       <ReadingProgress />
+      {/* Previews are editorial, so they never pollute audience numbers. */}
+      {!isPreview && <ReaderTracker articleId={article.id} />}
 
       {isPreview && (
         <div className="bg-amber-400 px-4 py-2.5 text-center text-sm font-semibold text-amber-950">

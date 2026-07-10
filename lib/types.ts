@@ -63,6 +63,7 @@ export interface Article {
   authorId?: string; // links to an Editor account → byline photo + analytics
   coAuthors?: string[]; // additional editors who wrote the story
   imageUrl?: string;
+  metaDescription?: string; // search/social description; falls back to excerpt
   tags: string[];
   status: ArticleStatus;
   scheduledFor?: string; // ISO — when a "scheduled" story goes live
@@ -85,6 +86,30 @@ export interface LiveUpdate {
   editorId?: string;
   editorName: string;
   createdAt: string; // ISO
+}
+
+/** A single page view, kept compact — there are a lot of these. */
+export interface ViewEvent {
+  a: string; // articleId
+  t: number; // epoch ms
+}
+
+/** How far readers get through a story, aggregated (never per-reader). */
+export interface EngagementAgg {
+  samples: number;
+  depthSum: number; // sum of max scroll depth, 0–100
+  secondsSum: number;
+  completed: number; // readers reaching >= 90%
+}
+
+export type EngagementMap = Record<string, EngagementAgg>;
+
+export interface TrendingEntry {
+  article: Article;
+  recent: number; // views inside the window
+  previous: number; // views in the window before it
+  velocity: number; // views per hour, this window
+  change: number | null; // % change vs previous window; null when previous was 0
 }
 
 /** An uploaded image. The filename is the id — it is already unique. */
