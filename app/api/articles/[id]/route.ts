@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentEditor, canEditArticle } from "@/lib/auth";
-import { getById, updateArticle, deleteArticle } from "@/lib/store";
-import { Article, CATEGORIES } from "@/lib/types";
+import { getById, updateArticle, trashArticle, recordArticleAction } from "@/lib/store";
+import { parseSchedule } from "@/lib/schedule";
+import { ActivityAction, Article, CATEGORIES } from "@/lib/types";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -50,8 +51,14 @@ export async function PUT(req: Request, { params }: Params) {
     patch.imageUrl = String(body.imageUrl).trim() || undefined;
   if (body.category !== undefined && CATEGORIES.some((c) => c.slug === body.category))
     patch.category = body.category;
-  if (body.status !== undefined)
-    patch.status = body.status === "draft" ? "draft" : "published";
+  if (body.status !== undefined) {
+    const schedule = parseSchedule(body);
+    if ("error" in schedule) {
+      return NextResponse.json({ error: schedule.error }, { status: 400 });
+    }
+    patch.status = schedule.status;
+    patch.scheduledFor = schedule.scheduledFor;
+  }
   if (body.isBreaking !== undefined) patch.isBreaking = Boolean(body.isBreaking);
   if (body.isFeatured !== undefined) patch.isFeatured = Boolean(body.isFeatured);
   if (body.rating !== undefined)
@@ -66,6 +73,24 @@ export async function PUT(req: Request, { params }: Params) {
 
   const updated = updateArticle(id, patch);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  // Record the most meaningful thing that happened, not every field touched.
+  let action: ActivityAction = "article.updated";
+  let detail: string | undefined;
+  if (patch.status && patch.status !== existing.status) {
+    if (patch.status === "scheduled") {
+      action = "article.scheduled";
+      detail = updated.scheduledFor
+        ? `goes live ${new Date(updated.scheduledFor).toLocaleString()}`
+        : undefined;
+    } else if (patch.status === "published") {
+      action = "article.published";
+    } else if (patch.status === "draft") {
+      action = "article.unpublished";
+    }
+  }
+  recordArticleAction(action, me, updated, detail);
+
   return NextResponse.json(updated);
 }
 
@@ -80,8 +105,9 @@ export async function DELETE(_req: Request, { params }: Params) {
   if (!canEditArticle(me, existing)) {
     return NextResponse.json({ error: "This story belongs to another editor" }, { status: 403 });
   }
-  if (!deleteArticle(id)) {
+  if (!trashArticle(id)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json({ ok: true });
+  recordArticleAction("article.trashed", me, existing);
+  return NextResponse.json({ ok: true, trashed: true });
 }

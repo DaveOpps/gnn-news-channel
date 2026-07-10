@@ -2,8 +2,17 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Article, CATEGORIES, categoryMeta, formatByline } from "@/lib/types";
+import {
+  Article,
+  CATEGORIES,
+  categoryMeta,
+  effectiveStatus,
+  formatByline,
+  isArticleLive,
+  timeUntil,
+} from "@/lib/types";
 import StarRating from "@/components/StarRating";
+import PreviewLinkButton from "./PreviewLinkButton";
 import {
   Badge,
   Card,
@@ -18,7 +27,13 @@ import {
 const selectClass =
   "rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm font-medium text-zinc-700 transition-shadow focus:outline-none focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/5";
 
-export default function ArticlesManager({ initial }: { initial: Article[] }) {
+export default function ArticlesManager({
+  initial,
+  previewTokens = {},
+}: {
+  initial: Article[];
+  previewTokens?: Record<string, string>;
+}) {
   const [articles, setArticles] = useState<Article[]>(initial);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -28,7 +43,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
   const filtered = useMemo(() => {
     return articles.filter((a) => {
       if (category !== "all" && a.category !== category) return false;
-      if (status !== "all" && a.status !== status) return false;
+      if (status !== "all" && effectiveStatus(a) !== status) return false;
       if (query && !a.title.toLowerCase().includes(query.toLowerCase())) return false;
       return true;
     });
@@ -52,7 +67,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
   }
 
   async function remove(id: string, title: string) {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    if (!confirm(`Move "${title}" to the trash? You can restore it later.`)) return;
     setBusy(id);
     try {
       const res = await fetch(`/api/articles/${id}`, { method: "DELETE" });
@@ -110,6 +125,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
         >
           <option value="all">All statuses</option>
           <option value="published">Published</option>
+          <option value="scheduled">Scheduled</option>
           <option value="draft">Draft</option>
         </select>
       </Card>
@@ -133,6 +149,8 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
               {filtered.map((a) => {
                 const meta = categoryMeta(a.category);
                 const isBusy = busy === a.id;
+                const eff = effectiveStatus(a);
+                const live = isArticleLive(a);
                 const byline =
                   a.coAuthors && a.coAuthors.length > 0
                     ? formatByline(a.author, a.coAuthors).replace(/^By /, "")
@@ -171,15 +189,34 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
                         disabled={isBusy}
                         onClick={() =>
                           patch(a.id, {
-                            status: a.status === "published" ? "draft" : "published",
+                            status: eff === "published" ? "draft" : "published",
                           })
                         }
-                        title="Click to toggle status"
-                        className="cursor-pointer"
+                        title={
+                          eff === "scheduled"
+                            ? "Click to publish now"
+                            : eff === "published"
+                              ? "Click to unpublish"
+                              : "Click to publish"
+                        }
+                        className="cursor-pointer text-left"
                       >
-                        <Badge tone={a.status === "published" ? "success" : "warning"}>
-                          {a.status}
+                        <Badge
+                          tone={
+                            eff === "published"
+                              ? "success"
+                              : eff === "scheduled"
+                                ? "info"
+                                : "warning"
+                          }
+                        >
+                          {eff}
                         </Badge>
+                        {eff === "scheduled" && a.scheduledFor && (
+                          <span className="mt-0.5 block text-[11px] tabular-nums text-zinc-400">
+                            {timeUntil(a.scheduledFor)}
+                          </span>
+                        )}
                       </button>
                     </td>
 
@@ -231,14 +268,20 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
 
                     <td className="px-4 py-3.5">
                       <div className="flex items-center justify-end gap-1">
-                        <Link
-                          href={`/article/${a.slug}`}
-                          target="_blank"
-                          title="View on site"
-                          className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
-                        >
-                          <Icon.Eye className="h-4 w-4" />
-                        </Link>
+                        {live ? (
+                          <Link
+                            href={`/article/${a.slug}`}
+                            target="_blank"
+                            title="View on site"
+                            className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                          >
+                            <Icon.Eye className="h-4 w-4" />
+                          </Link>
+                        ) : (
+                          previewTokens[a.id] && (
+                            <PreviewLinkButton slug={a.slug} token={previewTokens[a.id]} />
+                          )
+                        )}
                         <Link
                           href={`/admin/articles/${a.id}`}
                           title="Edit"
@@ -249,7 +292,7 @@ export default function ArticlesManager({ initial }: { initial: Article[] }) {
                         <button
                           disabled={isBusy}
                           onClick={() => remove(a.id, a.title)}
-                          title="Delete"
+                          title="Move to trash"
                           className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600"
                         >
                           <Icon.Trash className="h-4 w-4" />

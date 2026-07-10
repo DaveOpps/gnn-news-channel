@@ -33,6 +33,26 @@ function editorIdFromSession(value: string | undefined): string | null {
   return id;
 }
 
+/**
+ * A shareable preview token for an unpublished story. Signed with the same
+ * secret, so a link cannot be guessed, but it needs no login — which is the
+ * point: you send it to someone outside the newsroom.
+ */
+export function previewToken(articleId: string): string {
+  return crypto
+    .createHmac("sha256", SECRET)
+    .update(`preview:${articleId}`)
+    .digest("hex")
+    .slice(0, 32);
+}
+
+export function verifyPreviewToken(articleId: string, token: string | undefined): boolean {
+  if (!token) return false;
+  const expected = previewToken(articleId);
+  if (token.length !== expected.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected));
+}
+
 /** Returns the editor when the credentials are valid, otherwise null. */
 export function verifyCredentials(username: string, password: string): Editor | null {
   const editor = getEditorByUsername(username);

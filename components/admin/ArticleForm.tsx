@@ -7,6 +7,22 @@ import { Article, CATEGORIES, formatByline } from "@/lib/types";
 import StarRating from "@/components/StarRating";
 import { Card, Icon, btnPrimary, btnSecondary, input, microLabel } from "./ui";
 
+/** ISO → the "YYYY-MM-DDTHH:mm" shape a datetime-local input expects, in local time. */
+function toLocalInput(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
+}
+
+/** Default a new schedule to one hour from now. */
+function defaultSchedule(): string {
+  return toLocalInput(new Date(Date.now() + 60 * 60 * 1000).toISOString());
+}
+
 export default function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
   const isEdit = Boolean(article);
@@ -20,6 +36,7 @@ export default function ArticleForm({ article }: { article?: Article }) {
   const [imageUrl, setImageUrl] = useState(article?.imageUrl ?? "");
   const [tags, setTags] = useState(article?.tags.join(", ") ?? "");
   const [status, setStatus] = useState<string>(article?.status ?? "published");
+  const [scheduledFor, setScheduledFor] = useState(toLocalInput(article?.scheduledFor));
   const [isBreaking, setIsBreaking] = useState(article?.isBreaking ?? false);
   const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
   const [rating, setRating] = useState<number>(article?.rating ?? 0);
@@ -64,6 +81,10 @@ export default function ArticleForm({ article }: { article?: Article }) {
         imageUrl,
         tags,
         status,
+        scheduledFor:
+          status === "scheduled" && scheduledFor
+            ? new Date(scheduledFor).toISOString()
+            : undefined,
         isBreaking,
         isFeatured,
         rating,
@@ -289,11 +310,18 @@ export default function ArticleForm({ article }: { article?: Article }) {
             <label className={label}>Status</label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value;
+                setStatus(next);
+                if (next === "scheduled" && !scheduledFor) {
+                  setScheduledFor(defaultSchedule());
+                }
+              }}
               className={input}
             >
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
+              <option value="published">Published — live now</option>
+              <option value="scheduled">Scheduled — publish later</option>
+              <option value="draft">Draft — not visible</option>
             </select>
           </div>
 
@@ -316,6 +344,24 @@ export default function ArticleForm({ article }: { article?: Article }) {
             </div>
           </div>
         </div>
+
+        {status === "scheduled" && (
+          <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-4">
+            <label className={`${label} text-blue-900`}>Publish at</label>
+            <input
+              type="datetime-local"
+              value={scheduledFor}
+              onChange={(e) => setScheduledFor(e.target.value)}
+              min={toLocalInput(new Date().toISOString())}
+              required
+              className={`${input} max-w-xs`}
+            />
+            <p className="mt-2 text-xs text-blue-800">
+              The story stays hidden until this time, then goes live automatically —
+              no further action needed.
+            </p>
+          </div>
+        )}
 
         <div className="divide-y divide-zinc-100 rounded-lg border border-zinc-200">
           <label className="flex cursor-pointer select-none items-start gap-3 p-4 transition-colors hover:bg-zinc-50/70">
@@ -353,7 +399,15 @@ export default function ArticleForm({ article }: { article?: Article }) {
       {/* Actions */}
       <div className="flex items-center gap-3 pb-4">
         <button type="submit" disabled={saving} className={btnPrimary}>
-          {saving ? "Saving…" : isEdit ? "Save changes" : "Publish article"}
+          {saving
+            ? "Saving…"
+            : isEdit
+              ? "Save changes"
+              : status === "scheduled"
+                ? "Schedule article"
+                : status === "draft"
+                  ? "Save draft"
+                  : "Publish article"}
         </button>
         <Link href="/admin/articles" className={btnSecondary}>
           Cancel

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentEditor } from "@/lib/auth";
-import { getAll, createArticle, getEditorById } from "@/lib/store";
+import { getAll, createArticle, getEditorById, recordArticleAction } from "@/lib/store";
 import { CATEGORIES, Category } from "@/lib/types";
+import { parseSchedule } from "@/lib/schedule";
 
 export async function GET() {
   if (!(await getCurrentEditor())) {
@@ -22,6 +23,11 @@ export async function POST(req: Request) {
   const category: Category = CATEGORIES.some((c) => c.slug === body.category)
     ? body.category
     : "world";
+
+  const schedule = parseSchedule(body);
+  if ("error" in schedule) {
+    return NextResponse.json({ error: schedule.error }, { status: 400 });
+  }
 
   // A story belongs to whoever wrote it. Admins may file on another editor's
   // behalf by passing authorId; everyone else is credited to themselves.
@@ -51,10 +57,21 @@ export async function POST(req: Request) {
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
-    status: body.status === "draft" ? "draft" : "published",
+    status: schedule.status,
+    scheduledFor: schedule.scheduledFor,
     isBreaking: Boolean(body.isBreaking),
     isFeatured: Boolean(body.isFeatured),
     rating: Math.max(0, Math.min(5, Math.round(Number(body.rating) || 0))),
   });
+
+  recordArticleAction(
+    schedule.status === "scheduled" ? "article.scheduled" : "article.created",
+    me,
+    article,
+    schedule.scheduledFor
+      ? `goes live ${new Date(schedule.scheduledFor).toLocaleString()}`
+      : undefined
+  );
+
   return NextResponse.json(article, { status: 201 });
 }

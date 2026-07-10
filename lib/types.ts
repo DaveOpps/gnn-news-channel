@@ -64,7 +64,9 @@ export interface Article {
   coAuthors?: string[]; // additional editors who wrote the story
   imageUrl?: string;
   tags: string[];
-  status: "published" | "draft";
+  status: ArticleStatus;
+  scheduledFor?: string; // ISO — when a "scheduled" story goes live
+  deletedAt?: string; // ISO — set when trashed; absent means active
   isBreaking: boolean;
   isFeatured: boolean;
   rating: number; // editorial quality rating, 0–5 (0 = unrated)
@@ -72,6 +74,83 @@ export interface Article {
   publishedAt: string; // ISO
   updatedAt: string; // ISO
 }
+
+export type ArticleStatus = "published" | "draft" | "scheduled";
+
+/**
+ * Whether readers can see this story right now. A scheduled story becomes
+ * live the moment its time passes — no cron job needed, because every public
+ * page is rendered on demand.
+ */
+export function isArticleLive(a: Article, now: number = Date.now()): boolean {
+  if (a.deletedAt) return false;
+  if (a.status === "published") return true;
+  if (a.status === "scheduled" && a.scheduledFor) {
+    return new Date(a.scheduledFor).getTime() <= now;
+  }
+  return false;
+}
+
+/** What the status *reads as* today — a scheduled story past its time is published. */
+export function effectiveStatus(a: Article, now: number = Date.now()): ArticleStatus {
+  if (a.status === "scheduled" && a.scheduledFor) {
+    return new Date(a.scheduledFor).getTime() <= now ? "published" : "scheduled";
+  }
+  return a.status;
+}
+
+/** Human countdown for a pending scheduled story, e.g. "in 3h 20m". */
+export function timeUntil(iso: string, now: number = Date.now()): string {
+  const ms = new Date(iso).getTime() - now;
+  if (ms <= 0) return "now";
+  const mins = Math.round(ms / 60000);
+  if (mins < 60) return `in ${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `in ${hours}h ${mins % 60}m`;
+  return `in ${Math.floor(hours / 24)}d ${hours % 24}h`;
+}
+
+export type ActivityAction =
+  | "article.created"
+  | "article.updated"
+  | "article.published"
+  | "article.unpublished"
+  | "article.scheduled"
+  | "article.trashed"
+  | "article.restored"
+  | "article.purged"
+  | "comment.approved"
+  | "comment.deleted"
+  | "editor.added"
+  | "editor.updated"
+  | "editor.removed";
+
+export interface ActivityEvent {
+  id: string;
+  at: string; // ISO
+  editorId?: string;
+  editorName: string;
+  action: ActivityAction;
+  target: string; // human-readable subject, e.g. the headline
+  targetId?: string;
+  detail?: string;
+}
+
+export const ACTIVITY_LABELS: Record<ActivityAction, string> = {
+  "article.created": "created",
+  "article.updated": "updated",
+  "article.published": "published",
+  "article.unpublished": "unpublished",
+  "article.scheduled": "scheduled",
+  "article.trashed": "moved to trash",
+  "article.restored": "restored",
+  "article.purged": "permanently deleted",
+  "comment.approved": "approved a comment on",
+  "comment.deleted": "deleted a comment on",
+  "editor.added": "added editor",
+  "editor.updated": "updated editor",
+  "editor.removed": "removed editor",
+};
 
 /** "admin" manages editor accounts and every article; "editor" owns only their own. */
 export type EditorRole = "admin" | "editor";

@@ -20,11 +20,17 @@ import {
   incrementViews,
   getApprovedComments,
   getEditorForArticle,
+  getBySlugForPreview,
 } from "@/lib/store";
+import { verifyPreviewToken } from "@/lib/auth";
+import { effectiveStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -42,12 +48,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ArticlePage({ params }: Props) {
+export default async function ArticlePage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const article = getBySlug(slug);
+  const { preview } = await searchParams;
+
+  // A live story is public. Anything else needs a valid, signed preview token.
+  let article = getBySlug(slug);
+  let isPreview = false;
+  if (!article && preview) {
+    const candidate = getBySlugForPreview(slug);
+    if (candidate && verifyPreviewToken(candidate.id, preview)) {
+      article = candidate;
+      isPreview = true;
+    }
+  }
   if (!article) notFound();
 
-  incrementViews(article.id);
+  // Previews are editorial, not audience — they must not inflate the count.
+  if (!isPreview) incrementViews(article.id);
 
   const related = getByCategory(article.category)
     .filter((a) => a.id !== article.id)
@@ -61,6 +79,17 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-50">
       <ReadingProgress />
+
+      {isPreview && (
+        <div className="bg-amber-400 px-4 py-2.5 text-center text-sm font-semibold text-amber-950">
+          Preview — this story is{" "}
+          {effectiveStatus(article) === "scheduled" && article.scheduledFor
+            ? `scheduled for ${new Date(article.scheduledFor).toLocaleString()}`
+            : "an unpublished draft"}{" "}
+          and is not visible to the public.
+        </div>
+      )}
+
       <SiteHeader />
       <BreakingTicker articles={getBreaking()} />
 

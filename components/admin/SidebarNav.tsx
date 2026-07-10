@@ -4,18 +4,44 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "./ui";
 
-type Item = { href: string; label: string; icon: React.ReactNode; exact?: boolean };
+type Item = {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  exact?: boolean;
+  badge?: number;
+};
 
-export default function SidebarNav({ isAdmin }: { isAdmin: boolean }) {
+export default function SidebarNav({
+  isAdmin,
+  pendingComments = 0,
+  trashedCount = 0,
+}: {
+  isAdmin: boolean;
+  pendingComments?: number;
+  trashedCount?: number;
+}) {
   const pathname = usePathname();
 
   const items: Item[] = [
     { href: "/admin", label: "Dashboard", icon: <Icon.Dashboard className="h-[18px] w-[18px]" />, exact: true },
     { href: "/admin/articles", label: "Articles", icon: <Icon.Articles className="h-[18px] w-[18px]" /> },
     { href: "/admin/articles/new", label: "New Article", icon: <Icon.Pen className="h-[18px] w-[18px]" />, exact: true },
-    { href: "/admin/comments", label: "Comments", icon: <Icon.Comments className="h-[18px] w-[18px]" /> },
+    {
+      href: "/admin/comments",
+      label: "Comments",
+      icon: <Icon.Comments className="h-[18px] w-[18px]" />,
+      badge: pendingComments,
+    },
     { href: "/admin/subscribers", label: "Subscribers", icon: <Icon.Mail className="h-[18px] w-[18px]" /> },
     { href: "/admin/analytics", label: "Performance", icon: <Icon.Chart className="h-[18px] w-[18px]" /> },
+    { href: "/admin/activity", label: "Activity", icon: <Icon.Trend className="h-[18px] w-[18px]" /> },
+    {
+      href: "/admin/trash",
+      label: "Trash",
+      icon: <Icon.Trash className="h-[18px] w-[18px]" />,
+      badge: trashedCount,
+    },
   ];
 
   if (isAdmin) {
@@ -63,6 +89,11 @@ export default function SidebarNav({ isAdmin }: { isAdmin: boolean }) {
               {item.icon}
             </span>
             {item.label}
+            {item.badge ? (
+              <span className="ml-auto rounded-full bg-brand px-1.5 py-0.5 text-[10px] font-semibold tabular-nums leading-none text-white">
+                {item.badge}
+              </span>
+            ) : null}
           </Link>
         );
       })}

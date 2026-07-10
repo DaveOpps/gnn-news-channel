@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import {
+  ActivityAction,
+  ActivityEvent,
   Article,
   Comment,
   Editor,
@@ -8,6 +10,7 @@ import {
   EditorStats,
   PublicEditor,
   Subscriber,
+  isArticleLive,
   toPublicEditor,
 } from "./types";
 import { SEED_ARTICLES, SEED_EDITORS } from "./seed";
@@ -17,6 +20,7 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "articles.json");
 const COMMENTS_FILE = path.join(DATA_DIR, "comments.json");
 const SUBSCRIBERS_FILE = path.join(DATA_DIR, "subscribers.json");
+const ACTIVITY_FILE = path.join(DATA_DIR, "activity.json");
 const EDITORS_FILE = path.join(DATA_DIR, "editors.json");
 
 /**
@@ -104,16 +108,23 @@ export function slugify(title: string): string {
     .slice(0, 80);
 }
 
-// ---- Public (published only) ----
+// ---- Public (live stories only) ----
 
 export function getPublished(): Article[] {
+  const now = Date.now();
   return readAll()
-    .filter((a) => a.status === "published")
+    .filter((a) => isArticleLive(a, now))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
 export function getBySlug(slug: string): Article | undefined {
-  return readAll().find((a) => a.slug === slug && a.status === "published");
+  const now = Date.now();
+  return readAll().find((a) => a.slug === slug && isArticleLive(a, now));
+}
+
+/** Any non-trashed story by slug — used only behind a valid preview token. */
+export function getBySlugForPreview(slug: string): Article | undefined {
+  return readAll().find((a) => a.slug === slug && !a.deletedAt);
 }
 
 export function getBreaking(): Article[] {
@@ -152,10 +163,19 @@ export function incrementViews(id: string) {
   }
 }
 
-// ---- Admin (all articles) ----
+// ---- Admin (all active articles) ----
 
 export function getAll(): Article[] {
-  return readAll().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  return readAll()
+    .filter((a) => !a.deletedAt)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+}
+
+/** Trashed stories, newest deletion first. */
+export function getTrashed(): Article[] {
+  return readAll()
+    .filter((a) => a.deletedAt)
+    .sort((a, b) => (b.deletedAt ?? "").localeCompare(a.deletedAt ?? ""));
 }
 
 export function getById(id: string): Article | undefined {
@@ -176,12 +196,17 @@ export function createArticle(
   let n = 2;
   while (all.some((a) => a.slug === unique)) unique = `${slug}-${n++}`;
 
+  // A scheduled story is dated by when it will go live, so it sorts and reads
+  // correctly the moment it appears.
+  const publishedAt =
+    input.status === "scheduled" && input.scheduledFor ? input.scheduledFor : now;
+
   const article: Article = {
     ...input,
     id: `a${Date.now()}${Math.floor(Math.random() * 1000)}`,
     slug: unique,
     views: 0,
-    publishedAt: now,
+    publishedAt,
     updatedAt: now,
   };
   all.push(article);
@@ -206,23 +231,98 @@ export function updateArticle(
     patch.slug = unique;
   }
 
+  const nextStatus = patch.status ?? current.status;
+  const nextSchedule = patch.scheduledFor ?? current.scheduledFor;
+
+  if (nextStatus === "scheduled" && nextSchedule) {
+    // Keep the publish date pinned to the moment it will go live.
+    patch.publishedAt = nextSchedule;
+  } else if (nextStatus === "published") {
+    // Publishing outright cancels any schedule, and a future date would sort
+    // the story above everything and read as tomorrow's news.
+    patch.scheduledFor = undefined;
+    const stamped = patch.publishedAt ?? current.publishedAt;
+    if (new Date(stamped).getTime() > Date.now()) {
+      patch.publishedAt = new Date().toISOString();
+    }
+  }
+
   all[idx] = { ...current, ...patch, id, updatedAt: new Date().toISOString() };
   writeAll(all);
   return all[idx];
 }
 
-export function deleteArticle(id: string): boolean {
+/** Move a story to the trash. Comments are kept so a restore is lossless. */
+export function trashArticle(id: string): boolean {
+  const all = readAll();
+  const idx = all.findIndex((a) => a.id === id && !a.deletedAt);
+  if (idx < 0) return false;
+  all[idx] = { ...all[idx], deletedAt: new Date().toISOString() };
+  writeAll(all);
+  return true;
+}
+
+export function restoreArticle(id: string): Article | undefined {
+  const all = readAll();
+  const idx = all.findIndex((a) => a.id === id && a.deletedAt);
+  if (idx < 0) return undefined;
+  const { deletedAt: _removed, ...rest } = all[idx];
+  void _removed;
+  all[idx] = rest as Article;
+  writeAll(all);
+  return all[idx];
+}
+
+/** Permanently remove a trashed story and its comments. Not recoverable. */
+export function purgeArticle(id: string): boolean {
   const all = readAll();
   const next = all.filter((a) => a.id !== id);
   if (next.length === all.length) return false;
   writeAll(next);
-  // clean up this article's comments too
   const comments = readJson<Comment[]>(COMMENTS_FILE, []);
   writeJson(
     COMMENTS_FILE,
     comments.filter((c) => c.articleId !== id)
   );
   return true;
+}
+
+// ---- Activity log ----
+
+export function logActivity(event: Omit<ActivityEvent, "id" | "at">): ActivityEvent {
+  const events = readJson<ActivityEvent[]>(ACTIVITY_FILE, []);
+  const entry: ActivityEvent = {
+    ...event,
+    id: `e${Date.now()}${Math.floor(Math.random() * 1000)}`,
+    at: new Date().toISOString(),
+  };
+  events.push(entry);
+  // Keep the log bounded — this is a newsroom feed, not an archive.
+  writeJson(ACTIVITY_FILE, events.slice(-500));
+  return entry;
+}
+
+export function getActivity(limit = 100): ActivityEvent[] {
+  return readJson<ActivityEvent[]>(ACTIVITY_FILE, [])
+    .sort((a, b) => b.at.localeCompare(a.at))
+    .slice(0, limit);
+}
+
+/** Convenience wrapper so callers don't repeat the action-name strings. */
+export function recordArticleAction(
+  action: ActivityAction,
+  editor: { id: string; name: string } | null,
+  article: { id: string; title: string },
+  detail?: string
+) {
+  logActivity({
+    action,
+    editorId: editor?.id,
+    editorName: editor?.name ?? "Someone",
+    target: article.title,
+    targetId: article.id,
+    detail,
+  });
 }
 
 // ---- Comments ----
@@ -237,6 +337,10 @@ export function getAllComments(): Comment[] {
   return readJson<Comment[]>(COMMENTS_FILE, []).sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt)
   );
+}
+
+export function getCommentById(id: string): Comment | undefined {
+  return readJson<Comment[]>(COMMENTS_FILE, []).find((c) => c.id === id);
 }
 
 export function countPendingComments(): number {
@@ -469,7 +573,7 @@ export function getEditorForArticle(article: Article): PublicEditor | undefined 
 
 /** Per-editor performance, sorted by total views. Powers the analytics board. */
 export function getEditorStats(): EditorStats[] {
-  const articles = readAll();
+  const articles = readAll().filter((a) => !a.deletedAt);
   return getEditors()
     .map((editor) => {
       const mine = articles.filter((a) => isAuthoredBy(a, editor));

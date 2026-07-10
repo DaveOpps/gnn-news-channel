@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentEditor } from "@/lib/auth";
+import { countPendingComments, getTrashed } from "@/lib/store";
 import LogoutButton from "@/components/admin/LogoutButton";
 import SidebarNav from "@/components/admin/SidebarNav";
 import EditorAvatar from "@/components/EditorAvatar";
@@ -31,7 +32,11 @@ export default async function AdminLayout({
           </Link>
         </div>
 
-        <SidebarNav isAdmin={me.role === "admin"} />
+        <SidebarNav
+          isAdmin={me.role === "admin"}
+          pendingComments={countPendingComments()}
+          trashedCount={getTrashed().length}
+        />
 
         <div className="space-y-1 border-t border-zinc-800/80 p-3">
           <Link
