@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Subscriber } from "@/lib/types";
+import { Card, EmptyState, Icon, PageHeader, btnSecondary, microLabel } from "./ui";
 
 export default function SubscribersManager({ initial }: { initial: Subscriber[] }) {
   const [subs, setSubs] = useState<Subscriber[]>(initial);
@@ -33,58 +34,73 @@ export default function SubscribersManager({ initial }: { initial: Subscriber[] 
     URL.revokeObjectURL(url);
   }
 
+  const th = `px-4 py-3 text-left ${microLabel}`;
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-black text-2xl">
-          Newsletter Subscribers ({subs.length})
-        </h1>
-        <button
-          onClick={exportCsv}
-          disabled={subs.length === 0}
-          className="bg-ink hover:bg-black disabled:opacity-40 text-white font-bold text-xs px-5 py-2.5 uppercase tracking-widest transition-colors"
-        >
-          ⬇ Export CSV
-        </button>
-      </div>
+      <PageHeader
+        title="Subscribers"
+        subtitle={`${subs.length} ${subs.length === 1 ? "person" : "people"} on the newsletter`}
+        action={
+          <button onClick={exportCsv} disabled={subs.length === 0} className={btnSecondary}>
+            <Icon.Download className="h-4 w-4" />
+            Export CSV
+          </button>
+        }
+      />
 
-      {subs.length === 0 ? (
-        <div className="bg-white shadow-sm px-6 py-16 text-center text-neutral-400">
-          No subscribers yet. The signup form appears on the homepage, article pages
-          and the Live page.
-        </div>
-      ) : (
-        <div className="bg-white shadow-sm overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-200 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                <th className="px-5 py-3">Email</th>
-                <th className="px-3 py-3">Subscribed</th>
-                <th className="px-5 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {subs.map((s) => (
-                <tr key={s.email} className={busy === s.email ? "opacity-50" : ""}>
-                  <td className="px-5 py-3.5 font-semibold">{s.email}</td>
-                  <td className="px-3 py-3.5 text-neutral-500">
-                    {new Date(s.createdAt).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3.5 text-right">
-                    <button
-                      disabled={busy === s.email}
-                      onClick={() => remove(s.email)}
-                      className="text-xs font-semibold text-red-600 hover:underline"
-                    >
-                      Remove
-                    </button>
-                  </td>
+      <Card className="overflow-hidden">
+        {subs.length === 0 ? (
+          <EmptyState
+            title="No subscribers yet"
+            description="The signup form appears on the homepage, article pages and the Live page."
+            icon={<Icon.Mail className="h-8 w-8" />}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-zinc-200 bg-zinc-50/70">
+                  <th className={th}>Email</th>
+                  <th className={th}>Subscribed</th>
+                  <th className={`${th} text-right`}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {subs.map((s) => (
+                  <tr
+                    key={s.email}
+                    className={`transition-colors hover:bg-zinc-50/70 ${
+                      busy === s.email ? "opacity-50" : ""
+                    }`}
+                  >
+                    <td className="px-4 py-3.5 text-sm font-medium text-zinc-900">
+                      {s.email}
+                    </td>
+                    <td className="px-4 py-3.5 text-sm tabular-nums text-zinc-500">
+                      {new Date(s.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <button
+                        disabled={busy === s.email}
+                        onClick={() => remove(s.email)}
+                        title="Remove subscriber"
+                        className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                      >
+                        <Icon.Trash className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

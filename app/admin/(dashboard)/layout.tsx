@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentEditor } from "@/lib/auth";
 import LogoutButton from "@/components/admin/LogoutButton";
+import SidebarNav from "@/components/admin/SidebarNav";
 import EditorAvatar from "@/components/EditorAvatar";
+import { Icon } from "@/components/admin/ui";
 
 export default async function AdminLayout({
   children,
@@ -15,116 +17,63 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="flex min-h-screen bg-zinc-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-b from-neutral-dark to-neutral-dark border-r-4 border-brand text-white flex flex-col shrink-0 min-h-screen sticky top-0">
-        {/* Logo Section */}
-        <div className="p-6 border-b-2 border-white/10">
-          <Link href="/admin" className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-brand to-brand-dark text-white font-black text-2xl px-2.5 py-1 leading-none">
+      <aside className="sticky top-0 flex min-h-screen w-64 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
+        <div className="flex h-16 items-center border-b border-zinc-800/80 px-5">
+          <Link href="/admin" className="flex items-center gap-2.5">
+            <span className="bg-brand px-2 py-1 text-lg font-bold leading-none tracking-tight text-white">
               GNN
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-black tracking-[0.2em] uppercase text-brand-accent">Admin</span>
-              <span className="text-[8px] font-bold text-white/60">Newsroom</span>
-            </div>
+            </span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              Newsroom
+            </span>
           </Link>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 text-sm font-semibold">
-          <Link
-            href="/admin"
-            className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
-          >
-            📊 Dashboard
-          </Link>
-          <Link
-            href="/admin/articles"
-            className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
-          >
-            📰 Articles
-          </Link>
-          <Link
-            href="/admin/articles/new"
-            className="block px-4 py-3 rounded-lg bg-brand/20 text-brand-accent font-bold border-l-3 border-brand-accent transition-all duration-200"
-          >
-            ✏️ New Article
-          </Link>
-          <Link
-            href="/admin/comments"
-            className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
-          >
-            💬 Comments
-          </Link>
-          <Link
-            href="/admin/subscribers"
-            className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
-          >
-            📧 Subscribers
-          </Link>
-          <Link
-            href="/admin/analytics"
-            className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
-          >
-            📈 Editor Performance
-          </Link>
-          {me.role === "admin" && (
-            <Link
-              href="/admin/editors"
-              className="block px-4 py-3 rounded-lg hover:bg-white/10 hover:text-brand-accent transition-all duration-200 border-l-3 border-transparent hover:border-brand-accent"
-            >
-              👥 Editors
-            </Link>
-          )}
-        </nav>
+        <SidebarNav isAdmin={me.role === "admin"} />
 
-        {/* Signed-in editor */}
-        <div className="p-4 border-t border-white/10 flex items-center gap-3">
-          <EditorAvatar name={me.name} photoUrl={me.photoUrl} size={38} />
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-white truncate">{me.name}</p>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-accent">
-              {me.role === "admin" ? "Admin" : "Editor"}
-            </p>
-          </div>
-        </div>
-
-        {/* View Site Link */}
-        <div className="p-4 border-t border-white/10">
+        <div className="space-y-1 border-t border-zinc-800/80 p-3">
           <Link
             href="/"
             target="_blank"
-            className="block px-4 py-3 rounded-lg hover:bg-brand/20 text-white/70 hover:text-brand-accent transition-all duration-200 font-semibold text-center border border-brand/30"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-zinc-800/40 hover:text-zinc-100"
           >
-            🌐 View Live Site
+            <Icon.Globe className="h-[18px] w-[18px] text-zinc-500" />
+            View live site
+            <Icon.External className="ml-auto h-3.5 w-3.5 text-zinc-600" />
           </Link>
+          <LogoutButton />
         </div>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-white/10">
-          <LogoutButton />
+        <div className="flex items-center gap-3 border-t border-zinc-800/80 p-4">
+          <EditorAvatar name={me.name} photoUrl={me.photoUrl} size={36} />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-zinc-100">{me.name}</p>
+            <p className="text-xs text-zinc-500">
+              {me.role === "admin" ? "Administrator" : me.title || "Editor"}
+            </p>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0">
-        {/* Header */}
-        <header className="bg-white border-b-2 border-neutral-200 px-8 h-16 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+      {/* Main */}
+      <div className="min-w-0 flex-1">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-zinc-200 bg-white/85 px-8 backdrop-blur">
           <div>
-            <h1 className="text-lg font-black text-neutral-dark">GNN Newsroom Control Panel</h1>
-            <p className="text-xs text-neutral-gray mt-0.5">Manage Ghana news coverage</p>
+            <p className="text-sm font-medium text-zinc-900">Newsroom Control Panel</p>
+            <p className="text-xs text-zinc-500">Ghana News Network</p>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xs bg-green-100 text-green-700 font-bold px-3 py-1.5 rounded-full flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              Signed in as {me.name}
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Signed in
             </span>
+            <EditorAvatar name={me.name} photoUrl={me.photoUrl} size={32} />
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <main className="p-8 bg-background">{children}</main>
+        <main className="p-8">{children}</main>
       </div>
     </div>
   );

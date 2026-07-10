@@ -4,6 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import EditorAvatar from "@/components/EditorAvatar";
 import { EditorRole, PublicEditor } from "@/lib/types";
+import {
+  Badge,
+  Card,
+  EmptyState,
+  Icon,
+  PageHeader,
+  btnPrimary,
+  input,
+  microLabel,
+} from "./ui";
 
 type Draft = {
   name: string;
@@ -132,170 +142,185 @@ export default function EditorsManager({
   }
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="font-black text-3xl text-neutral-dark">Editors</h1>
-        <p className="text-neutral-gray mt-1">
-          Each editor signs in with their own account. Their photo appears on every
-          story they write and on the performance board.
-        </p>
-      </header>
+    <div className="space-y-6">
+      <PageHeader
+        title="Editors"
+        subtitle="Each editor signs in with their own account. Their photo appears on every story they write."
+      />
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm font-semibold px-4 py-3 rounded-lg">
-          {error}
+        <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <Icon.Alert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_380px]">
         {/* Roster */}
-        <div className="bg-white rounded-lg border border-neutral-200 divide-y divide-neutral-100">
+        <Card className="overflow-hidden">
+          <div className="border-b border-zinc-200 bg-zinc-50/70 px-5 py-3">
+            <h2 className="text-sm font-semibold text-zinc-900">
+              Roster
+              <span className="ml-2 text-xs font-normal tabular-nums text-zinc-400">
+                {editors.length}
+              </span>
+            </h2>
+          </div>
+
           {editors.length === 0 ? (
-            <p className="p-6 text-neutral-gray">No editors yet.</p>
+            <EmptyState title="No editors yet" icon={<Icon.Users className="h-8 w-8" />} />
           ) : (
-            editors.map((e) => (
-              <div key={e.id} className="flex items-center gap-4 p-4">
-                <EditorAvatar name={e.name} photoUrl={e.photoUrl} size={48} />
-                <div className="min-w-0 flex-1">
-                  <p className="font-black text-neutral-dark truncate">
-                    {e.name}
-                    {e.id === currentEditorId && (
-                      <span className="ml-2 text-[10px] font-black uppercase tracking-wider text-brand">
-                        You
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-neutral-gray truncate">
-                    @{e.username}
-                    {e.title ? ` · ${e.title}` : ""}
-                  </p>
-                </div>
-                <span
-                  className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded ${
-                    e.role === "admin"
-                      ? "bg-brand/10 text-brand"
-                      : "bg-neutral-100 text-neutral-gray"
-                  }`}
-                >
-                  {e.role}
-                </span>
-                <button
-                  onClick={() => startEdit(e)}
-                  className="text-xs font-bold text-neutral-gray hover:text-brand px-2 py-1"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => remove(e.id)}
-                  disabled={e.id === currentEditorId}
-                  title={
-                    e.id === currentEditorId ? "You can't remove your own account" : "Remove"
-                  }
-                  className="text-xs font-bold text-neutral-gray hover:text-red-600 px-2 py-1 disabled:opacity-30 disabled:hover:text-neutral-gray"
-                >
-                  Remove
-                </button>
-              </div>
-            ))
+            <ul className="divide-y divide-zinc-100">
+              {editors.map((e) => {
+                const isSelf = e.id === currentEditorId;
+                return (
+                  <li
+                    key={e.id}
+                    className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-zinc-50/70"
+                  >
+                    <EditorAvatar name={e.name} photoUrl={e.photoUrl} size={40} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-zinc-900">
+                        {e.name}
+                        {isSelf && (
+                          <span className="ml-2 align-middle text-[10px] font-medium uppercase tracking-wider text-brand">
+                            You
+                          </span>
+                        )}
+                      </p>
+                      <p className="truncate text-xs text-zinc-500">
+                        @{e.username}
+                        {e.title ? ` · ${e.title}` : ""}
+                      </p>
+                    </div>
+
+                    <Badge tone={e.role === "admin" ? "brand" : "neutral"}>{e.role}</Badge>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => startEdit(e)}
+                        title="Edit editor"
+                        className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                      >
+                        <Icon.Pen className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => remove(e.id)}
+                        disabled={isSelf}
+                        title={isSelf ? "You can't remove your own account" : "Remove editor"}
+                        className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+                      >
+                        <Icon.Trash className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </div>
+        </Card>
 
         {/* Add / edit form */}
-        <form
-          onSubmit={save}
-          className="bg-white rounded-lg border border-neutral-200 p-6 space-y-4 sticky top-6"
-        >
-          <h2 className="font-black text-lg text-neutral-dark">
-            {isNew ? "Add an editor" : `Edit ${draft.name || "editor"}`}
-          </h2>
+        <Card className="sticky top-24 p-6">
+          <form onSubmit={save} className="space-y-5">
+            <h2 className="text-sm font-semibold text-zinc-900">
+              {isNew ? "Add an editor" : `Edit ${draft.name || "editor"}`}
+            </h2>
 
-          <div className="flex items-center gap-4">
-            <EditorAvatar name={draft.name || "New"} photoUrl={draft.photoUrl || undefined} size={56} />
+            <div className="flex items-center gap-4">
+              <EditorAvatar
+                name={draft.name || "New"}
+                photoUrl={draft.photoUrl || undefined}
+                size={52}
+              />
+              <div>
+                <label className="cursor-pointer text-xs font-medium text-zinc-700 transition-colors hover:text-brand">
+                  {uploading ? "Uploading…" : draft.photoUrl ? "Change photo" : "Upload photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={uploadPhoto}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+                {draft.photoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setDraft((d) => ({ ...d, photoUrl: "" }))}
+                    className="mt-0.5 block text-[11px] text-zinc-400 transition-colors hover:text-red-600"
+                  >
+                    Remove photo
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <Field
+              label="Full name"
+              value={draft.name}
+              onChange={(v) => setDraft((d) => ({ ...d, name: v }))}
+              placeholder="Ama Boateng"
+              required
+            />
+            <Field
+              label="Username"
+              value={draft.username}
+              onChange={(v) => setDraft((d) => ({ ...d, username: v }))}
+              placeholder="ama"
+              required
+            />
+            <Field
+              label={isNew ? "Password" : "New password"}
+              hint={isNew ? undefined : "leave blank to keep current"}
+              value={draft.password}
+              onChange={(v) => setDraft((d) => ({ ...d, password: v }))}
+              placeholder="At least 6 characters"
+              type="password"
+              required={isNew}
+            />
+            <Field
+              label="Desk / title"
+              hint="optional"
+              value={draft.title}
+              onChange={(v) => setDraft((d) => ({ ...d, title: v }))}
+              placeholder="Politics Desk"
+            />
+
             <div>
-              <label className="text-xs font-bold text-brand cursor-pointer hover:underline">
-                {uploading ? "Uploading…" : draft.photoUrl ? "Change photo" : "Upload photo"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={uploadPhoto}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-              {draft.photoUrl && (
+              <label className={`mb-1.5 block ${microLabel}`}>Role</label>
+              <select
+                value={draft.role}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, role: e.target.value as EditorRole }))
+                }
+                className={input}
+              >
+                <option value="editor">Editor — writes and manages their own stories</option>
+                <option value="admin">Admin — manages editors and every story</option>
+              </select>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                type="submit"
+                disabled={busy || uploading}
+                className={`${btnPrimary} flex-1`}
+              >
+                {busy ? "Saving…" : isNew ? "Add editor" : "Save changes"}
+              </button>
+              {!isNew && (
                 <button
                   type="button"
-                  onClick={() => setDraft((d) => ({ ...d, photoUrl: "" }))}
-                  className="block text-[11px] text-neutral-gray hover:text-red-600 mt-0.5"
+                  onClick={reset}
+                  className="px-4 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900"
                 >
-                  Remove photo
+                  Cancel
                 </button>
               )}
             </div>
-          </div>
-
-          <Field
-            label="Full name"
-            value={draft.name}
-            onChange={(v) => setDraft((d) => ({ ...d, name: v }))}
-            placeholder="Ama Boateng"
-            required
-          />
-          <Field
-            label="Username"
-            value={draft.username}
-            onChange={(v) => setDraft((d) => ({ ...d, username: v }))}
-            placeholder="ama"
-            required
-          />
-          <Field
-            label={isNew ? "Password" : "New password (leave blank to keep)"}
-            value={draft.password}
-            onChange={(v) => setDraft((d) => ({ ...d, password: v }))}
-            placeholder="At least 6 characters"
-            type="password"
-            required={isNew}
-          />
-          <Field
-            label="Desk / title (optional)"
-            value={draft.title}
-            onChange={(v) => setDraft((d) => ({ ...d, title: v }))}
-            placeholder="Politics Desk"
-          />
-
-          <div>
-            <label className="block text-[11px] font-black uppercase tracking-widest text-neutral-gray mb-1">
-              Role
-            </label>
-            <select
-              value={draft.role}
-              onChange={(e) => setDraft((d) => ({ ...d, role: e.target.value as EditorRole }))}
-              className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm"
-            >
-              <option value="editor">Editor — writes and manages their own stories</option>
-              <option value="admin">Admin — manages editors and every story</option>
-            </select>
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            <button
-              type="submit"
-              disabled={busy || uploading}
-              className="flex-1 bg-brand text-white font-black text-sm py-2.5 rounded-lg hover:bg-brand-dark disabled:opacity-50"
-            >
-              {busy ? "Saving…" : isNew ? "Add editor" : "Save changes"}
-            </button>
-            {!isNew && (
-              <button
-                type="button"
-                onClick={reset}
-                className="px-4 py-2.5 text-sm font-bold text-neutral-gray hover:text-neutral-dark"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
+          </form>
+        </Card>
       </div>
     </div>
   );
@@ -303,6 +328,7 @@ export default function EditorsManager({
 
 function Field({
   label,
+  hint,
   value,
   onChange,
   placeholder,
@@ -310,6 +336,7 @@ function Field({
   required = false,
 }: {
   label: string;
+  hint?: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
@@ -318,8 +345,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-[11px] font-black uppercase tracking-widest text-neutral-gray mb-1">
+      <label className={`mb-1.5 block ${microLabel}`}>
         {label}
+        {hint && (
+          <span className="ml-1 font-normal normal-case tracking-normal text-zinc-400">
+            — {hint}
+          </span>
+        )}
       </label>
       <input
         type={type}
@@ -327,7 +359,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"
+        className={input}
       />
     </div>
   );

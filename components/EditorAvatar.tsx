@@ -24,7 +24,7 @@ export default function EditorAvatar({
         src={photoUrl}
         alt={name}
         style={dimension}
-        className={`rounded-full object-cover shrink-0 ring-2 ring-white shadow-sm ${className}`}
+        className={`rounded-full object-cover shrink-0 ring-1 ring-black/5 ${className}`}
       />
     );
   }
@@ -32,7 +32,7 @@ export default function EditorAvatar({
   return (
     <span
       style={{ ...dimension, fontSize: Math.max(10, Math.round(size * 0.36)) }}
-      className={`rounded-full shrink-0 flex items-center justify-center font-black text-white bg-gradient-to-br from-brand to-brand-dark ring-2 ring-white shadow-sm ${className}`}
+      className={`rounded-full shrink-0 flex items-center justify-center font-semibold tracking-tight text-white bg-brand ring-1 ring-black/5 ${className}`}
       aria-hidden="true"
     >
       {editorInitials(name)}

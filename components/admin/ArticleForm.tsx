@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Article, CATEGORIES, formatByline } from "@/lib/types";
 import StarRating from "@/components/StarRating";
+import { Card, Icon, btnPrimary, btnSecondary, input, microLabel } from "./ui";
 
 export default function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
@@ -87,61 +88,74 @@ export default function ArticleForm({ article }: { article?: Article }) {
     }
   }
 
+  const sectionTitle = "text-sm font-semibold text-zinc-900";
+  const label = `mb-1.5 block ${microLabel}`;
+  const hint = "text-xs font-normal normal-case tracking-normal text-zinc-400";
+
+  const coAuthorList = coAuthors
+    .split(",")
+    .map((n) => n.trim())
+    .filter(Boolean);
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
-      <div className="flex items-center justify-between">
+    <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-black text-3xl text-neutral-dark">
-            {isEdit ? "Edit Article" : "Create New Article"}
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            {isEdit ? "Edit article" : "New article"}
           </h1>
-          <p className="text-neutral-gray text-sm mt-1">{isEdit ? "Update story details" : "Add a story to Ghana News Network"}</p>
+          <p className="mt-1 text-sm text-zinc-500">
+            {isEdit
+              ? "Update this story's content and publication settings."
+              : "Write a story and publish it to Ghana News Network."}
+          </p>
         </div>
-        <Link href="/admin/articles" className="text-sm font-bold text-neutral-500 hover:text-brand transition-colors">
-          ← Back
+        <Link
+          href="/admin/articles"
+          className="text-sm text-zinc-500 transition-colors hover:text-zinc-900"
+        >
+          ← Back to articles
         </Link>
       </div>
 
       {error && (
-        <div className="bg-red-50 border-l-4 border-brand text-red-700 text-sm px-5 py-4 rounded">
-          <p className="font-bold">Error</p>
-          <p className="text-sm mt-1">{error}</p>
+        <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <Icon.Alert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
-      <div className="bg-white shadow-lg rounded-lg p-7 space-y-6">
-        <div className="border-l-4 border-brand pl-4 pb-4">
-          <p className="text-xs text-brand font-black uppercase tracking-widest">Story Content</p>
-        </div>
-        
+      {/* Content */}
+      <Card className="space-y-5 p-6">
+        <h2 className={sectionTitle}>Content</h2>
+
         <div>
-          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
-            Headline *
-          </label>
+          <label className={label}>Headline</label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="Write a strong, clear headline…"
-            className="w-full border-2 border-neutral-300 px-4 py-3 text-lg font-bold focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
+            className={`${input} text-base font-medium`}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
-            Excerpt / Standfirst
+          <label className={label}>
+            Excerpt <span className={hint}>— the standfirst shown under the headline</span>
           </label>
           <textarea
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
             rows={2}
             placeholder="One or two sentences summarising the story…"
-            className="w-full border-2 border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
+            className={input}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand mb-2">
-            Story Body * <span className="normal-case font-normal text-neutral-500">(separate paragraphs with a blank line)</span>
+          <label className={label}>
+            Story body <span className={hint}>— separate paragraphs with a blank line</span>
           </label>
           <textarea
             value={body}
@@ -149,25 +163,22 @@ export default function ArticleForm({ article }: { article?: Article }) {
             required
             rows={14}
             placeholder="Write the full story here…"
-            className="w-full border-2 border-neutral-300 px-4 py-3 text-sm leading-relaxed focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all font-mono"
+            className={`${input} font-mono text-[13px] leading-relaxed`}
           />
         </div>
-      </div>
+      </Card>
 
-      <div className="bg-white shadow-lg rounded-lg p-7 space-y-6">
-        <div className="border-l-4 border-brand-secondary pl-4 pb-4">
-          <p className="text-xs text-brand-secondary font-black uppercase tracking-widest">Metadata & Publishing</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Attribution */}
+      <Card className="space-y-5 p-6">
+        <h2 className={sectionTitle}>Attribution</h2>
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
-            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-              Section
-            </label>
+            <label className={label}>Section</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all font-semibold"
+              className={input}
             >
               {CATEGORIES.map((c) => (
                 <option key={c.slug} value={c.slug}>
@@ -178,111 +189,108 @@ export default function ArticleForm({ article }: { article?: Article }) {
           </div>
 
           <div>
-            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-              Lead Editor
-            </label>
+            <label className={label}>Lead editor</label>
             <input
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
               placeholder="Reporter name"
-              className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all"
+              className={input}
             />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-              Co-editors{" "}
-              <span className="normal-case font-normal text-neutral-500">
-                (additional writers, comma-separated)
-              </span>
-            </label>
-            <input
-              value={coAuthors}
-              onChange={(e) => setCoAuthors(e.target.value)}
-              placeholder="e.g. Abena Osei, Yaw Darko"
-              className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all"
-            />
-            <p className="text-xs text-neutral-400 mt-1.5">
-              Byline preview:{" "}
-              <span className="font-semibold text-neutral-600">
-                {formatByline(
-                  author || "Newsroom",
-                  coAuthors.split(",").map((n) => n.trim()).filter(Boolean)
-                )}
-              </span>
-            </p>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-            Story Image <span className="normal-case font-normal text-neutral-500">(upload or paste URL)</span>
+          <label className={label}>
+            Co-editors <span className={hint}>— additional writers, comma-separated</span>
           </label>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <label
-              className={`shrink-0 cursor-pointer bg-gradient-to-r from-brand to-brand-dark hover:shadow-lg text-white text-xs font-black uppercase tracking-widest px-5 py-2.5 flex items-center gap-2 transition-all rounded ${uploading ? "opacity-60 pointer-events-none" : ""}`}
-            >
-              {uploading ? "Uploading…" : "📷 Upload"}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                onChange={handleUpload}
-                className="hidden"
-              />
-            </label>
-            <input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://… or /uploads/…"
-              className="flex-1 border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
-            />
-            {imageUrl && (
-              <button
-                type="button"
-                onClick={() => setImageUrl("")}
-                className="shrink-0 text-xs font-bold text-red-600 hover:text-red-800 transition-colors"
-              >
-                Remove
-              </button>
-            )}
-          </div>
-          {imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt="Story image preview"
-              className="mt-4 h-48 w-auto object-cover border-2 border-neutral-200 rounded"
-            />
-          )}
+          <input
+            value={coAuthors}
+            onChange={(e) => setCoAuthors(e.target.value)}
+            placeholder="e.g. Abena Osei, Yaw Darko"
+            className={input}
+          />
+          <p className="mt-2 text-xs text-zinc-400">
+            Byline preview:{" "}
+            <span className="font-medium text-zinc-600">
+              {formatByline(author || "Newsroom", coAuthorList)}
+            </span>
+          </p>
         </div>
 
         <div>
-          <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-            Tags <span className="normal-case font-normal text-neutral-500">(comma-separated)</span>
+          <label className={label}>
+            Tags <span className={hint}>— comma-separated</span>
           </label>
           <input
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             placeholder="economy, election, ghana"
-            className="w-full border-2 border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 rounded transition-all"
+            className={input}
           />
         </div>
-      </div>
+      </Card>
 
-      <div className="bg-white shadow-lg rounded-lg p-7 space-y-5">
-        <div className="border-l-4 border-brand-accent pl-4 pb-2">
-          <p className="text-xs text-brand-accent font-black uppercase tracking-widest">Publication Options</p>
+      {/* Media */}
+      <Card className="space-y-4 p-6">
+        <h2 className={sectionTitle}>Media</h2>
+        <p className="-mt-2 text-xs text-zinc-400">
+          Optional. A styled placeholder is used when no image is set.
+        </p>
+
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <label
+            className={`${btnSecondary} shrink-0 cursor-pointer ${
+              uploading ? "pointer-events-none opacity-60" : ""
+            }`}
+          >
+            <Icon.Image className="h-4 w-4" />
+            {uploading ? "Uploading…" : "Upload image"}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+              onChange={handleUpload}
+              className="hidden"
+            />
+          </label>
+          <input
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://… or /uploads/…"
+            className={input}
+          />
+          {imageUrl && (
+            <button
+              type="button"
+              onClick={() => setImageUrl("")}
+              className="shrink-0 rounded-lg p-2 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600"
+              title="Remove image"
+            >
+              <Icon.Trash className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
-        <div className="flex flex-wrap items-start gap-10 pb-4">
+        {imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt="Story image preview"
+            className="h-44 w-auto rounded-lg border border-zinc-200 object-cover"
+          />
+        )}
+      </Card>
+
+      {/* Publishing */}
+      <Card className="space-y-5 p-6">
+        <h2 className={sectionTitle}>Publishing</h2>
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
-            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-              Status
-            </label>
+            <label className={label}>Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="border-2 border-neutral-300 px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/10 rounded transition-all font-semibold"
+              className={input}
             >
               <option value="published">Published</option>
               <option value="draft">Draft</option>
@@ -290,19 +298,17 @@ export default function ArticleForm({ article }: { article?: Article }) {
           </div>
 
           <div>
-            <label className="block text-xs font-black uppercase tracking-[0.1em] text-brand-secondary mb-2">
-              Editorial Quality Rating
-            </label>
-            <div className="flex items-center gap-3 h-[42px]">
+            <label className={label}>Editorial quality rating</label>
+            <div className="flex h-[42px] items-center gap-3">
               <StarRating value={rating} onChange={setRating} size="lg" />
-              <span className="text-xs font-bold text-neutral-500">
+              <span className="text-xs tabular-nums text-zinc-500">
                 {rating > 0 ? `${rating}/5` : "Unrated"}
               </span>
               {rating > 0 && (
                 <button
                   type="button"
                   onClick={() => setRating(0)}
-                  className="text-xs font-bold text-red-600 hover:text-red-800 transition-colors"
+                  className="text-xs text-zinc-400 transition-colors hover:text-red-600"
                 >
                   Clear
                 </button>
@@ -311,41 +317,45 @@ export default function ArticleForm({ article }: { article?: Article }) {
           </div>
         </div>
 
-        <div className="space-y-3">
-          <label className="flex items-center gap-3 cursor-pointer select-none p-3 hover:bg-neutral-50 rounded transition-colors">
+        <div className="divide-y divide-zinc-100 rounded-lg border border-zinc-200">
+          <label className="flex cursor-pointer select-none items-start gap-3 p-4 transition-colors hover:bg-zinc-50/70">
             <input
               type="checkbox"
               checked={isBreaking}
               onChange={(e) => setIsBreaking(e.target.checked)}
-              className="w-5 h-5 accent-brand rounded"
+              className="mt-0.5 h-4 w-4 rounded border-zinc-300 accent-[var(--brand)]"
             />
-            <span className="text-sm font-bold text-neutral-dark">🚨 Breaking News (featured in live ticker)</span>
+            <span>
+              <span className="block text-sm font-medium text-zinc-900">Breaking news</span>
+              <span className="block text-xs text-zinc-500">
+                Shows in the live ticker across the site.
+              </span>
+            </span>
           </label>
 
-          <label className="flex items-center gap-3 cursor-pointer select-none p-3 hover:bg-neutral-50 rounded transition-colors">
+          <label className="flex cursor-pointer select-none items-start gap-3 p-4 transition-colors hover:bg-zinc-50/70">
             <input
               type="checkbox"
               checked={isFeatured}
               onChange={(e) => setIsFeatured(e.target.checked)}
-              className="w-5 h-5 accent-brand rounded"
+              className="mt-0.5 h-4 w-4 rounded border-zinc-300 accent-[var(--brand)]"
             />
-            <span className="text-sm font-bold text-neutral-dark">⭐ Featured Story (hero section candidate)</span>
+            <span>
+              <span className="block text-sm font-medium text-zinc-900">Featured story</span>
+              <span className="block text-xs text-zinc-500">
+                Candidate for the homepage hero and Editor&apos;s Picks.
+              </span>
+            </span>
           </label>
         </div>
-      </div>
+      </Card>
 
-      <div className="flex items-center gap-4">
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-gradient-to-r from-brand to-brand-dark hover:shadow-lg disabled:opacity-60 text-white font-black px-8 py-3 uppercase tracking-widest text-sm transition-all shadow-md rounded"
-        >
-          {saving ? "Saving…" : isEdit ? "Save Changes" : "Create Article"}
+      {/* Actions */}
+      <div className="flex items-center gap-3 pb-4">
+        <button type="submit" disabled={saving} className={btnPrimary}>
+          {saving ? "Saving…" : isEdit ? "Save changes" : "Publish article"}
         </button>
-        <Link
-          href="/admin/articles"
-          className="text-sm font-bold text-neutral-500 hover:text-brand transition-colors"
-        >
+        <Link href="/admin/articles" className={btnSecondary}>
           Cancel
         </Link>
       </div>

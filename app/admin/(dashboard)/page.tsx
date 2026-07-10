@@ -2,6 +2,16 @@ import Link from "next/link";
 import { getAll, countPendingComments, getSubscribers } from "@/lib/store";
 import { CATEGORIES, categoryMeta } from "@/lib/types";
 import { timeAgo } from "@/components/ArticleCard";
+import {
+  Badge,
+  Card,
+  CardHeader,
+  Icon,
+  PageHeader,
+  StatCard,
+  btnPrimary,
+  microLabel,
+} from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -22,157 +32,170 @@ export default function AdminDashboard() {
     ? rated.reduce((sum, a) => sum + a.rating, 0) / rated.length
     : 0;
 
-  const stats: { label: string; value: string | number; accent: string; href?: string }[] = [
-    { label: "Total Articles", value: all.length, accent: "#d92e1d" },
-    { label: "Published", value: published.length, accent: "#047857" },
-    { label: "Drafts", value: drafts.length, accent: "#b45309" },
-    { label: "Breaking Now", value: breaking.length, accent: "#0052a3" },
-    { label: "Total Views", value: totalViews.toLocaleString(), accent: "#ffa500" },
-    {
-      label: "Comments Pending",
-      value: pendingComments,
-      accent: "#d92e1d",
-      href: "/admin/comments",
-    },
-    {
-      label: "Subscribers",
-      value: subscriberCount,
-      accent: "#0052a3",
-      href: "/admin/subscribers",
-    },
-    {
-      label: "Avg. Rating",
-      value: avgRating ? `${avgRating.toFixed(1)}★` : "—",
-      accent: "#f59e0b",
-    },
-  ];
+  const iconClass = "h-[18px] w-[18px]";
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-black text-3xl text-neutral-dark">Dashboard</h1>
-          <p className="text-neutral-gray text-sm mt-1">Your newsroom overview and control center</p>
-        </div>
-        <Link
-          href="/admin/articles/new"
-          className="bg-gradient-to-r from-brand to-brand-dark hover:shadow-lg text-white font-black text-sm px-6 py-3 uppercase tracking-widest transition-all shadow-md"
-        >
-          + Create Article
-        </Link>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Newsroom overview and editorial activity"
+        action={
+          <Link href="/admin/articles/new" className={btnPrimary}>
+            <Icon.Plus className="h-4 w-4" />
+            New article
+          </Link>
+        }
+      />
+
+      {/* Primary metrics */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard
+          label="Total articles"
+          value={all.length}
+          hint={`${published.length} published · ${drafts.length} drafts`}
+          icon={<Icon.Articles className={iconClass} />}
+        />
+        <StatCard
+          label="Total views"
+          value={totalViews.toLocaleString()}
+          hint="Across all published stories"
+          icon={<Icon.Trend className={iconClass} />}
+        />
+        <StatCard
+          label="Comments pending"
+          value={pendingComments}
+          hint={pendingComments > 0 ? "Awaiting moderation" : "Queue is clear"}
+          icon={<Icon.Comments className={iconClass} />}
+          href="/admin/comments"
+          emphasis={pendingComments > 0}
+        />
+        <StatCard
+          label="Subscribers"
+          value={subscriberCount}
+          hint="Newsletter audience"
+          icon={<Icon.Mail className={iconClass} />}
+          href="/admin/subscribers"
+        />
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
-        {stats.map((s) => {
-          const card = (
-            <div
-              className="bg-white shadow-md p-6 border-l-4 h-full hover:shadow-lg transition-all duration-300 rounded"
-              style={{ borderLeftColor: s.accent }}
-            >
-              <p className="text-4xl font-black text-neutral-dark">{s.value}</p>
-              <p className="text-xs font-black uppercase tracking-[0.1em] text-neutral-gray mt-2">
-                {s.label}
-              </p>
-            </div>
-          );
-          return s.href ? (
-            <Link key={s.label} href={s.href} className="block hover:scale-105 transition-transform">
-              {card}
-            </Link>
-          ) : (
-            <div key={s.label}>{card}</div>
-          );
-        })}
+      {/* Secondary metrics */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Published" value={published.length} />
+        <StatCard label="Drafts" value={drafts.length} />
+        <StatCard
+          label="Breaking now"
+          value={breaking.length}
+          icon={breaking.length > 0 ? <Icon.Alert className={iconClass} /> : undefined}
+          emphasis={breaking.length > 0}
+        />
+        <StatCard
+          label="Avg. rating"
+          value={avgRating ? avgRating.toFixed(1) : "—"}
+          hint={rated.length ? `${rated.length} rated stories` : "Nothing rated yet"}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent articles */}
-        <div className="lg:col-span-2 bg-white shadow-lg rounded-lg overflow-hidden">
-          <div className="px-6 py-5 bg-gradient-to-r from-brand to-brand-dark border-b-2 border-brand-accent flex items-center justify-between">
-            <h2 className="font-black text-sm uppercase tracking-[0.1em] text-white">Recent Articles</h2>
-            <Link href="/admin/articles" className="text-xs font-bold text-brand-accent hover:underline">
-              View all →
-            </Link>
-          </div>
-          <ul className="divide-y divide-neutral-100">
-            {recent.map((a) => (
-              <li key={a.id} className="px-6 py-4 flex items-center gap-4 hover:bg-neutral-50 transition-colors">
-                <span
-                  className="text-[10px] font-black uppercase tracking-wider text-white px-2.5 py-1 shrink-0 rounded"
-                  style={{ backgroundColor: categoryMeta(a.category).color }}
+        <Card className="lg:col-span-2">
+          <CardHeader
+            title="Recent activity"
+            action={
+              <Link
+                href="/admin/articles"
+                className="text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-900"
+              >
+                View all
+              </Link>
+            }
+          />
+          <ul className="divide-y divide-zinc-100">
+            {recent.map((a) => {
+              const meta = categoryMeta(a.category);
+              return (
+                <li
+                  key={a.id}
+                  className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-zinc-50/70"
                 >
-                  {categoryMeta(a.category).label}
-                </span>
-                <Link
-                  href={`/admin/articles/${a.id}`}
-                  className="flex-1 min-w-0 font-bold text-sm truncate hover:text-brand transition-colors"
-                >
-                  {a.title}
-                </Link>
-                <span
-                  className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full shrink-0 ${
-                    a.status === "published"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-amber-100 text-amber-700"
-                  }`}
-                >
-                  {a.status}
-                </span>
-                <span className="text-xs text-neutral-400 shrink-0 w-16 text-right font-medium">
-                  {timeAgo(a.updatedAt)}
-                </span>
-              </li>
-            ))}
+                  <span
+                    className="h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: meta.color }}
+                    aria-hidden
+                  />
+                  <Link
+                    href={`/admin/articles/${a.id}`}
+                    className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-800 transition-colors hover:text-brand"
+                  >
+                    {a.title}
+                  </Link>
+                  <span className="hidden shrink-0 text-xs text-zinc-400 sm:block">
+                    {meta.label}
+                  </span>
+                  <Badge tone={a.status === "published" ? "success" : "warning"}>
+                    {a.status}
+                  </Badge>
+                  <span className="w-14 shrink-0 text-right text-xs tabular-nums text-zinc-400">
+                    {timeAgo(a.updatedAt)}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
-        </div>
+        </Card>
 
-        {/* Sidebar widgets */}
-        <div className="space-y-8">
+        <div className="space-y-6">
           {topStory && (
-            <div className="bg-white shadow-lg rounded-lg p-6 border-l-4 border-brand">
-              <h2 className="font-black text-sm uppercase tracking-[0.1em] text-neutral-dark mb-4">
-                🔥 Top Story
-              </h2>
+            <Card className="p-5">
+              <p className={microLabel}>Top story</p>
               <Link
                 href={`/article/${topStory.slug}`}
                 target="_blank"
-                className="font-bold leading-snug hover:text-brand transition-colors"
+                className="mt-3 block text-sm font-medium leading-snug text-zinc-900 transition-colors hover:text-brand"
               >
                 {topStory.title}
               </Link>
-              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-neutral-200">
-                <span className="text-2xl font-black text-brand">{topStory.views.toLocaleString()}</span>
-                <span className="text-xs text-neutral-500 font-medium">views</span>
+              <div className="mt-4 flex items-baseline gap-2 border-t border-zinc-100 pt-4">
+                <span className="text-2xl font-semibold tabular-nums tracking-tight text-zinc-900">
+                  {topStory.views.toLocaleString()}
+                </span>
+                <span className="text-xs text-zinc-500">views</span>
               </div>
-            </div>
+            </Card>
           )}
 
-          <div className="bg-white shadow-lg rounded-lg p-6 border-l-4 border-brand-secondary">
-            <h2 className="font-black text-sm uppercase tracking-[0.1em] text-neutral-dark mb-4">
-              Distribution by Section
-            </h2>
-            <ul className="space-y-3">
+          <Card className="p-5">
+            <p className={microLabel}>Distribution by section</p>
+            <ul className="mt-4 space-y-3">
               {CATEGORIES.map((c) => {
                 const count = all.filter((a) => a.category === c.slug).length;
-                const max = Math.max(1, ...CATEGORIES.map((cc) => all.filter((a) => a.category === cc.slug).length));
+                const max = Math.max(
+                  1,
+                  ...CATEGORIES.map(
+                    (cc) => all.filter((a) => a.category === cc.slug).length
+                  )
+                );
                 return (
-                  <li key={c.slug} className="text-sm">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-bold text-neutral-dark">{c.label}</span>
-                      <span className="font-black text-brand">{count}</span>
+                  <li key={c.slug}>
+                    <div className="mb-1.5 flex items-baseline justify-between text-sm">
+                      <span className="text-zinc-600">{c.label}</span>
+                      <span className="text-xs font-medium tabular-nums text-zinc-500">
+                        {count}
+                      </span>
                     </div>
-                    <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
+                    <div className="h-1 overflow-hidden rounded-full bg-zinc-100">
                       <div
-                        className="h-full rounded-full transition-all"
-                        style={{ width: `${(count / max) * 100}%`, backgroundColor: c.color }}
-                      ></div>
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${(count / max) * 100}%`,
+                          backgroundColor: c.color,
+                        }}
+                      />
                     </div>
                   </li>
                 );
               })}
             </ul>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

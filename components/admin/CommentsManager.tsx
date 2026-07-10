@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Article, Comment } from "@/lib/types";
+import { Badge, Card, EmptyState, Icon, PageHeader } from "./ui";
 
 export default function CommentsManager({
   initial,
@@ -51,77 +52,91 @@ export default function CommentsManager({
     }
   }
 
+  const counts = {
+    pending: pendingCount,
+    approved: comments.filter((c) => c.status === "approved").length,
+    all: comments.length,
+  };
+
   const tab = (value: typeof filter, label: string) => (
     <button
+      key={value}
       onClick={() => setFilter(value)}
-      className={`px-4 py-2 text-sm font-bold uppercase tracking-wider transition-colors ${
+      className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
         filter === value
-          ? "bg-ink text-white"
-          : "bg-white text-neutral-500 hover:text-ink"
+          ? "bg-white font-medium text-zinc-900 shadow-[0_1px_2px_rgba(16,24,40,0.06)]"
+          : "text-zinc-500 hover:text-zinc-800"
       }`}
     >
       {label}
+      <span className="ml-1.5 text-xs tabular-nums text-zinc-400">{counts[value]}</span>
     </button>
   );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-black text-2xl">
-          Comments{" "}
-          {pendingCount > 0 && (
-            <span className="ml-2 text-sm bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full align-middle">
-              {pendingCount} awaiting review
-            </span>
-          )}
-        </h1>
-        <div className="flex shadow-sm">
-          {tab("pending", "Pending")}
-          {tab("approved", "Approved")}
-          {tab("all", "All")}
-        </div>
-      </div>
+      <PageHeader
+        title="Comments"
+        subtitle={
+          pendingCount > 0
+            ? `${pendingCount} awaiting moderation`
+            : "Moderation queue is clear"
+        }
+        action={
+          <div className="inline-flex gap-1 rounded-lg border border-zinc-200 bg-zinc-50 p-1">
+            {tab("pending", "Pending")}
+            {tab("approved", "Approved")}
+            {tab("all", "All")}
+          </div>
+        }
+      />
 
       {filtered.length === 0 ? (
-        <div className="bg-white shadow-sm px-6 py-16 text-center text-neutral-400">
-          {filter === "pending"
-            ? "🎉 No comments waiting for review."
-            : "No comments here yet."}
-        </div>
+        <Card>
+          <EmptyState
+            title={
+              filter === "pending"
+                ? "Nothing waiting for review"
+                : "No comments here yet"
+            }
+            description={
+              filter === "pending"
+                ? "New reader comments will appear here for approval."
+                : undefined
+            }
+            icon={<Icon.Comments className="h-8 w-8" />}
+          />
+        </Card>
       ) : (
-        <ul className="space-y-4">
+        <div className="space-y-3">
           {filtered.map((c) => {
             const article = titleById.get(c.articleId);
             const isBusy = busy === c.id;
             return (
-              <li
-                key={c.id}
-                className={`bg-white shadow-sm p-5 ${isBusy ? "opacity-50" : ""}`}
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm">
-                      <span className="font-bold">{c.name}</span>{" "}
-                      <span
-                        className={`ml-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                          c.status === "approved"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {c.status}
+              <Card key={c.id} className={`p-5 ${isBusy ? "opacity-50" : ""}`}>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[11px] font-semibold text-zinc-600">
+                        {c.name.charAt(0).toUpperCase()}
                       </span>
-                    </p>
-                    <p className="text-sm text-neutral-700 mt-2 leading-relaxed whitespace-pre-line">
+                      <span className="text-sm font-medium text-zinc-900">{c.name}</span>
+                      <Badge tone={c.status === "approved" ? "success" : "warning"}>
+                        {c.status}
+                      </Badge>
+                    </div>
+
+                    <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-zinc-700">
                       {c.text}
                     </p>
-                    <p className="text-xs text-neutral-400 mt-3">
-                      {new Date(c.createdAt).toLocaleString()} · on{" "}
+
+                    <p className="mt-3 text-xs text-zinc-400">
+                      {new Date(c.createdAt).toLocaleString()} ·{" "}
                       {article ? (
                         <Link
                           href={`/article/${article.slug}`}
                           target="_blank"
-                          className="text-brand hover:underline"
+                          className="text-zinc-500 transition-colors hover:text-brand"
                         >
                           {article.title}
                         </Link>
@@ -130,37 +145,41 @@ export default function CommentsManager({
                       )}
                     </p>
                   </div>
-                  <div className="flex gap-2 shrink-0">
+
+                  <div className="flex shrink-0 items-center gap-2">
                     {c.status === "pending" ? (
                       <button
                         disabled={isBusy}
                         onClick={() => setStatus(c.id, "approved")}
-                        className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
                       >
-                        ✓ Approve
+                        <Icon.Check className="h-3.5 w-3.5" />
+                        Approve
                       </button>
                     ) : (
                       <button
                         disabled={isBusy}
                         onClick={() => setStatus(c.id, "pending")}
-                        className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50"
                       >
+                        <Icon.Undo className="h-3.5 w-3.5" />
                         Unapprove
                       </button>
                     )}
                     <button
                       disabled={isBusy}
                       onClick={() => remove(c.id)}
-                      className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 transition-colors"
+                      title="Delete comment"
+                      className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                     >
-                      Delete
+                      <Icon.Trash className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-              </li>
+              </Card>
             );
           })}
-        </ul>
+        </div>
       )}
     </div>
   );
