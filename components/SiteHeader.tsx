@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { CATEGORIES } from "@/lib/types";
+import { getSections } from "@/lib/store";
 
 export default function SiteHeader() {
+  const CATEGORIES = getSections();
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",

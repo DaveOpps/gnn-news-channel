@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { CATEGORIES } from "@/lib/types";
+import { getSections } from "@/lib/store";
 
 export default function SiteFooter() {
+  const CATEGORIES = getSections();
   return (
     <footer className="bg-neutral-dark text-white mt-20 border-t-4 border-brand">
       {/* Main Footer Content */}

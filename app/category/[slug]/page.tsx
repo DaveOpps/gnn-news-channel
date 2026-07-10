@@ -4,7 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import ArticleCard from "@/components/ArticleCard";
 import { getByCategory, getBreaking } from "@/lib/store";
-import { CATEGORIES } from "@/lib/types";
+import { getSections } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const cat = CATEGORIES.find((c) => c.slug === slug);
+  const cat = getSections().find((c) => c.slug === slug);
   if (!cat) notFound();
 
   const articles = getByCategory(slug);

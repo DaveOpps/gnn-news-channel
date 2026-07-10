@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Article, LiveUpdate } from "@/lib/types";
-import { timeAgo } from "@/components/ArticleCard";
+import { timeAgo } from "@/lib/format";
 import { Badge, Card, EmptyState, Icon, btnPrimary, input, microLabel } from "./ui";
 
 export default function LiveConsole({

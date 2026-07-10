@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { getCurrentEditor } from "@/lib/auth";
-import { getAll, createArticle, getEditorById, recordArticleAction } from "@/lib/store";
-import { CATEGORIES, Category } from "@/lib/types";
+import {
+  getAll,
+  createArticle,
+  getEditorById,
+  recordArticleAction,
+  getSections,
+} from "@/lib/store";
+import { Category } from "@/lib/types";
 import { parseSchedule } from "@/lib/schedule";
 
 export async function GET() {
@@ -20,9 +26,10 @@ export async function POST(req: Request) {
   if (!body?.title?.trim() || !body?.body?.trim()) {
     return NextResponse.json({ error: "Title and body are required" }, { status: 400 });
   }
-  const category: Category = CATEGORIES.some((c) => c.slug === body.category)
+  const sections = getSections();
+  const category: Category = sections.some((c) => c.slug === body.category)
     ? body.category
-    : "world";
+    : sections[0].slug;
 
   const schedule = parseSchedule(body);
   if ("error" in schedule) {

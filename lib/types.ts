@@ -1,30 +1,62 @@
-export type Category =
-  | "world"
-  | "politics"
-  | "business"
-  | "technology"
-  | "sports"
-  | "health"
-  | "entertainment";
+/** A section slug. Sections are data now, so this is an open string. */
+export type Category = string;
 
-export const CATEGORIES: { slug: Category; label: string; color: string }[] = [
-  { slug: "world", label: "World", color: "#b91c1c" },
-  { slug: "politics", label: "Politics", color: "#1d4ed8" },
-  { slug: "business", label: "Business", color: "#047857" },
-  { slug: "technology", label: "Technology", color: "#6d28d9" },
-  { slug: "sports", label: "Sports", color: "#c2410c" },
-  { slug: "health", label: "Health", color: "#0e7490" },
-  { slug: "entertainment", label: "Entertainment", color: "#be185d" },
+/** A newsroom section, editable from /admin/sections. */
+export interface Section {
+  slug: string; // immutable once created — it is the public URL
+  label: string;
+  color: string;
+  order: number;
+}
+
+/** Shipped defaults, and the fallback whenever the store has nothing. */
+export const DEFAULT_SECTIONS: Section[] = [
+  { slug: "world", label: "World", color: "#b91c1c", order: 0 },
+  { slug: "politics", label: "Politics", color: "#1d4ed8", order: 1 },
+  { slug: "business", label: "Business", color: "#047857", order: 2 },
+  { slug: "technology", label: "Technology", color: "#6d28d9", order: 3 },
+  { slug: "sports", label: "Sports", color: "#c2410c", order: 4 },
+  { slug: "health", label: "Health", color: "#0e7490", order: 5 },
+  { slug: "entertainment", label: "Entertainment", color: "#be185d", order: 6 },
 ];
 
-export function categoryMeta(slug: string) {
+/** Kept for the seed data, which is written against the shipped sections. */
+export const CATEGORIES = DEFAULT_SECTIONS;
+
+/**
+ * Look up a section's label and colour. Server code passes the live list;
+ * anything that can't reach the store falls back to the shipped defaults, so
+ * a badge never renders blank.
+ */
+export function categoryMeta(
+  slug: string,
+  sections: Section[] = DEFAULT_SECTIONS
+): Section {
   return (
-    CATEGORIES.find((c) => c.slug === slug) ?? {
-      slug: "world" as Category,
-      label: "News",
-      color: "#b91c1c",
+    sections.find((c) => c.slug === slug) ?? {
+      slug,
+      label: slug ? slug[0].toUpperCase() + slug.slice(1) : "News",
+      color: "#71717a",
+      order: 999,
     }
   );
+}
+
+export function slugifySection(v: string): string {
+  return v
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .slice(0, 32);
+}
+
+/** A published correction appended to a story, in the open. */
+export interface Correction {
+  id: string;
+  at: string; // ISO
+  note: string;
+  editorName: string;
 }
 
 /** Combined byline, e.g. "By Kwame Mensah", "By A and B", "By A, B and C". */
@@ -108,6 +140,7 @@ export interface Article {
   isBreaking: boolean;
   isFeatured: boolean;
   isLiveBlog?: boolean; // rolling, timestamped updates instead of a static story
+  corrections?: Correction[]; // appended publicly, never rewritten silently
   rating: number; // editorial quality rating, 0–5 (0 = unrated)
   views: number;
   publishedAt: string; // ISO

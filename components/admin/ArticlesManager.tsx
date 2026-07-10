@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Article,
-  CATEGORIES,
+  Section,
   categoryMeta,
   effectiveStatus,
   formatByline,
@@ -39,11 +39,14 @@ const SORTS: Record<SortKey, (a: Article, b: Article) => number> = {
 
 export default function ArticlesManager({
   initial,
+  sections,
   previewTokens = {},
 }: {
   initial: Article[];
+  sections: Section[];
   previewTokens?: Record<string, string>;
 }) {
+  const CATEGORIES = sections;
   const [articles, setArticles] = useState<Article[]>(initial);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -297,7 +300,7 @@ export default function ArticlesManager({
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {visible.map((a) => {
-                const meta = categoryMeta(a.category);
+                const meta = categoryMeta(a.category, sections);
                 const isBusy = busy === a.id;
                 const eff = effectiveStatus(a);
                 const live = isArticleLive(a);

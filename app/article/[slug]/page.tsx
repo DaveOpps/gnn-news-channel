@@ -179,6 +179,29 @@ export default async function ArticlePage({ params, searchParams }: Props) {
 
             {article.isLiveBlog && <LiveFeed updates={liveUpdates} />}
 
+            {article.corrections && article.corrections.length > 0 && (
+              <aside className="mt-8 border-l-4 border-amber-400 bg-amber-50/60 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.15em] text-amber-800">
+                  Corrections
+                </p>
+                <ul className="mt-2 space-y-2">
+                  {article.corrections.map((c) => (
+                    <li key={c.id} className="text-sm text-neutral-700">
+                      {c.note}{" "}
+                      <span className="text-neutral-400">
+                        —{" "}
+                        {new Date(c.at).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            )}
+
             {article.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-neutral-200">
                 {article.tags.map((t) => (

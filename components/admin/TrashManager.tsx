@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Article, categoryMeta, effectiveStatus } from "@/lib/types";
-import { timeAgo } from "@/components/ArticleCard";
+import { Article, Section, categoryMeta, effectiveStatus } from "@/lib/types";
+import { timeAgo } from "@/lib/format";
 import { Badge, Card, EmptyState, Icon, PageHeader, microLabel } from "./ui";
 
 export default function TrashManager({
   initial,
   canPurge,
+  sections,
 }: {
   initial: Article[];
   canPurge: boolean;
+  sections: Section[];
 }) {
   const [items, setItems] = useState<Article[]>(initial);
   const [busy, setBusy] = useState<string | null>(null);
@@ -96,7 +98,7 @@ export default function TrashManager({
               <tbody className="divide-y divide-zinc-100">
                 {items.map((a) => {
                   const isBusy = busy === a.id;
-                  const meta = categoryMeta(a.category);
+                  const meta = categoryMeta(a.category, sections);
                   return (
                     <tr
                       key={a.id}

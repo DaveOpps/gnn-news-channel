@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Revision } from "@/lib/types";
 import { diffLines, collapseContext, diffStats } from "@/lib/diff";
-import { timeAgo } from "@/components/ArticleCard";
+import { timeAgo } from "@/lib/format";
 import { Badge, Card, EmptyState, Icon, PageHeader, btnPrimary, microLabel } from "./ui";
 
 export default function RevisionHistory({

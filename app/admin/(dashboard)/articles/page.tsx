@@ -1,5 +1,5 @@
 import ArticlesManager from "@/components/admin/ArticlesManager";
-import { getAll } from "@/lib/store";
+import { getAll, getSections } from "@/lib/store";
 import { previewToken } from "@/lib/auth";
 import { isArticleLive } from "@/lib/types";
 
@@ -14,5 +14,11 @@ export default function AdminArticlesPage() {
     if (!isArticleLive(a)) previewTokens[a.id] = previewToken(a.id);
   }
 
-  return <ArticlesManager initial={articles} previewTokens={previewTokens} />;
+  return (
+    <ArticlesManager
+      initial={articles}
+      sections={getSections()}
+      previewTokens={previewTokens}
+    />
+  );
 }

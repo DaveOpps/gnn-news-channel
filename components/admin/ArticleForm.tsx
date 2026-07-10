@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Article, CATEGORIES, formatByline } from "@/lib/types";
+import { Article, Section, formatByline } from "@/lib/types";
 import StarRating from "@/components/StarRating";
 import RichBodyEditor from "./RichBodyEditor";
 import MediaPicker from "./MediaPicker";
 import SeoPanel from "./SeoPanel";
+import CorrectionsEditor from "./CorrectionsEditor";
 import { Card, Icon, btnPrimary, btnSecondary, input, microLabel } from "./ui";
 
 /** ISO → the "YYYY-MM-DDTHH:mm" shape a datetime-local input expects, in local time. */
@@ -26,14 +27,25 @@ function defaultSchedule(): string {
   return toLocalInput(new Date(Date.now() + 60 * 60 * 1000).toISOString());
 }
 
-export default function ArticleForm({ article }: { article?: Article }) {
+export default function ArticleForm({
+  article,
+  sections,
+  canDeleteCorrections = false,
+}: {
+  article?: Article;
+  sections: Section[];
+  canDeleteCorrections?: boolean;
+}) {
   const router = useRouter();
   const isEdit = Boolean(article);
+  const CATEGORIES = sections;
 
   const [title, setTitle] = useState(article?.title ?? "");
   const [excerpt, setExcerpt] = useState(article?.excerpt ?? "");
   const [body, setBody] = useState(article?.body ?? "");
-  const [category, setCategory] = useState<string>(article?.category ?? "world");
+  const [category, setCategory] = useState<string>(
+    article?.category ?? sections[0]?.slug ?? "world"
+  );
   const [author, setAuthor] = useState(article?.author ?? "");
   const [coAuthors, setCoAuthors] = useState(article?.coAuthors?.join(", ") ?? "");
   const [imageUrl, setImageUrl] = useState(article?.imageUrl ?? "");
@@ -339,6 +351,15 @@ export default function ArticleForm({ article }: { article?: Article }) {
         imageUrl={imageUrl}
         tags={tags}
       />
+
+      {/* Corrections — only on an existing story */}
+      {isEdit && (
+        <CorrectionsEditor
+          articleId={article!.id}
+          initial={article!.corrections ?? []}
+          canDelete={canDeleteCorrections}
+        />
+      )}
 
       {/* Publishing */}
       <Card className="space-y-5 p-6">

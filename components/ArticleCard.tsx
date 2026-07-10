@@ -1,25 +1,16 @@
 import Link from "next/link";
 import { Article, categoryMeta } from "@/lib/types";
+import { getSections } from "@/lib/store";
+import { timeAgo } from "@/lib/format";
 import ArticleImage from "./ArticleImage";
 
-export function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+// Re-exported for the server pages that already import it from here.
+// Client components must import it from "@/lib/format" — this module reads
+// the store, and dragging `fs` into a client bundle breaks the build.
+export { timeAgo };
 
 export function CategoryBadge({ category }: { category: string }) {
-  const meta = categoryMeta(category);
+  const meta = categoryMeta(category, getSections());
   return (
     <Link
       href={`/category/${meta.slug}`}

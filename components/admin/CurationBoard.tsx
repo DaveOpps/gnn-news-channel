@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Article, categoryMeta } from "@/lib/types";
+import { Article, Section, categoryMeta } from "@/lib/types";
 import { Badge, Card, Icon, PageHeader, btnPrimary, btnSecondary, microLabel } from "./ui";
 
 const MAX_TOP = 4;
@@ -12,11 +12,13 @@ export default function CurationBoard({
   initialHeroId,
   initialTopIds,
   isCurated,
+  sections,
 }: {
   published: Pick<Article, "id" | "title" | "slug" | "category" | "isFeatured" | "isLiveBlog">[];
   initialHeroId?: string;
   initialTopIds: string[];
   isCurated: boolean;
+  sections: Section[];
 }) {
   const router = useRouter();
   const [heroId, setHeroId] = useState<string | undefined>(initialHeroId);
@@ -88,7 +90,7 @@ export default function CurationBoard({
   const dot = (cat: string) => (
     <span
       className="h-1.5 w-1.5 shrink-0 rounded-full"
-      style={{ backgroundColor: categoryMeta(cat).color }}
+      style={{ backgroundColor: categoryMeta(cat, sections).color }}
       aria-hidden
     />
   );

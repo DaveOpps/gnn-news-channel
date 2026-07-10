@@ -8,10 +8,14 @@ import {
   CommentBulkAction,
   CommentStatus,
   CommentThread,
+  Correction,
   Curation,
   DEFAULT_MODERATION,
+  DEFAULT_SECTIONS,
   ModerationSettings,
+  Section,
   looksLikeSpam,
+  slugifySection,
   Editor,
   EditorRole,
   EditorStats,
@@ -41,6 +45,7 @@ const CURATION_FILE = path.join(DATA_DIR, "curation.json");
 const MEDIA_FILE = path.join(DATA_DIR, "media.json");
 const REVISIONS_FILE = path.join(DATA_DIR, "revisions.json");
 const MODERATION_FILE = path.join(DATA_DIR, "moderation.json");
+const SECTIONS_FILE = path.join(DATA_DIR, "sections.json");
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
 const ENGAGEMENT_FILE = path.join(DATA_DIR, "engagement.json");
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
@@ -426,6 +431,142 @@ export function purgeArticle(id: string): boolean {
     revisions.filter((r) => r.articleId !== id)
   );
   return true;
+}
+
+// ---- Sections ----
+
+/** The live section list, ordered. Falls back to the shipped defaults. */
+export function getSections(): Section[] {
+  const raw = readJson<Section[] | null>(SECTIONS_FILE, null);
+  if (!raw || !Array.isArray(raw) || raw.length === 0) return DEFAULT_SECTIONS;
+  return [...raw].sort((a, b) => a.order - b.order);
+}
+
+/** How many active stories sit in each section — used to guard deletion. */
+export function countArticlesBySection(): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const a of readAll()) {
+    if (a.deletedAt) continue;
+    counts[a.category] = (counts[a.category] ?? 0) + 1;
+  }
+  return counts;
+}
+
+export function createSection(
+  label: string,
+  color: string
+): { ok: true; section: Section } | { ok: false; reason: string } {
+  const sections = getSections();
+  const slug = slugifySection(label);
+  if (!slug) return { ok: false, reason: "That name has no usable letters" };
+  if (sections.some((s) => s.slug === slug)) {
+    return { ok: false, reason: `A section with the slug "${slug}" already exists` };
+  }
+
+  const section: Section = {
+    slug,
+    label: label.trim().slice(0, 40),
+    color: /^#[0-9a-f]{6}$/i.test(color) ? color : "#71717a",
+    order: sections.length,
+  };
+  writeJson(SECTIONS_FILE, [...sections, section]);
+  return { ok: true, section };
+}
+
+/** The slug is the public URL, so it never changes — only label, colour, order. */
+export function updateSection(
+  slug: string,
+  patch: { label?: string; color?: string; order?: number }
+): Section | undefined {
+  const sections = getSections();
+  const idx = sections.findIndex((s) => s.slug === slug);
+  if (idx < 0) return undefined;
+
+  if (patch.label !== undefined) sections[idx].label = patch.label.trim().slice(0, 40);
+  if (patch.color !== undefined && /^#[0-9a-f]{6}$/i.test(patch.color)) {
+    sections[idx].color = patch.color;
+  }
+  if (patch.order !== undefined) sections[idx].order = patch.order;
+
+  writeJson(SECTIONS_FILE, sections);
+  return sections[idx];
+}
+
+export function reorderSections(slugs: string[]): Section[] {
+  const sections = getSections();
+  const ranked = new Map(slugs.map((s, i) => [s, i]));
+  for (const s of sections) s.order = ranked.get(s.slug) ?? s.order;
+  const sorted = [...sections].sort((a, b) => a.order - b.order);
+  writeJson(SECTIONS_FILE, sorted);
+  return sorted;
+}
+
+/**
+ * Deleting a section that still holds stories would orphan them, so it is
+ * refused. The last section can never be deleted either — an article must
+ * always have somewhere to live.
+ */
+export function deleteSection(slug: string): { ok: true } | { ok: false; reason: string } {
+  const sections = getSections();
+  if (sections.length <= 1) {
+    return { ok: false, reason: "A newsroom needs at least one section" };
+  }
+  if (!sections.some((s) => s.slug === slug)) {
+    return { ok: false, reason: "No such section" };
+  }
+
+  const count = countArticlesBySection()[slug] ?? 0;
+  if (count > 0) {
+    return {
+      ok: false,
+      reason: `${count} ${count === 1 ? "story is" : "stories are"} still filed under this section. Move them first.`,
+    };
+  }
+
+  writeJson(
+    SECTIONS_FILE,
+    sections.filter((s) => s.slug !== slug)
+  );
+  return { ok: true };
+}
+
+// ---- Corrections ----
+
+/** Corrections are appended, never edited — that is the whole point of them. */
+export function addCorrection(
+  articleId: string,
+  note: string,
+  editorName: string
+): Article | undefined {
+  const all = readAll();
+  const idx = all.findIndex((a) => a.id === articleId);
+  if (idx < 0) return undefined;
+
+  const correction: Correction = {
+    id: `x${Date.now()}${Math.floor(Math.random() * 1000)}`,
+    at: new Date().toISOString(),
+    note: note.trim().slice(0, 1000),
+    editorName,
+  };
+  all[idx] = {
+    ...all[idx],
+    corrections: [...(all[idx].corrections ?? []), correction],
+    updatedAt: new Date().toISOString(),
+  };
+  writeAll(all);
+  return all[idx];
+}
+
+export function deleteCorrection(articleId: string, correctionId: string): Article | undefined {
+  const all = readAll();
+  const idx = all.findIndex((a) => a.id === articleId);
+  if (idx < 0) return undefined;
+  all[idx] = {
+    ...all[idx],
+    corrections: (all[idx].corrections ?? []).filter((c) => c.id !== correctionId),
+  };
+  writeAll(all);
+  return all[idx];
 }
 
 // ---- Revision history ----

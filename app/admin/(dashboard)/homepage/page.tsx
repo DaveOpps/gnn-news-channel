@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import CurationBoard from "@/components/admin/CurationBoard";
 import { getCurrentEditor } from "@/lib/auth";
-import { getCuration, getHomepage, getPublished } from "@/lib/store";
+import { getCuration, getHomepage, getPublished, getSections } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +29,7 @@ export default async function AdminHomepagePage() {
       initialHeroId={curation?.heroId}
       initialTopIds={curation?.topStoryIds ?? []}
       isCurated={isCurated}
+      sections={getSections()}
     />
   );
 }

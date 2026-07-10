@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getAll, countPendingComments, getSubscribers } from "@/lib/store";
-import { CATEGORIES, categoryMeta } from "@/lib/types";
+import { getAll, countPendingComments, getSubscribers, getSections } from "@/lib/store";
+import { categoryMeta } from "@/lib/types";
 import { timeAgo } from "@/components/ArticleCard";
 import {
   Badge,
@@ -17,6 +17,7 @@ export const dynamic = "force-dynamic";
 
 export default function AdminDashboard() {
   const all = getAll();
+  const CATEGORIES = getSections();
   const published = all.filter((a) => a.status === "published");
   const drafts = all.filter((a) => a.status === "draft");
   const breaking = published.filter((a) => a.isBreaking);
@@ -111,7 +112,7 @@ export default function AdminDashboard() {
           />
           <ul className="divide-y divide-zinc-100">
             {recent.map((a) => {
-              const meta = categoryMeta(a.category);
+              const meta = categoryMeta(a.category, CATEGORIES);
               return (
                 <li
                   key={a.id}

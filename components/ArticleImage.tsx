@@ -1,5 +1,6 @@
 import { Article } from "@/lib/types";
 import { categoryMeta } from "@/lib/types";
+import { getSections } from "@/lib/store";
 
 export default function ArticleImage({
   article,
@@ -8,7 +9,7 @@ export default function ArticleImage({
   article: Article;
   className?: string;
 }) {
-  const meta = categoryMeta(article.category);
+  const meta = categoryMeta(article.category, getSections());
 
   if (article.imageUrl) {
     return (

@@ -56,6 +56,11 @@ export default function SidebarNav({
       exact: true,
     });
     items.push({
+      href: "/admin/sections",
+      label: "Sections",
+      icon: <Icon.Articles className="h-[18px] w-[18px]" />,
+    });
+    items.push({
       href: "/admin/editors",
       label: "Editors",
       icon: <Icon.Users className="h-[18px] w-[18px]" />,

@@ -7,9 +7,10 @@ import {
   recordArticleAction,
   addRevision,
   touchesContent,
+  getSections,
 } from "@/lib/store";
 import { parseSchedule } from "@/lib/schedule";
-import { ActivityAction, Article, CATEGORIES } from "@/lib/types";
+import { ActivityAction, Article } from "@/lib/types";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -58,7 +59,7 @@ export async function PUT(req: Request, { params }: Params) {
     patch.imageUrl = String(body.imageUrl).trim() || undefined;
   if (body.metaDescription !== undefined)
     patch.metaDescription = String(body.metaDescription).trim().slice(0, 320) || undefined;
-  if (body.category !== undefined && CATEGORIES.some((c) => c.slug === body.category))
+  if (body.category !== undefined && getSections().some((c) => c.slug === body.category))
     patch.category = body.category;
   if (body.status !== undefined) {
     const schedule = parseSchedule(body);

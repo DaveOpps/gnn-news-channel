@@ -13,8 +13,9 @@ import {
   getFeatured,
   getTrending,
   getHomepage,
+  getSections,
 } from "@/lib/store";
-import { CATEGORIES, formatByline } from "@/lib/types";
+import { formatByline } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export default function HomePage() {
 
   // Honours the curation board, falling back to automatic ordering.
   const { hero, topStories: heroSide, latest } = getHomepage();
+  const CATEGORIES = getSections();
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
