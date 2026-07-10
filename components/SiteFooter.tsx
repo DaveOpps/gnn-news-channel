@@ -6,7 +6,7 @@ export default function SiteFooter() {
   return (
     <footer className="bg-neutral-dark text-white mt-20 border-t-4 border-brand">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16 grid grid-cols-2 md:grid-cols-5 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
         <div className="col-span-2 md:col-span-1">
           <div className="mb-2">
             <span className="bg-gradient-to-r from-brand to-brand-dark text-white font-black text-3xl px-3 py-2 leading-none inline-block">
@@ -48,6 +48,28 @@ export default function SiteFooter() {
                 </Link>
               </li>
             ))}
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-black text-xs uppercase tracking-[0.2em] text-brand-accent mb-6">
+            Watch &amp; Explore
+          </h4>
+          <ul className="space-y-3 text-sm">
+            <li>
+              <Link href="/video" className="text-white/70 hover:text-white font-medium transition-colors">
+                GNN TV
+              </Link>
+            </li>
+            <li>
+              <Link href="/resources" className="text-white/70 hover:text-white font-medium transition-colors">
+                Resources
+              </Link>
+            </li>
+            <li>
+              <Link href="/live" className="text-white/70 hover:text-white font-medium transition-colors">
+                Live
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

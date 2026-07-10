@@ -75,6 +75,22 @@ export default function SiteHeader() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href="/video"
+                  className="px-4 py-2 rounded-none hover:bg-neutral-100 hover:text-brand transition-colors whitespace-nowrap"
+                >
+                  Video
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/resources"
+                  className="px-4 py-2 rounded-none hover:bg-neutral-100 hover:text-brand transition-colors whitespace-nowrap"
+                >
+                  Resources
+                </Link>
+              </li>
             </ul>
           </nav>
 

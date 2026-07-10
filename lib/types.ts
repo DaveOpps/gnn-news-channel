@@ -51,6 +51,57 @@ export function slugifySection(v: string): string {
     .slice(0, 32);
 }
 
+/** A GNN TV video. youtubeId is optional — a styled placeholder stands in without it. */
+export interface Video {
+  id: string;
+  title: string;
+  show: string; // playlist / programme, e.g. "GNN News", "The Big Interview"
+  youtubeId?: string;
+  duration: string; // "12:04"
+  views: number;
+  publishedAt: string; // ISO
+  featured?: boolean;
+}
+
+/** GNN TV programmes, in the order they appear as filter chips. */
+export const VIDEO_SHOWS = [
+  "GNN News",
+  "The Big Interview",
+  "BizTech",
+  "SportsZone",
+  "Entertainment Now",
+  "Everyday People",
+] as const;
+
+export function videoThumb(v: Video): string | null {
+  return v.youtubeId ? `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg` : null;
+}
+
+/** A tile in the Resources hub — a service/tool, not a news story. */
+export interface ResourceLink {
+  id: string;
+  title: string;
+  description: string;
+  href: string; // internal route or external URL
+  icon: ResourceIcon;
+  group: string; // section heading it's grouped under
+  external?: boolean;
+}
+
+export type ResourceIcon =
+  | "currency"
+  | "dictionary"
+  | "business"
+  | "jobs"
+  | "classifieds"
+  | "photos"
+  | "radio"
+  | "map"
+  | "weather"
+  | "events";
+
+export const RESOURCE_GROUPS = ["Tools", "Directory", "Media", "Community"] as const;
+
 /** A published correction appended to a story, in the open. */
 export interface Correction {
   id: string;

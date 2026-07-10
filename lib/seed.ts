@@ -1,4 +1,4 @@
-import { Article, Editor } from "./types";
+import { Article, Editor, Video } from "./types";
 import { hashPassword } from "./password";
 
 const RAW: Omit<Article, "rating">[] = [
@@ -274,5 +274,81 @@ export const SEED_EDITORS: Editor[] = [
     title: "Editor-in-Chief",
     role: "admin",
     createdAt: "2026-07-08T00:00:00.000Z",
+  },
+];
+
+export const SEED_VIDEOS: Video[] = [
+  {
+    id: "v1",
+    title: "GNN News at 7 — Full Bulletin",
+    show: "GNN News",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "22:14",
+    views: 48200,
+    publishedAt: "2026-07-09T19:00:00.000Z",
+    featured: true,
+  },
+  {
+    id: "v2",
+    title: "The Big Interview: Governor on the New Cocoa Pricing Deal",
+    show: "The Big Interview",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "18:47",
+    views: 31500,
+    publishedAt: "2026-07-09T09:00:00.000Z",
+  },
+  {
+    id: "v3",
+    title: "BizTech: Inside Accra's Fastest-Growing Fintech Startups",
+    show: "BizTech",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "14:02",
+    views: 12800,
+    publishedAt: "2026-07-08T15:30:00.000Z",
+  },
+  {
+    id: "v4",
+    title: "SportsZone: Black Stars Training Camp Highlights",
+    show: "SportsZone",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "09:31",
+    views: 56900,
+    publishedAt: "2026-07-08T12:00:00.000Z",
+  },
+  {
+    id: "v5",
+    title: "Entertainment Now: Afrobeats Tour Announcement Reactions",
+    show: "Entertainment Now",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "11:18",
+    views: 22300,
+    publishedAt: "2026-07-07T18:00:00.000Z",
+  },
+  {
+    id: "v6",
+    title: "Everyday People: The Farmers Behind the Cocoa Premium",
+    show: "Everyday People",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "16:55",
+    views: 8400,
+    publishedAt: "2026-07-07T08:00:00.000Z",
+  },
+  {
+    id: "v7",
+    title: "GNN News at 7 — Climate Summit Special Report",
+    show: "GNN News",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "24:03",
+    views: 39100,
+    publishedAt: "2026-07-06T19:00:00.000Z",
+  },
+  {
+    id: "v8",
+    title: "SportsZone: World Cup Quarter-Final Reaction Show",
+    show: "SportsZone",
+    youtubeId: "dQw4w9WgXcQ",
+    duration: "27:40",
+    views: 91200,
+    publishedAt: "2026-07-05T21:00:00.000Z",
   },
 ];

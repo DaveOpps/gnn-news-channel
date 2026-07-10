@@ -28,11 +28,12 @@ import {
   Revision,
   Subscriber,
   TrendingEntry,
+  Video,
   ViewEvent,
   isArticleLive,
   toPublicEditor,
 } from "./types";
-import { SEED_ARTICLES, SEED_EDITORS } from "./seed";
+import { SEED_ARTICLES, SEED_EDITORS, SEED_VIDEOS } from "./seed";
 import { hashPassword } from "./password";
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -47,6 +48,7 @@ const REVISIONS_FILE = path.join(DATA_DIR, "revisions.json");
 const MODERATION_FILE = path.join(DATA_DIR, "moderation.json");
 const SECTIONS_FILE = path.join(DATA_DIR, "sections.json");
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
+const VIDEOS_FILE = path.join(DATA_DIR, "videos.json");
 const ENGAGEMENT_FILE = path.join(DATA_DIR, "engagement.json");
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
@@ -431,6 +433,66 @@ export function purgeArticle(id: string): boolean {
     revisions.filter((r) => r.articleId !== id)
   );
   return true;
+}
+
+// ---- GNN TV videos ----
+
+export function getVideos(): Video[] {
+  const raw = readJson<Video[] | null>(VIDEOS_FILE, null);
+  if (!raw || !Array.isArray(raw)) return SEED_VIDEOS;
+  return [...raw].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+}
+
+export function getVideoById(id: string): Video | undefined {
+  return getVideos().find((v) => v.id === id);
+}
+
+export function getVideosByShow(show: string): Video[] {
+  return getVideos().filter((v) => v.show === show);
+}
+
+function writeVideos(videos: Video[]) {
+  writeJson(VIDEOS_FILE, videos);
+}
+
+export function createVideo(
+  input: Omit<Video, "id" | "views" | "publishedAt"> & { publishedAt?: string }
+): Video {
+  const videos = getVideos();
+  const video: Video = {
+    ...input,
+    id: `v${Date.now()}${Math.floor(Math.random() * 1000)}`,
+    views: 0,
+    publishedAt: input.publishedAt ?? new Date().toISOString(),
+  };
+  writeVideos([video, ...videos]);
+  return video;
+}
+
+export function updateVideo(id: string, patch: Partial<Omit<Video, "id">>): Video | undefined {
+  const videos = getVideos();
+  const idx = videos.findIndex((v) => v.id === id);
+  if (idx < 0) return undefined;
+  videos[idx] = { ...videos[idx], ...patch };
+  writeVideos(videos);
+  return videos[idx];
+}
+
+export function deleteVideo(id: string): boolean {
+  const videos = getVideos();
+  const next = videos.filter((v) => v.id !== id);
+  if (next.length === videos.length) return false;
+  writeVideos(next);
+  return true;
+}
+
+export function incrementVideoViews(id: string) {
+  const videos = getVideos();
+  const idx = videos.findIndex((v) => v.id === id);
+  if (idx >= 0) {
+    videos[idx].views += 1;
+    writeVideos(videos);
+  }
 }
 
 // ---- Sections ----
