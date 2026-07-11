@@ -82,7 +82,7 @@ export default async function ArticlePage({ params, searchParams }: Props) {
   const readMinutes = Math.max(1, Math.round(words / 200));
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-50">
+    <div className="flex flex-col min-h-screen bg-paper">
       <ReadingProgress />
       {/* Previews are editorial, so they never pollute audience numbers. */}
       {!isPreview && <ReaderTracker articleId={article.id} />}
@@ -101,11 +101,11 @@ export default async function ArticlePage({ params, searchParams }: Props) {
       <BreakingTicker articles={getBreaking()} />
 
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-10">
-        <article className="bg-white shadow-sm">
+        <article className="bg-white border border-hairline-strong">
           <div className="p-6 md:p-10 pb-0 md:pb-0">
             <div className="flex items-center gap-3 mb-4">
               {article.isLiveBlog && (
-                <span className="inline-flex items-center gap-1.5 bg-brand px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.15em] text-white">
+                <span className="inline-flex items-center gap-1.5 bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
                     <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
@@ -115,21 +115,21 @@ export default async function ArticlePage({ params, searchParams }: Props) {
               )}
               <CategoryBadge category={article.category} />
               {article.isBreaking && (
-                <span className="bg-ink text-white text-[10px] font-black tracking-[0.15em] uppercase px-2 py-0.5">
+                <span className="bg-ink text-white text-[10px] font-bold tracking-[0.14em] uppercase px-2 py-0.5">
                   Breaking
                 </span>
               )}
-              <span className="text-xs text-neutral-400 font-semibold">
+              <span className="text-xs text-neutral-gray font-medium">
                 {readMinutes} min read
               </span>
             </div>
-            <h1 className="font-black text-3xl md:text-5xl leading-tight text-ink">
+            <h1 className="headline text-4xl md:text-[3.25rem] leading-[1.05] text-ink">
               {article.title}
             </h1>
-            <p className="text-lg text-neutral-600 mt-4 leading-relaxed">
+            <p className="text-lg text-neutral-600 mt-5 leading-relaxed">
               {article.excerpt}
             </p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-6 text-sm text-neutral-500">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-6 text-sm text-neutral-gray">
               <span className="flex items-center gap-2.5">
                 <EditorAvatar
                   name={bylineEditor?.name ?? article.author}
@@ -141,7 +141,7 @@ export default async function ArticlePage({ params, searchParams }: Props) {
                     {formatByline(article.author, article.coAuthors)}
                   </span>
                   {bylineEditor?.title && (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-gray">
                       {bylineEditor.title}
                     </span>
                   )}
@@ -161,11 +161,11 @@ export default async function ArticlePage({ params, searchParams }: Props) {
                 <span className="flex items-center gap-1.5">
                   ·
                   <StarRating value={article.rating} size="sm" />
-                  <span className="font-semibold">Editor&apos;s rating</span>
+                  <span className="font-medium">Editor&apos;s rating</span>
                 </span>
               )}
             </div>
-            <div className="mt-5 pb-6 border-b border-neutral-200">
+            <div className="mt-5 pb-6 border-b border-hairline">
               <ShareButtons title={article.title} />
             </div>
           </div>
@@ -181,14 +181,14 @@ export default async function ArticlePage({ params, searchParams }: Props) {
 
             {article.corrections && article.corrections.length > 0 && (
               <aside className="mt-8 border-l-4 border-amber-400 bg-amber-50/60 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.15em] text-amber-800">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-800">
                   Corrections
                 </p>
                 <ul className="mt-2 space-y-2">
                   {article.corrections.map((c) => (
                     <li key={c.id} className="text-sm text-neutral-700">
                       {c.note}{" "}
-                      <span className="text-neutral-400">
+                      <span className="text-neutral-gray">
                         —{" "}
                         {new Date(c.at).toLocaleDateString("en-US", {
                           year: "numeric",
@@ -203,7 +203,7 @@ export default async function ArticlePage({ params, searchParams }: Props) {
             )}
 
             {article.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-neutral-200">
+              <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-hairline">
                 {article.tags.map((t) => (
                   <Link
                     key={t}
@@ -222,9 +222,9 @@ export default async function ArticlePage({ params, searchParams }: Props) {
 
         {related.length > 0 && (
           <section className="mt-12">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-hairline-strong">
               <span className="w-1.5 h-6 bg-brand"></span>
-              <h2 className="font-black text-xl uppercase tracking-wide">
+              <h2 className="font-semibold text-xl uppercase tracking-wide text-ink">
                 More in this section
               </h2>
             </div>

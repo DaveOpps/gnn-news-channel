@@ -4,103 +4,104 @@ import { getSections } from "@/lib/store";
 export default function SiteFooter() {
   const CATEGORIES = getSections();
   return (
-    <footer className="bg-neutral-dark text-white mt-20 border-t-4 border-brand">
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-        <div className="col-span-2 md:col-span-1">
-          <div className="mb-2">
-            <span className="bg-gradient-to-r from-brand to-brand-dark text-white font-black text-3xl px-3 py-2 leading-none inline-block">
-              GNN
-            </span>
-          </div>
-          <p className="text-white/60 text-sm mt-4 leading-relaxed font-medium">
-            Ghana&apos;s leading digital news source. Breaking news, politics, business, sports, and entertainment coverage 24/7.
+    <footer className="bg-ink text-white mt-20">
+      <div className="max-w-7xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+        <div className="col-span-2 lg:col-span-1">
+          <span className="bg-brand text-white font-black text-2xl px-2.5 py-1 leading-none inline-block">
+            GNN
+          </span>
+          <p className="text-white/50 text-sm mt-4 leading-relaxed">
+            Ghana&apos;s digital news source — breaking news, politics, business,
+            sports and entertainment coverage, all day.
           </p>
-          <div className="flex gap-3 mt-6">
-            <a href="#" className="w-8 h-8 bg-white/10 hover:bg-brand rounded flex items-center justify-center transition-colors text-sm">f</a>
-            <a href="#" className="w-8 h-8 bg-white/10 hover:bg-brand rounded flex items-center justify-center transition-colors text-sm">𝕏</a>
-            <a href="#" className="w-8 h-8 bg-white/10 hover:bg-brand rounded flex items-center justify-center transition-colors text-sm">in</a>
+          <div className="flex gap-2.5 mt-5">
+            <a href="#" aria-label="Facebook" className="w-8 h-8 bg-white/10 hover:bg-brand rounded-full flex items-center justify-center transition-colors text-xs">f</a>
+            <a href="#" aria-label="X" className="w-8 h-8 bg-white/10 hover:bg-brand rounded-full flex items-center justify-center transition-colors text-xs">𝕏</a>
+            <a href="#" aria-label="LinkedIn" className="w-8 h-8 bg-white/10 hover:bg-brand rounded-full flex items-center justify-center transition-colors text-xs">in</a>
           </div>
         </div>
+
         <div>
-          <h4 className="font-black text-xs uppercase tracking-[0.2em] text-brand-accent mb-6">
+          <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40 mb-5">
             News
           </h4>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-2.5 text-sm">
             {CATEGORIES.slice(0, 4).map((c) => (
               <li key={c.slug}>
-                <Link href={`/category/${c.slug}`} className="text-white/70 hover:text-white hover:text-brand font-medium transition-colors">
+                <Link href={`/category/${c.slug}`} className="text-white/65 hover:text-white transition-colors">
                   {c.label}
                 </Link>
               </li>
             ))}
           </ul>
         </div>
+
         <div>
-          <h4 className="font-black text-xs uppercase tracking-[0.2em] text-brand-accent mb-6">
+          <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40 mb-5">
             More
           </h4>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-2.5 text-sm">
             {CATEGORIES.slice(4).map((c) => (
               <li key={c.slug}>
-                <Link href={`/category/${c.slug}`} className="text-white/70 hover:text-white hover:text-brand font-medium transition-colors">
+                <Link href={`/category/${c.slug}`} className="text-white/65 hover:text-white transition-colors">
                   {c.label}
                 </Link>
               </li>
             ))}
           </ul>
         </div>
+
         <div>
-          <h4 className="font-black text-xs uppercase tracking-[0.2em] text-brand-accent mb-6">
+          <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40 mb-5">
             Watch &amp; Explore
           </h4>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-2.5 text-sm">
             <li>
-              <Link href="/video" className="text-white/70 hover:text-white font-medium transition-colors">
+              <Link href="/video" className="text-white/65 hover:text-white transition-colors">
                 GNN TV
               </Link>
             </li>
             <li>
-              <Link href="/resources" className="text-white/70 hover:text-white font-medium transition-colors">
+              <Link href="/resources" className="text-white/65 hover:text-white transition-colors">
                 Resources
               </Link>
             </li>
             <li>
-              <Link href="/live" className="text-white/70 hover:text-white font-medium transition-colors">
+              <Link href="/live" className="text-white/65 hover:text-white transition-colors">
                 Live
               </Link>
             </li>
           </ul>
         </div>
+
         <div>
-          <h4 className="font-black text-xs uppercase tracking-[0.2em] text-brand-accent mb-6">
+          <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40 mb-5">
             Newsroom
           </h4>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-2.5 text-sm">
             <li>
-              <Link href="/admin" className="text-white/70 hover:text-white font-medium transition-colors">
+              <Link href="/admin" className="text-white/65 hover:text-white transition-colors">
                 Admin Panel
               </Link>
             </li>
             <li>
-              <Link href="/search" className="text-white/70 hover:text-white font-medium transition-colors">
+              <Link href="/search" className="text-white/65 hover:text-white transition-colors">
                 Search
               </Link>
             </li>
-            <li className="text-white/40 font-medium">Careers</li>
-            <li className="text-white/40 font-medium">Advertise</li>
+            <li className="text-white/30">Careers</li>
+            <li className="text-white/30">Advertise</li>
           </ul>
         </div>
       </div>
 
-      {/* Footer Bottom */}
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-6 text-xs text-white/50 flex flex-wrap justify-between gap-4">
-          <span className="font-medium">© {new Date().getFullYear()} GNN - Ghana News Network. All rights reserved.</span>
-          <div className="flex gap-4 font-medium">
-            <Link href="#" className="hover:text-brand transition-colors">Terms of Use</Link>
-            <Link href="#" className="hover:text-brand transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-brand transition-colors">Cookie Settings</Link>
+        <div className="max-w-7xl mx-auto px-4 py-5 text-xs text-white/40 flex flex-wrap justify-between gap-3">
+          <span>© {new Date().getFullYear()} GNN — Ghana News Network. All rights reserved.</span>
+          <div className="flex gap-4">
+            <Link href="#" className="hover:text-white transition-colors">Terms of Use</Link>
+            <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="#" className="hover:text-white transition-colors">Cookie Settings</Link>
           </div>
         </div>
       </div>

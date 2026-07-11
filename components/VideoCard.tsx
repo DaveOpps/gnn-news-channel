@@ -66,17 +66,17 @@ export default function VideoCard({
     <Link href={`/video/${video.id}`} className="group block">
       <VideoThumb video={video} />
       <div className="pt-3">
-        <span className="inline-block text-[10px] font-black tracking-[0.15em] uppercase text-brand mb-1.5">
+        <span className="inline-block text-[10px] font-semibold tracking-[0.12em] uppercase text-brand mb-1.5">
           {video.show}
         </span>
         <h3
-          className={`font-bold leading-snug text-ink group-hover:text-brand transition-colors ${
+          className={`headline leading-snug text-ink group-hover:text-brand transition-colors ${
             size === "sm" ? "text-sm" : "text-base"
           }`}
         >
           {video.title}
         </h3>
-        <p className="text-xs text-neutral-500 mt-1.5 font-medium">
+        <p className="text-xs text-neutral-gray mt-1.5">
           {compact(video.views)} views · {timeAgo(video.publishedAt)}
         </p>
       </div>

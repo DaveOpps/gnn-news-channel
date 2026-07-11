@@ -49,16 +49,16 @@ export default function CommentsSection({
   }
 
   return (
-    <section className="mt-12 bg-white shadow-sm p-6 md:p-10">
-      <div className="flex items-center gap-3 mb-6">
+    <section className="mt-12 bg-white border border-hairline-strong p-6 md:p-10">
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-hairline">
         <span className="w-1.5 h-6 bg-brand"></span>
-        <h2 className="font-black text-xl uppercase tracking-wide">
+        <h2 className="font-semibold text-xl uppercase tracking-wide text-ink">
           Comments ({initial.length})
         </h2>
       </div>
 
       {submitted ? (
-        <div className="bg-green-50 border border-green-200 text-green-800 text-sm px-4 py-3 mb-8">
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-4 py-3 mb-8">
           ✓ Thanks! Your comment was submitted and will appear once approved by our
           moderators.
         </div>
@@ -75,7 +75,7 @@ export default function CommentsSection({
             required
             maxLength={60}
             placeholder="Your name"
-            className="w-full border border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
+            className="w-full border border-hairline-strong px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
           />
           <textarea
             value={text}
@@ -84,20 +84,20 @@ export default function CommentsSection({
             maxLength={2000}
             rows={4}
             placeholder="Join the conversation… (comments are moderated)"
-            className="w-full border border-neutral-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
+            className="w-full border border-hairline-strong px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
           />
           <button
             type="submit"
             disabled={sending}
-            className="bg-ink hover:bg-black disabled:opacity-60 text-white font-bold text-xs px-6 py-3 uppercase tracking-widest transition-colors"
+            className="bg-ink hover:bg-black disabled:opacity-60 text-white font-semibold text-sm px-6 py-2.5 transition-colors"
           >
-            {sending ? "Posting…" : "Post Comment"}
+            {sending ? "Posting…" : "Post comment"}
           </button>
         </form>
       )}
 
       {initial.length === 0 ? (
-        <p className="text-neutral-400 text-sm">
+        <p className="text-neutral-gray text-sm">
           No comments yet. Be the first to share your thoughts.
         </p>
       ) : (
@@ -105,15 +105,15 @@ export default function CommentsSection({
           {initial.map((c) => (
             <li key={c.id} className="flex gap-4">
               <span
-                className="w-10 h-10 rounded-full bg-ink text-white flex items-center justify-center font-black text-sm shrink-0"
+                className="w-9 h-9 rounded-full bg-ink text-white flex items-center justify-center font-semibold text-sm shrink-0"
                 aria-hidden
               >
                 {c.name.charAt(0).toUpperCase()}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm">
-                  <span className="font-bold">{c.name}</span>{" "}
-                  <span className="text-neutral-400 text-xs">
+                  <span className="font-semibold text-ink">{c.name}</span>{" "}
+                  <span className="text-neutral-gray text-xs">
                     · {timeAgoShort(c.createdAt)}
                   </span>
                 </p>
@@ -122,17 +122,17 @@ export default function CommentsSection({
                 </p>
 
                 {c.replies.length > 0 && (
-                  <ul className="mt-4 space-y-4 border-l-2 border-neutral-200 pl-4">
+                  <ul className="mt-4 space-y-4 border-l-2 border-hairline pl-4">
                     {c.replies.map((r) => (
                       <li key={r.id}>
                         <p className="text-sm">
-                          <span className="font-bold">{r.name}</span>
+                          <span className="font-semibold text-ink">{r.name}</span>
                           {r.isEditorReply && (
-                            <span className="ml-2 bg-brand px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white align-middle">
+                            <span className="ml-2 bg-brand px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white align-middle">
                               Editor
                             </span>
                           )}{" "}
-                          <span className="text-neutral-400 text-xs">
+                          <span className="text-neutral-gray text-xs">
                             · {timeAgoShort(r.createdAt)}
                           </span>
                         </p>

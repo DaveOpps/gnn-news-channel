@@ -14,7 +14,7 @@ export function CategoryBadge({ category }: { category: string }) {
   return (
     <Link
       href={`/category/${meta.slug}`}
-      className="inline-block text-[10px] font-black tracking-[0.15em] uppercase text-white px-2 py-0.5"
+      className="inline-block text-[10px] font-bold tracking-[0.1em] uppercase text-white px-2 py-0.5"
       style={{ backgroundColor: meta.color }}
     >
       {meta.label}
@@ -46,8 +46,8 @@ export default function ArticleCard({
         </div>
         <Link href={`/article/${article.slug}`} className="headline-link">
           <h3
-            className={`font-bold leading-snug text-ink ${
-              size === "sm" ? "text-sm" : "text-lg"
+            className={`headline leading-snug text-ink ${
+              size === "sm" ? "text-[15px]" : "text-lg"
             }`}
           >
             {article.title}

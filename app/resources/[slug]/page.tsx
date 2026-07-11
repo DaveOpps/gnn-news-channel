@@ -38,12 +38,12 @@ export default async function ResourceDetailPage({ params }: Props) {
           icon={resource.icon}
           className="w-20 h-20 rounded-full text-3xl mx-auto"
         />
-        <h1 className="font-black text-3xl mt-6">{resource.title}</h1>
-        <p className="text-neutral-gray mt-3 max-w-lg mx-auto font-medium">
+        <h1 className="headline text-3xl mt-6 text-ink">{resource.title}</h1>
+        <p className="text-neutral-gray mt-3 max-w-lg mx-auto">
           {resource.description}
         </p>
-        <div className="mt-8 inline-block bg-neutral-100 border-2 border-dashed border-neutral-300 px-6 py-4">
-          <p className="text-sm font-bold text-neutral-gray uppercase tracking-wide">
+        <div className="mt-8 inline-block bg-neutral-50 border border-dashed border-hairline-strong px-6 py-4">
+          <p className="text-sm font-semibold text-neutral-gray uppercase tracking-wide">
             Coming soon
           </p>
           <p className="text-xs text-neutral-400 mt-1">
@@ -53,7 +53,7 @@ export default async function ResourceDetailPage({ params }: Props) {
         <div className="mt-8">
           <Link
             href="/resources"
-            className="text-brand font-bold text-sm hover:underline"
+            className="text-brand font-semibold text-sm hover:underline"
           >
             ← Back to Resources
           </Link>

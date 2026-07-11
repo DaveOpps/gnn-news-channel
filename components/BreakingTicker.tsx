@@ -7,13 +7,15 @@ export default function BreakingTicker({ articles }: { articles: Article[] }) {
   const loop = [...articles, ...articles];
 
   return (
-    <div className="bg-brand text-white flex items-stretch overflow-hidden shadow-md border-b-2 border-brand-accent">
-      <div className="bg-neutral-dark px-6 py-3 flex items-center gap-3 shrink-0 z-10">
-        <span className="relative flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-accent"></span>
+    <div className="bg-ink text-white flex items-stretch overflow-hidden border-b border-white/10">
+      <div className="bg-brand px-5 py-2.5 flex items-center gap-2 shrink-0 z-10">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
         </span>
-        <span className="font-black text-xs tracking-[0.3em] uppercase text-brand-accent">⚡ LIVE</span>
+        <span className="font-bold text-[11px] tracking-[0.16em] uppercase">
+          Breaking
+        </span>
       </div>
       <div className="flex-1 overflow-hidden flex items-center">
         <div className="ticker-track">
@@ -21,9 +23,9 @@ export default function BreakingTicker({ articles }: { articles: Article[] }) {
             <Link
               key={`${a.id}-${i}`}
               href={`/article/${a.slug}`}
-              className="px-8 text-sm font-bold hover:text-brand-accent transition-colors underline-offset-2 hover:underline flex items-center gap-3 whitespace-nowrap"
+              className="px-7 text-sm font-medium text-white/90 hover:text-white transition-colors flex items-center gap-2.5 whitespace-nowrap"
             >
-              <span className="text-brand-accent">●</span>
+              <span className="text-white/30">●</span>
               {a.title}
             </Link>
           ))}

@@ -11,47 +11,42 @@ export default function SiteHeader() {
   });
 
   return (
-    <header className="sticky top-0 z-50 shadow-lg">
-      {/* Top utility bar - Dark with accent color */}
-      <div className="bg-neutral-dark text-white text-[11px]">
+    <header className="sticky top-0 z-50">
+      {/* Utility bar */}
+      <div className="bg-ink text-white/70 text-[11px]">
         <div className="max-w-7xl mx-auto px-4 h-8 flex items-center justify-between">
-          <span className="text-white/70 font-medium">{today}</span>
-          <div className="flex items-center gap-4">
-            <span className="hidden sm:inline text-white/70">
-              Live TV · Audio · Newsletters
-            </span>
-            <Link
-              href="/admin"
-              className="text-white/60 hover:text-white transition-colors hover:underline"
-            >
-              Newsroom Login
-            </Link>
-          </div>
+          <span>{today}</span>
+          <Link
+            href="/admin"
+            className="hover:text-white transition-colors hover:underline underline-offset-2"
+          >
+            Newsroom Login
+          </Link>
         </div>
       </div>
 
-      {/* Brand + nav - Bold styling */}
-      <div className="bg-neutral-light border-b-4 border-brand">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-6">
+      {/* Brand + nav */}
+      <div className="bg-white border-b border-hairline-strong">
+        <div className="max-w-7xl mx-auto px-4 h-[76px] flex items-center gap-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="flex flex-col">
-              <span className="bg-gradient-to-r from-brand to-brand-dark text-white font-black text-3xl tracking-tight px-3 py-1.5 leading-none">
-                GNN
-              </span>
-              <span className="text-[9px] font-bold tracking-[0.15em] uppercase text-brand mt-0.5">
-                Ghana News Network
-              </span>
-            </div>
+            <span className="bg-brand text-white font-black text-2xl tracking-tight px-2.5 py-1 leading-none">
+              GNN
+            </span>
+            <span className="hidden md:block text-[10px] font-semibold tracking-[0.18em] uppercase text-neutral-gray leading-tight">
+              Global News
+              <br />
+              Network
+            </span>
           </Link>
 
           {/* Main navigation */}
-          <nav className="flex-1 overflow-x-auto">
-            <ul className="flex items-center gap-0.5 text-sm font-bold">
+          <nav className="flex-1 min-w-0 overflow-x-auto">
+            <ul className="flex items-center gap-1 text-[13px] font-semibold text-neutral-gray">
               <li>
                 <Link
                   href="/"
-                  className="px-4 py-2 rounded-none hover:bg-neutral-100 hover:text-brand transition-colors whitespace-nowrap relative"
+                  className="px-3 py-2 hover:text-brand transition-colors whitespace-nowrap"
                 >
                   Home
                 </Link>
@@ -59,9 +54,12 @@ export default function SiteHeader() {
               <li>
                 <Link
                   href="/live"
-                  className="flex items-center gap-2 px-4 py-2 rounded-none hover:bg-neutral-100 text-brand font-black transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 px-3 py-2 text-brand transition-colors whitespace-nowrap"
                 >
-                  <span className="w-2.5 h-2.5 rounded-full bg-brand animate-pulse"></span>
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand"></span>
+                  </span>
                   Live
                 </Link>
               </li>
@@ -69,7 +67,7 @@ export default function SiteHeader() {
                 <li key={c.slug}>
                   <Link
                     href={`/category/${c.slug}`}
-                    className="px-4 py-2 rounded-none hover:bg-neutral-100 hover:text-brand transition-colors whitespace-nowrap"
+                    className="px-3 py-2 hover:text-brand transition-colors whitespace-nowrap"
                   >
                     {c.label}
                   </Link>
@@ -78,7 +76,7 @@ export default function SiteHeader() {
               <li>
                 <Link
                   href="/video"
-                  className="px-4 py-2 rounded-none hover:bg-neutral-100 hover:text-brand transition-colors whitespace-nowrap"
+                  className="px-3 py-2 hover:text-brand transition-colors whitespace-nowrap"
                 >
                   Video
                 </Link>
@@ -86,7 +84,7 @@ export default function SiteHeader() {
               <li>
                 <Link
                   href="/resources"
-                  className="px-4 py-2 rounded-none hover:bg-neutral-100 hover:text-brand transition-colors whitespace-nowrap"
+                  className="px-3 py-2 hover:text-brand transition-colors whitespace-nowrap"
                 >
                   Resources
                 </Link>
@@ -94,13 +92,13 @@ export default function SiteHeader() {
             </ul>
           </nav>
 
-          {/* Search bar */}
+          {/* Search */}
           <form action="/search" className="hidden lg:block shrink-0">
             <input
               type="search"
               name="q"
               placeholder="Search news…"
-              className="border-2 border-neutral-300 rounded px-4 py-2 text-sm w-48 focus:w-64 focus:outline-none focus:border-brand transition-all font-medium"
+              className="border border-hairline-strong rounded-full px-4 py-2 text-sm w-44 focus:w-64 focus:outline-none focus:border-brand transition-all"
             />
           </form>
         </div>

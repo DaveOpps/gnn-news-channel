@@ -1,17 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  /* Bold GhanaWeb-inspired color scheme */
-  --background: #f5f5f5;
-  --foreground: #1a1a1a;
-  --brand: #d92e1d;
-  --brand-dark: #b8260b;
+  /* Editorial, restrained palette — brand red as the one accent, used sparingly */
+  --background: #ffffff;
+  --foreground: #16161a;
+  --brand: #c8102e;
+  --brand-dark: #9c0c24;
   --brand-secondary: #0052a3;
-  --brand-accent: #ffa500;
-  --ink: #1a1a1a;
+  --brand-accent: #c8102e; /* kept for back-compat; equals brand now, no orange */
+  --ink: #16161a;
   --neutral-light: #ffffff;
-  --neutral-gray: #666666;
-  --border-light: #ddd;
+  --neutral-gray: #6b6b6f;
+  --border-light: #e6e6e6;
+
+  /* Reading surfaces */
+  --paper: #fafaf9;
+  --hairline: #e6e6e4;
+  --hairline-strong: #d4d4d1;
 }
 
 @theme inline {
@@ -26,14 +31,27 @@
   --color-neutral-light: var(--neutral-light);
   --color-neutral-gray: var(--neutral-gray);
   --color-border-light: var(--border-light);
+  --color-paper: var(--paper);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-serif);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Editorial headline type — every h1/h2 used for a story title reads in
+   serif; UI chrome (nav, buttons, badges, meta) stays in the sans. */
+.headline,
+.headline-serif {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* Breaking-news ticker */
@@ -49,7 +67,7 @@ body {
 .ticker-track {
   display: inline-flex;
   white-space: nowrap;
-  animation: ticker-scroll 40s linear infinite;
+  animation: ticker-scroll 46s linear infinite;
 }
 
 .ticker-track:hover {
@@ -66,17 +84,22 @@ body {
   text-underline-offset: 3px;
 }
 
-/* Article body typography */
+/* Article body typography — serif for the reading column, generous leading */
+.article-body {
+  font-family: var(--font-serif), Georgia, serif;
+}
 .article-body p {
-  margin-bottom: 1.25rem;
-  line-height: 1.85;
-  font-size: 1.075rem;
+  margin-bottom: 1.4rem;
+  line-height: 1.8;
+  font-size: 1.1875rem;
+  color: #262626;
 }
 .article-body p:first-of-type::first-letter {
   float: left;
-  font-size: 3.4rem;
-  line-height: 0.9;
-  font-weight: 800;
-  padding-right: 0.55rem;
+  font-size: 3.6rem;
+  line-height: 0.86;
+  font-weight: 700;
+  padding-right: 0.5rem;
+  padding-top: 0.15rem;
   color: var(--brand);
 }

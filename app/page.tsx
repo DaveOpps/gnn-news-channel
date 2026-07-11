@@ -37,19 +37,19 @@ export default function HomePage() {
       <main className="flex-1 w-full">
         {/* ---- Hero Section ---- */}
         {hero && (
-          <section className="max-w-7xl mx-auto px-4 py-12">
+          <section className="max-w-7xl mx-auto px-4 py-10">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Hero */}
-              <article className="lg:col-span-2 group relative overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-shadow duration-300">
+              <article className="lg:col-span-2 group relative overflow-hidden bg-white border border-hairline-strong">
                 <Link href={`/article/${hero.slug}`} className="block aspect-[16/9]">
-                  <div className="w-full h-full transition-transform duration-500 group-hover:scale-110 overflow-hidden">
+                  <div className="w-full h-full transition-transform duration-500 group-hover:scale-105 overflow-hidden">
                     <ArticleImage article={hero} />
                   </div>
                 </Link>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/98 via-black/80 to-transparent p-8 pt-32 pointer-events-none">
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent p-8 pt-28 pointer-events-none">
                   <div className="pointer-events-auto">
                     {hero.isLiveBlog && (
-                      <span className="mr-2 inline-flex items-center gap-1.5 bg-brand px-2 py-0.5 align-middle text-[10px] font-black uppercase tracking-[0.15em] text-white">
+                      <span className="mr-2 inline-flex items-center gap-1.5 bg-brand px-2 py-0.5 align-middle text-[10px] font-bold uppercase tracking-[0.14em] text-white">
                         <span className="relative flex h-1.5 w-1.5">
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
                           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
@@ -59,14 +59,14 @@ export default function HomePage() {
                     )}
                     <CategoryBadge category={hero.category} />
                     <Link href={`/article/${hero.slug}`}>
-                      <h1 className="text-white font-black text-3xl md:text-5xl leading-tight mt-4 hover:text-brand-accent transition-colors">
+                      <h1 className="headline text-white text-3xl md:text-5xl leading-tight mt-4 hover:text-white/85 transition-colors">
                         {hero.title}
                       </h1>
                     </Link>
-                    <p className="text-white/80 text-sm md:text-base mt-4 max-w-2xl line-clamp-3 font-medium">
+                    <p className="text-white/75 text-sm md:text-base mt-4 max-w-2xl line-clamp-3">
                       {hero.excerpt}
                     </p>
-                    <p className="text-white/60 text-xs mt-4 font-medium">
+                    <p className="text-white/55 text-xs mt-4">
                       {formatByline(hero.author, hero.coAuthors)} · {timeAgo(hero.publishedAt)}
                     </p>
                   </div>
@@ -74,21 +74,21 @@ export default function HomePage() {
               </article>
 
               {/* Top Stories Sidebar */}
-              <div className="flex flex-col bg-white shadow-xl overflow-hidden">
-                <div className="bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-4">
-                  <h2 className="font-black text-xs tracking-[0.2em] uppercase">⭐ Top Stories</h2>
+              <div className="flex flex-col bg-white border border-hairline-strong overflow-hidden">
+                <div className="bg-ink text-white px-5 py-3.5">
+                  <h2 className="font-semibold text-xs tracking-[0.16em] uppercase">Top Stories</h2>
                 </div>
-                <div className="flex-1 divide-y divide-neutral-200">
+                <div className="flex-1 divide-y divide-hairline">
                   {heroSide.map((a) => (
-                    <article key={a.id} className="p-5 hover:bg-neutral-50 transition-colors">
+                    <article key={a.id} className="p-4 hover:bg-paper transition-colors">
                       <div className="flex items-center gap-2 mb-2">
                         <CategoryBadge category={a.category} />
-                        <span className="text-[10px] font-bold text-brand">
+                        <span className="text-[10px] font-medium text-neutral-gray">
                           {timeAgo(a.publishedAt)}
                         </span>
                       </div>
                       <Link href={`/article/${a.slug}`} className="headline-link group">
-                        <h3 className="font-bold text-sm leading-snug group-hover:text-brand transition-colors">
+                        <h3 className="font-semibold text-sm leading-snug text-ink group-hover:text-brand transition-colors">
                           {a.title}
                         </h3>
                       </Link>
@@ -104,9 +104,9 @@ export default function HomePage() {
         <section className="max-w-7xl mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-3">
-              <div className="flex items-center gap-4 mb-8 pb-4 border-b-4 border-brand">
-                <div className="w-2 h-10 bg-gradient-to-b from-brand to-brand-dark"></div>
-                <h2 className="font-black text-2xl uppercase tracking-wide text-neutral-dark">
+              <div className="flex items-center gap-3 mb-7 pb-3 border-b border-hairline-strong">
+                <span className="w-1.5 h-6 bg-brand"></span>
+                <h2 className="font-semibold text-xl uppercase tracking-wide text-ink">
                   Latest News
                 </h2>
               </div>
@@ -124,28 +124,28 @@ export default function HomePage() {
 
         {/* ---- Editor's Picks ---- */}
         {featured.length > 1 && (
-          <section className="bg-gradient-to-r from-neutral-dark to-neutral-dark text-white py-16 my-12 border-t-4 border-brand-accent">
+          <section className="bg-ink text-white py-14 my-4">
             <div className="max-w-7xl mx-auto px-4">
-              <div className="flex items-center gap-4 mb-10">
-                <div className="w-2 h-10 bg-brand-accent"></div>
-                <h2 className="font-black text-2xl uppercase tracking-wide">
-                  ✨ Editor&apos;s Picks
+              <div className="flex items-center gap-3 mb-9">
+                <span className="w-1.5 h-6 bg-brand"></span>
+                <h2 className="font-semibold text-xl uppercase tracking-wide">
+                  Editor&apos;s Picks
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {featured.slice(0, 3).map((a, i) => (
-                  <article key={a.id} className="flex gap-4 items-start bg-white/5 p-6 hover:bg-white/10 transition-colors rounded">
-                    <span className="font-black text-5xl text-white/15 leading-none flex-shrink-0">
+                  <article key={a.id} className="flex gap-4 items-start">
+                    <span className="font-bold text-4xl text-white/15 leading-none shrink-0 tabular-nums">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <div className="flex-1 min-w-0">
                       <CategoryBadge category={a.category} />
                       <Link href={`/article/${a.slug}`}>
-                        <h3 className="font-black leading-snug mt-3 hover:text-brand-accent transition-colors text-lg">
+                        <h3 className="headline leading-snug mt-3 hover:text-white/80 transition-colors text-lg">
                           {a.title}
                         </h3>
                       </Link>
-                      <p className="text-white/50 text-xs mt-3 font-medium">
+                      <p className="text-white/45 text-xs mt-3">
                         {formatByline(a.author, a.coAuthors)} · {timeAgo(a.publishedAt)}
                       </p>
                     </div>

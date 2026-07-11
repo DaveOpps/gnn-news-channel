@@ -67,14 +67,14 @@ export default async function VideoWatchPage({ params }: Props) {
           <div className="mt-5">
             <Link
               href={`/video?show=${encodeURIComponent(video.show)}`}
-              className="inline-block text-[11px] font-black tracking-[0.15em] uppercase text-brand-accent hover:underline mb-2"
+              className="inline-block text-[11px] font-semibold tracking-[0.14em] uppercase text-white/55 hover:text-white transition-colors mb-2"
             >
               {video.show}
             </Link>
-            <h1 className="font-black text-2xl md:text-3xl leading-tight">
+            <h1 className="headline text-2xl md:text-3xl leading-tight">
               {video.title}
             </h1>
-            <p className="text-white/50 text-sm mt-3 font-medium">
+            <p className="text-white/50 text-sm mt-3">
               {compact(video.views)} views · {timeAgo(video.publishedAt)} · {video.duration}
             </p>
           </div>
@@ -93,7 +93,7 @@ export default async function VideoWatchPage({ params }: Props) {
         <aside className="bg-white/5 border border-white/10 p-5 h-fit">
           <div className="flex items-center gap-3 mb-5">
             <span className="w-1.5 h-6 bg-brand"></span>
-            <h2 className="font-black text-sm uppercase tracking-wide">
+            <h2 className="font-semibold text-sm uppercase tracking-wide">
               More from {video.show}
             </h2>
           </div>
@@ -124,7 +124,7 @@ export default async function VideoWatchPage({ params }: Props) {
                   </div>
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-bold leading-snug group-hover:text-red-400 transition-colors line-clamp-2">
+                  <h3 className="text-sm font-semibold leading-snug group-hover:text-brand transition-colors line-clamp-2">
                     {v.title}
                   </h3>
                   <p className="text-[11px] text-white/40 mt-1">
@@ -140,9 +140,9 @@ export default async function VideoWatchPage({ params }: Props) {
       {/* Related grid on light background, matching the rest of the site */}
       <div className="bg-neutral-light text-ink">
         <div className="max-w-7xl mx-auto px-4 py-10">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 pb-3 border-b border-hairline-strong">
             <span className="w-1.5 h-6 bg-brand"></span>
-            <h2 className="font-black text-xl uppercase tracking-wide">
+            <h2 className="font-semibold text-xl uppercase tracking-wide text-ink">
               Watch More
             </h2>
           </div>

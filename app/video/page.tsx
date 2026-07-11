@@ -30,34 +30,34 @@ export default async function VideoHubPage({
 
       <main className="flex-1 w-full">
         {/* Hero band */}
-        <div className="bg-neutral-dark text-white">
+        <div className="bg-ink text-white">
           <div className="max-w-7xl mx-auto px-4 py-10">
             <div className="flex items-center gap-3 mb-6">
-              <span className="inline-flex items-center gap-2 bg-brand px-3 py-1 font-black text-xs tracking-[0.2em] uppercase">
+              <span className="inline-flex items-center gap-2 bg-brand px-3 py-1 font-semibold text-xs tracking-[0.16em] uppercase">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                 </span>
                 GNN TV
               </span>
-              <h1 className="font-black text-2xl uppercase tracking-wide">
+              <h1 className="font-semibold text-2xl uppercase tracking-wide">
                 Video
               </h1>
             </div>
 
             {featured && (
               <Link href={`/video/${featured.id}`} className="group grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <div className="border-2 border-white/10">
+                <div className="border border-white/10">
                   <VideoThumb video={featured} />
                 </div>
                 <div>
-                  <span className="inline-block text-[10px] font-black tracking-[0.15em] uppercase text-brand-accent mb-2">
+                  <span className="inline-block text-[10px] font-semibold tracking-[0.14em] uppercase text-white/60 mb-2">
                     {featured.show}
                   </span>
-                  <h2 className="font-black text-2xl md:text-3xl leading-tight group-hover:text-brand-accent transition-colors">
+                  <h2 className="headline text-2xl md:text-3xl leading-tight group-hover:text-white/80 transition-colors">
                     {featured.title}
                   </h2>
-                  <p className="text-white/50 text-sm mt-3 font-medium">
+                  <p className="text-white/45 text-sm mt-3">
                     {compact(featured.views)} views · {timeAgo(featured.publishedAt)}
                   </p>
                 </div>
@@ -71,7 +71,7 @@ export default async function VideoHubPage({
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <Link
               href="/video"
-              className={`shrink-0 px-4 py-2 text-sm font-bold uppercase tracking-wide transition-colors ${
+              className={`shrink-0 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
                 !show
                   ? "bg-brand text-white"
                   : "bg-neutral-100 text-neutral-gray hover:bg-neutral-200"
@@ -83,7 +83,7 @@ export default async function VideoHubPage({
               <Link
                 key={s}
                 href={`/video?show=${encodeURIComponent(s)}`}
-                className={`shrink-0 px-4 py-2 text-sm font-bold uppercase tracking-wide transition-colors ${
+                className={`shrink-0 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
                   show === s
                     ? "bg-brand text-white"
                     : "bg-neutral-100 text-neutral-gray hover:bg-neutral-200"

@@ -24,11 +24,11 @@ export default function ShareButtons({ title }: { title: string }) {
   }
 
   const btn =
-    "flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3.5 py-2 transition-colors";
+    "flex items-center gap-2 text-xs font-semibold px-3.5 py-2 rounded-full transition-colors";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs font-black uppercase tracking-widest text-neutral-400 mr-1">
+      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-gray mr-1">
         Share
       </span>
       <button
@@ -61,7 +61,7 @@ export default function ShareButtons({ title }: { title: string }) {
       </button>
       <button
         onClick={copyLink}
-        className={`${btn} ${copied ? "bg-green-600 text-white" : "bg-neutral-200 hover:bg-neutral-300 text-neutral-800"}`}
+        className={`${btn} ${copied ? "bg-emerald-600 text-white" : "bg-neutral-100 hover:bg-neutral-200 text-ink"}`}
       >
         {copied ? "✓ Copied" : "Copy Link"}
       </button>

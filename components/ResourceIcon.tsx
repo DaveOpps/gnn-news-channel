@@ -22,7 +22,7 @@ export default function ResourceIconBadge({
 }) {
   return (
     <span
-      className={`inline-flex items-center justify-center bg-gradient-to-br from-brand to-brand-dark text-white font-black shrink-0 ${className}`}
+      className={`inline-flex items-center justify-center bg-brand text-white font-semibold shrink-0 ${className}`}
       aria-hidden
     >
       {GLYPH[icon]}

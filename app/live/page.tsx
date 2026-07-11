@@ -31,14 +31,14 @@ export default function LivePage() {
               }}
             />
             <div className="relative z-10 text-center px-6">
-              <span className="inline-flex items-center gap-2 bg-brand px-3 py-1.5 font-black text-xs tracking-[0.2em] uppercase mb-6">
+              <span className="inline-flex items-center gap-2 bg-brand px-3 py-1.5 font-bold text-xs tracking-[0.18em] uppercase mb-6">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
                 </span>
                 Live
               </span>
-              <h1 className="font-black text-3xl md:text-4xl">GNN Live Newsroom</h1>
+              <h1 className="headline text-3xl md:text-4xl">GNN Live Newsroom</h1>
               <p className="text-white/60 text-sm mt-3 max-w-md mx-auto">
                 Our 24-hour live stream is coming soon. Until then, follow the
                 breaking ticker and the latest headlines on the right.
@@ -63,7 +63,7 @@ export default function LivePage() {
         <aside className="bg-white/5 border border-white/10 p-5 h-fit">
           <div className="flex items-center gap-3 mb-5">
             <span className="w-1.5 h-6 bg-brand"></span>
-            <h2 className="font-black text-sm uppercase tracking-wide">
+            <h2 className="font-semibold text-sm uppercase tracking-wide">
               Happening Now
             </h2>
           </div>
@@ -78,7 +78,7 @@ export default function LivePage() {
                 </div>
                 <Link
                   href={`/article/${a.slug}`}
-                  className="font-bold text-sm leading-snug hover:text-red-400 transition-colors"
+                  className="font-semibold text-sm leading-snug hover:text-brand transition-colors"
                 >
                   {a.title}
                 </Link>
