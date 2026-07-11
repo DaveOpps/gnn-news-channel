@@ -7,6 +7,7 @@ import ArticleImage from "@/components/ArticleImage";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import TrendingStories from "@/components/TrendingStories";
 import CategorySection from "@/components/CategorySection";
+import VideoCard from "@/components/VideoCard";
 import {
   getPublished,
   getBreaking,
@@ -14,6 +15,7 @@ import {
   getTrending,
   getHomepage,
   getSections,
+  getVideos,
 } from "@/lib/store";
 import { formatByline } from "@/lib/types";
 
@@ -28,6 +30,7 @@ export default function HomePage() {
   // Honours the curation board, falling back to automatic ordering.
   const { hero, topStories: heroSide, latest } = getHomepage();
   const CATEGORIES = getSections();
+  const videos = getVideos().slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -152,6 +155,35 @@ export default function HomePage() {
                   </article>
                 ))}
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* ---- GNN TV ---- */}
+        {videos.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 py-12">
+            <div className="flex items-center justify-between mb-7 pb-3 border-b border-hairline-strong">
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-6 bg-brand"></span>
+                <h2 className="font-semibold text-xl uppercase tracking-wide text-ink flex items-center gap-2.5">
+                  GNN TV
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+                  </span>
+                </h2>
+              </div>
+              <Link
+                href="/video"
+                className="text-sm font-medium text-brand hover:text-brand-dark transition-colors"
+              >
+                Watch all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {videos.map((v) => (
+                <VideoCard key={v.id} video={v} size="sm" />
+              ))}
             </div>
           </section>
         )}
