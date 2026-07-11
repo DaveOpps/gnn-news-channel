@@ -24,15 +24,23 @@ export function CategoryBadge({ category }: { category: string }) {
 }
 
 /** Small byline: editor's photo + name, linking to their author page when an
- * account matches the byline; plain text (no link) for legacy/unmatched authors. */
-export function ByBadge({ article }: { article: Article }) {
+ * account matches the byline; plain text (no link) for legacy/unmatched authors.
+ * `nameClassName` overrides the name's text color — pass a lighter shade on
+ * dark backgrounds (the default reads too dim on near-black). */
+export function ByBadge({
+  article,
+  nameClassName = "text-neutral-gray",
+}: {
+  article: Article;
+  nameClassName?: string;
+}) {
   const editor = getEditorForArticle(article);
   const name = editor?.name ?? article.author;
 
   const inner = (
     <span className="inline-flex items-center gap-1.5 min-w-0">
       <EditorAvatar name={name} photoUrl={editor?.photoUrl} size={18} />
-      <span className="truncate text-xs font-medium text-neutral-gray">{name}</span>
+      <span className={`truncate text-xs font-medium ${nameClassName}`}>{name}</span>
     </span>
   );
 
@@ -42,7 +50,7 @@ export function ByBadge({ article }: { article: Article }) {
     <Link href={`/author/${editor.id}`} className="group/by hover:text-brand transition-colors min-w-0">
       <span className="inline-flex items-center gap-1.5 min-w-0">
         <EditorAvatar name={name} photoUrl={editor.photoUrl} size={18} />
-        <span className="truncate text-xs font-medium text-neutral-gray group-hover/by:text-brand transition-colors">
+        <span className={`truncate text-xs font-medium ${nameClassName} group-hover/by:text-brand transition-colors`}>
           {name}
         </span>
       </span>

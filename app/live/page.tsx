@@ -3,7 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import NewsletterSignup from "@/components/NewsletterSignup";
-import { CategoryBadge, timeAgo } from "@/components/ArticleCard";
+import { CategoryBadge, ByBadge, timeAgo } from "@/components/ArticleCard";
 import { getBreaking, getPublished } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -82,6 +82,9 @@ export default function LivePage() {
                 >
                   {a.title}
                 </Link>
+                <div className="mt-1.5">
+                  <ByBadge article={a} nameClassName="text-white/50" />
+                </div>
               </li>
             ))}
           </ul>

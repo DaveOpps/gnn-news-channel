@@ -2,7 +2,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
-import ArticleCard, { CategoryBadge, timeAgo } from "@/components/ArticleCard";
+import ArticleCard, { CategoryBadge, ByBadge, timeAgo } from "@/components/ArticleCard";
 import ArticleImage from "@/components/ArticleImage";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import TrendingStories from "@/components/TrendingStories";
@@ -95,6 +95,9 @@ export default function HomePage() {
                           {a.title}
                         </h3>
                       </Link>
+                      <div className="mt-2">
+                        <ByBadge article={a} />
+                      </div>
                     </article>
                   ))}
                 </div>

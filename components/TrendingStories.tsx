@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Article } from "@/lib/types";
-import { timeAgo } from "./ArticleCard";
+import { timeAgo, ByBadge } from "./ArticleCard";
 
 interface TrendingStoriesProps {
   articles: Article[];
@@ -28,9 +28,12 @@ export default function TrendingStories({ articles }: TrendingStoriesProps) {
                     {a.title}
                   </h3>
                 </Link>
-                <p className="text-neutral-gray text-xs mt-1">
-                  {a.views.toLocaleString()} views
-                </p>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <ByBadge article={a} />
+                  <span className="text-neutral-gray text-xs shrink-0">
+                    · {a.views.toLocaleString()} views
+                  </span>
+                </div>
               </div>
             </li>
           ))}
