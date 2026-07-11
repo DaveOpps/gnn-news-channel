@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Article, categoryMeta } from "@/lib/types";
-import { getSections } from "@/lib/store";
+import { getSections, getEditorForArticle } from "@/lib/store";
 import { timeAgo } from "@/lib/format";
 import ArticleImage from "./ArticleImage";
+import EditorAvatar from "./EditorAvatar";
 
 // Re-exported for the server pages that already import it from here.
 // Client components must import it from "@/lib/format" — this module reads
@@ -18,6 +19,33 @@ export function CategoryBadge({ category }: { category: string }) {
       style={{ backgroundColor: meta.color }}
     >
       {meta.label}
+    </Link>
+  );
+}
+
+/** Small byline: editor's photo + name, linking to their author page when an
+ * account matches the byline; plain text (no link) for legacy/unmatched authors. */
+export function ByBadge({ article }: { article: Article }) {
+  const editor = getEditorForArticle(article);
+  const name = editor?.name ?? article.author;
+
+  const inner = (
+    <span className="inline-flex items-center gap-1.5 min-w-0">
+      <EditorAvatar name={name} photoUrl={editor?.photoUrl} size={18} />
+      <span className="truncate text-xs font-medium text-neutral-gray">{name}</span>
+    </span>
+  );
+
+  if (!editor) return inner;
+
+  return (
+    <Link href={`/author/${editor.id}`} className="group/by hover:text-brand transition-colors min-w-0">
+      <span className="inline-flex items-center gap-1.5 min-w-0">
+        <EditorAvatar name={name} photoUrl={editor.photoUrl} size={18} />
+        <span className="truncate text-xs font-medium text-neutral-gray group-hover/by:text-brand transition-colors">
+          {name}
+        </span>
+      </span>
     </Link>
   );
 }
@@ -58,6 +86,9 @@ export default function ArticleCard({
             {article.excerpt}
           </p>
         )}
+        <div className="mt-0.5">
+          <ByBadge article={article} />
+        </div>
       </div>
     </article>
   );

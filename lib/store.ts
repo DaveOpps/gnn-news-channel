@@ -1148,6 +1148,24 @@ export function getEditorById(id: string): Editor | undefined {
   return readEditors().find((e) => e.id === id);
 }
 
+/** Public-safe editor lookup — for author pages and other reader-facing use. */
+export function getPublicEditorById(id: string): PublicEditor | undefined {
+  const editor = getEditorById(id);
+  return editor ? toPublicEditor(editor) : undefined;
+}
+
+/** A byline-linkable id for an article: the editor account if one matches. */
+export function getEditorIdForArticle(article: Article): string | undefined {
+  return getEditorForArticle(article)?.id;
+}
+
+/** An editor's published stories, newest first — powers their author page. */
+export function getPublishedByEditor(editorId: string): Article[] {
+  const editor = getEditorById(editorId);
+  if (!editor) return [];
+  return getPublished().filter((a) => isAuthoredBy(a, editor));
+}
+
 export function getEditorByUsername(username: string): Editor | undefined {
   const handle = username.trim().toLowerCase();
   return readEditors().find((e) => e.username === handle);
@@ -1163,6 +1181,7 @@ export function createEditor(input: {
   password: string;
   photoUrl?: string;
   title?: string;
+  bio?: string;
   role?: EditorRole;
 }): EditorResult {
   const name = input.name.trim();
@@ -1192,6 +1211,7 @@ export function createEditor(input: {
     passwordHash: hashPassword(password),
     photoUrl: input.photoUrl?.trim() || undefined,
     title: input.title?.trim() || undefined,
+    bio: input.bio?.trim().slice(0, 400) || undefined,
     role: input.role === "admin" ? "admin" : "editor",
     createdAt: new Date().toISOString(),
   };
@@ -1208,6 +1228,7 @@ export function updateEditor(
     password?: string;
     photoUrl?: string;
     title?: string;
+    bio?: string;
     role?: EditorRole;
   }
 ): EditorResult {
@@ -1240,6 +1261,7 @@ export function updateEditor(
   }
   if (patch.photoUrl !== undefined) next.photoUrl = patch.photoUrl.trim() || undefined;
   if (patch.title !== undefined) next.title = patch.title.trim() || undefined;
+  if (patch.bio !== undefined) next.bio = patch.bio.trim().slice(0, 400) || undefined;
 
   if (patch.role !== undefined && patch.role !== current.role) {
     // Never demote the last remaining admin — that would lock everyone out.

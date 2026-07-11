@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     password: String(body.password ?? ""),
     photoUrl: body.photoUrl ? String(body.photoUrl) : undefined,
     title: body.title ? String(body.title) : undefined,
+    bio: body.bio ? String(body.bio) : undefined,
     role: body.role === "admin" ? "admin" : "editor",
   });
 

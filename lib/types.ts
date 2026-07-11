@@ -400,6 +400,7 @@ export interface Editor {
   passwordHash: string; // "salt:hash" — never leaves the server
   photoUrl?: string; // byline / analytics avatar
   title?: string; // e.g. "Politics Desk"
+  bio?: string; // one or two sentences, shown on their author page
   role: EditorRole;
   createdAt: string; // ISO
 }

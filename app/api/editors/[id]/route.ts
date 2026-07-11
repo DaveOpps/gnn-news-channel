@@ -44,6 +44,7 @@ export async function PUT(req: Request, { params }: Params) {
     password: body.password ? String(body.password) : undefined,
     photoUrl: body.photoUrl !== undefined ? String(body.photoUrl) : undefined,
     title: body.title !== undefined ? String(body.title) : undefined,
+    bio: body.bio !== undefined ? String(body.bio) : undefined,
     // Role changes are an admin-only privilege.
     role: isAdmin && body.role !== undefined
       ? body.role === "admin" ? "admin" : "editor"

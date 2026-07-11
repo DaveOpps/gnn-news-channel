@@ -130,23 +130,31 @@ export default async function ArticlePage({ params, searchParams }: Props) {
               {article.excerpt}
             </p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-6 text-sm text-neutral-gray">
-              <span className="flex items-center gap-2.5">
-                <EditorAvatar
-                  name={bylineEditor?.name ?? article.author}
-                  photoUrl={bylineEditor?.photoUrl}
-                  size={40}
-                />
-                <span className="flex flex-col leading-tight">
+              {bylineEditor ? (
+                <Link
+                  href={`/author/${bylineEditor.id}`}
+                  className="group flex items-center gap-2.5 hover:text-brand transition-colors"
+                >
+                  <EditorAvatar name={bylineEditor.name} photoUrl={bylineEditor.photoUrl} size={40} />
+                  <span className="flex flex-col leading-tight">
+                    <span className="font-semibold text-ink group-hover:text-brand transition-colors">
+                      {formatByline(article.author, article.coAuthors)}
+                    </span>
+                    {bylineEditor.title && (
+                      <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-gray">
+                        {bylineEditor.title}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              ) : (
+                <span className="flex items-center gap-2.5">
+                  <EditorAvatar name={article.author} size={40} />
                   <span className="font-semibold text-ink">
                     {formatByline(article.author, article.coAuthors)}
                   </span>
-                  {bylineEditor?.title && (
-                    <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-gray">
-                      {bylineEditor.title}
-                    </span>
-                  )}
                 </span>
-              </span>
+              )}
               <span>
                 {new Date(article.publishedAt).toLocaleDateString("en-US", {
                   weekday: "long",

@@ -20,6 +20,7 @@ type Draft = {
   username: string;
   password: string;
   title: string;
+  bio: string;
   role: EditorRole;
   photoUrl: string;
 };
@@ -29,6 +30,7 @@ const EMPTY: Draft = {
   username: "",
   password: "",
   title: "",
+  bio: "",
   role: "editor",
   photoUrl: "",
 };
@@ -64,6 +66,7 @@ export default function EditorsManager({
       username: e.username,
       password: "", // blank = keep existing
       title: e.title ?? "",
+      bio: e.bio ?? "",
       role: e.role,
       photoUrl: e.photoUrl ?? "",
     });
@@ -101,6 +104,7 @@ export default function EditorsManager({
         name: draft.name,
         username: draft.username,
         title: draft.title,
+        bio: draft.bio,
         role: draft.role,
         photoUrl: draft.photoUrl,
       };
@@ -286,6 +290,23 @@ export default function EditorsManager({
               onChange={(v) => setDraft((d) => ({ ...d, title: v }))}
               placeholder="Politics Desk"
             />
+
+            <div>
+              <label className={`mb-1.5 block ${microLabel}`}>
+                Bio
+                <span className="ml-1 font-normal normal-case tracking-normal text-zinc-400">
+                  — optional, shown on their author page
+                </span>
+              </label>
+              <textarea
+                value={draft.bio}
+                onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
+                placeholder="A sentence or two about this editor…"
+                rows={3}
+                maxLength={400}
+                className={input}
+              />
+            </div>
 
             <div>
               <label className={`mb-1.5 block ${microLabel}`}>Role</label>
