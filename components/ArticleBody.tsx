@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { youtubeId } from "@/lib/types";
 
 /**
  * Renders the story body from a small, deliberate markup subset.
@@ -22,14 +23,6 @@ function safeHref(raw: string): string | null {
   if (url.startsWith("/") || url.startsWith("#")) return url;
   if (/^https?:\/\//i.test(url) || /^mailto:/i.test(url)) return url;
   return null;
-}
-
-function youtubeId(raw: string): string | null {
-  const s = raw.trim();
-  if (/^[\w-]{11}$/.test(s)) return s;
-  const m =
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/.exec(s);
-  return m ? m[1] : null;
 }
 
 const INLINE = /(\*\*[^*\n]+\*\*)|(\*[^*\n]+\*)|(`[^`\n]+`)|(\[[^\]\n]+\]\([^)\s]+\))/g;

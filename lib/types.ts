@@ -77,6 +77,15 @@ export function videoThumb(v: Video): string | null {
   return v.youtubeId ? `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg` : null;
 }
 
+/** Pulls an 11-char YouTube video id out of a watch/shorts/share URL, or a bare id. */
+export function youtubeId(raw: string): string | null {
+  const s = raw.trim();
+  if (/^[\w-]{11}$/.test(s)) return s;
+  const m =
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/.exec(s);
+  return m ? m[1] : null;
+}
+
 /** A tile in the Resources hub — a service/tool, not a news story. */
 export interface ResourceLink {
   id: string;

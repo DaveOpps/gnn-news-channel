@@ -147,6 +147,12 @@ export const Icon = {
       <path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" />
     </svg>
   ),
+  Play: (p: IconProps) => (
+    <svg {...base(p)}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M10 8.5v7l6-3.5Z" fill="currentColor" stroke="none" />
+    </svg>
+  ),
 };
 
 /* ------------------------------------------------------------------ */
