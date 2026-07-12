@@ -38,7 +38,7 @@ export default async function LivePage() {
                 </span>
                 Live
               </span>
-              <h1 className="headline text-3xl md:text-4xl">GNN Live Newsroom</h1>
+              <h1 className="headline text-3xl md:text-4xl">Gh News Live Newsroom</h1>
               <p className="text-white/60 text-sm mt-3 max-w-md mx-auto">
                 Our 24-hour live stream is coming soon. Until then, follow the
                 breaking ticker and the latest headlines on the right.
@@ -51,7 +51,7 @@ export default async function LivePage() {
             </div>
           </div>
           <div className="flex items-center justify-between mt-4 text-sm text-white/50">
-            <span>GNN International · Live signal</span>
+            <span>Gh News International · Live signal</span>
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
               On air

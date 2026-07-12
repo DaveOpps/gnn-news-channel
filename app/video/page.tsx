@@ -10,7 +10,7 @@ import { compact, timeAgo } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Video — GNN TV" };
+export const metadata = { title: "Video — Gh News TV" };
 
 export default async function VideoHubPage({
   searchParams,
@@ -38,7 +38,7 @@ export default async function VideoHubPage({
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                 </span>
-                GNN TV
+                Gh News TV
               </span>
               <h1 className="font-semibold text-2xl uppercase tracking-wide">
                 Video

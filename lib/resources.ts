@@ -80,8 +80,8 @@ export const RESOURCES: ResourceLink[] = [
   },
   {
     id: "radio",
-    title: "GNN Radio",
-    description: "Listen live to GNN's radio network from anywhere.",
+    title: "Gh News Radio",
+    description: "Listen live to Gh News radio from anywhere.",
     href: "/resources/radio",
     icon: "radio",
     group: "Media",

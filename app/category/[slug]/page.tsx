@@ -33,7 +33,7 @@ export default async function CategoryPage({
             </h1>
           </div>
           <p className="text-neutral-gray text-sm mt-2 ml-[22px]">
-            {articles.length} {articles.length === 1 ? "story" : "stories"} · GNN{" "}
+            {articles.length} {articles.length === 1 ? "story" : "stories"} · Gh News{" "}
             {cat.label} desk
           </p>
         </div>

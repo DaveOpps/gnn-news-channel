@@ -353,8 +353,8 @@ export const SEED_EDITORS: Editor[] = [
 export const SEED_VIDEOS: Video[] = [
   {
     id: "v1",
-    title: "GNN News at 7 — Full Bulletin",
-    show: "GNN News",
+    title: "Gh News at 7 — Full Bulletin",
+    show: "Gh News",
     youtubeId: "dQw4w9WgXcQ",
     duration: "22:14",
     views: 48200,
@@ -408,8 +408,8 @@ export const SEED_VIDEOS: Video[] = [
   },
   {
     id: "v7",
-    title: "GNN News at 7 — Climate Summit Special Report",
-    show: "GNN News",
+    title: "Gh News at 7 — Climate Summit Special Report",
+    show: "Gh News",
     youtubeId: "dQw4w9WgXcQ",
     duration: "24:03",
     views: 39100,

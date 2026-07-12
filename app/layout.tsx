@@ -22,11 +22,11 @@ const sourceSerif = Source_Serif_4({
 
 export const metadata: Metadata = {
   title: {
-    default: "GNN — Global News Network | Breaking News, World, Politics, Business",
-    template: "%s | GNN",
+    default: "Gh News — Breaking News, World, Politics, Business",
+    template: "%s | Gh News",
   },
   description:
-    "GNN Global News Network — breaking news and in-depth coverage of world affairs, politics, business, technology, sports, health and entertainment.",
+    "Gh News — breaking news and in-depth coverage of world affairs, politics, business, technology, sports, health and entertainment.",
 };
 
 export default function RootLayout({

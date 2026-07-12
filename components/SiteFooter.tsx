@@ -8,7 +8,7 @@ export default async function SiteFooter() {
       <div className="max-w-7xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
         <div className="col-span-2 lg:col-span-1">
           <span className="bg-brand text-white font-black text-2xl px-2.5 py-1 leading-none inline-block">
-            GNN
+            GH
           </span>
           <p className="text-white/50 text-sm mt-4 leading-relaxed">
             Ghana&apos;s digital news source — breaking news, politics, business,
@@ -58,7 +58,7 @@ export default async function SiteFooter() {
           <ul className="space-y-2.5 text-sm">
             <li>
               <Link href="/video" className="text-white/65 hover:text-white transition-colors">
-                GNN TV
+                Gh News TV
               </Link>
             </li>
             <li>
@@ -97,7 +97,7 @@ export default async function SiteFooter() {
 
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-5 text-xs text-white/40 flex flex-wrap justify-between gap-3">
-          <span>© {new Date().getFullYear()} GNN — Ghana News Network. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Gh News. All rights reserved.</span>
           <div className="flex gap-4">
             <Link href="#" className="hover:text-white transition-colors">Terms of Use</Link>
             <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
