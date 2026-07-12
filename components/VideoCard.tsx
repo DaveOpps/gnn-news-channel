@@ -36,7 +36,7 @@ export function VideoThumb({ video }: { video: Video }) {
           }}
         >
           <span className="text-white/10 font-black text-5xl select-none">
-            GH
+            GN
           </span>
         </div>
       )}

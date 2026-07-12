@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!editor) return { title: "Editor not found" };
   return {
     title: editor.name,
-    description: editor.bio || `Stories by ${editor.name} on Gh News.`,
+    description: editor.bio || `Stories by ${editor.name} on Ghana Newspapers.`,
   };
 }
 
@@ -39,7 +39,7 @@ export default async function AuthorPage({ params }: Props) {
           <EditorAvatar name={editor.name} photoUrl={editor.photoUrl} size={104} />
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand mb-1.5">
-              Gh News {editor.role === "admin" ? "Editor-in-Chief" : "Correspondent"}
+              Ghana Newspapers {editor.role === "admin" ? "Editor-in-Chief" : "Correspondent"}
             </p>
             <h1 className="headline text-3xl md:text-4xl text-ink">{editor.name}</h1>
             {editor.title && (

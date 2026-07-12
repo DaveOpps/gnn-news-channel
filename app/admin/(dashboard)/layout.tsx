@@ -26,7 +26,7 @@ export default async function AdminLayout({
         <div className="flex h-16 items-center border-b border-zinc-800/80 px-5">
           <Link href="/admin" className="flex items-center gap-2.5">
             <span className="bg-brand px-2 py-1 text-lg font-bold leading-none tracking-tight text-white">
-              GH
+              GN
             </span>
             <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-500">
               Newsroom
@@ -73,7 +73,7 @@ export default async function AdminLayout({
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-zinc-200 bg-white/85 px-8 backdrop-blur">
           <div>
             <p className="text-sm font-medium text-zinc-900">Newsroom Control Panel</p>
-            <p className="text-xs text-zinc-500">Gh News</p>
+            <p className="text-xs text-zinc-500">Ghana Newspapers</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-400 sm:inline-flex">

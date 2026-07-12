@@ -20,7 +20,7 @@ function findResource(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const resource = findResource(slug);
-  return { title: resource ? `${resource.title} — Gh News` : "Resource not found" };
+  return { title: resource ? `${resource.title} — Ghana Newspapers` : "Resource not found" };
 }
 
 export default async function ResourceDetailPage({ params }: Props) {

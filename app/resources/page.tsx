@@ -9,7 +9,7 @@ import { resourcesByGroup } from "@/lib/resources";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Resources — Gh News" };
+export const metadata = { title: "Resources — Ghana Newspapers" };
 
 export default async function ResourcesPage() {
   const groups = resourcesByGroup();
@@ -26,7 +26,7 @@ export default async function ResourcesPage() {
               Resources
             </h1>
             <p className="text-white/55 text-sm mt-2 max-w-xl">
-              Tools and services from Gh News — currency rates, business listings,
+              Tools and services from Ghana Newspapers — currency rates, business listings,
               jobs, classifieds and more, all in one place.
             </p>
           </div>

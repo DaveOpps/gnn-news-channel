@@ -22,7 +22,7 @@ export default function NewsletterSignup() {
         setMessage({ ok: false, text: data.error ?? "Subscription failed" });
         return;
       }
-      setMessage({ ok: true, text: "You're in! Watch your inbox for Gh News briefings." });
+      setMessage({ ok: true, text: "You're in! Watch your inbox for Ghana Newspapers briefings." });
       setEmail("");
     } finally {
       setSending(false);

@@ -31,10 +31,10 @@ export default async function SiteHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
             <span className="bg-brand text-white font-black text-2xl tracking-tight px-2.5 py-1 leading-none">
-              GH
+              GN
             </span>
             <span className="hidden md:block text-[10px] font-semibold tracking-[0.18em] uppercase text-neutral-gray leading-tight">
-              Gh News
+              Ghana Newspapers
             </span>
           </Link>
 

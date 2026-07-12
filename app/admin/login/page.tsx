@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
         {/* Wordmark */}
         <div className="mb-8 text-center">
           <span className="inline-block bg-brand px-2.5 py-1 text-2xl font-bold leading-none tracking-tight text-white">
-            GH
+            GN
           </span>
           <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-500">
             Newsroom Admin
@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
         >
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900">Sign in</h1>
           <p className="mt-1 text-sm text-zinc-500">
-            Access the Gh News newsroom.
+            Access the Ghana Newspapers newsroom.
           </p>
 
           {error && (
@@ -128,7 +128,7 @@ export default function AdminLoginPage() {
             href="/"
             className="text-sm text-zinc-500 transition-colors hover:text-zinc-300"
           >
-            ← Back to Gh News
+            ← Back to Ghana Newspapers
           </Link>
         </p>
       </div>

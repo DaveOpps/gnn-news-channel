@@ -74,7 +74,7 @@ export default function VideoForm({ video }: { video?: Video }) {
           <p className="mt-1 text-sm text-zinc-500">
             {isEdit
               ? "Update this video's details."
-              : "Paste a YouTube link to add a video to Gh News TV."}
+              : "Paste a YouTube link to add a video to Ghana Newspapers TV."}
           </p>
         </div>
         <Link
@@ -101,7 +101,7 @@ export default function VideoForm({ video }: { video?: Video }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            placeholder="e.g. Gh News at 7 — Full Bulletin"
+            placeholder="e.g. Ghana Newspapers at 7 — Full Bulletin"
             className={`${input} text-base font-medium`}
           />
         </div>
@@ -116,7 +116,7 @@ export default function VideoForm({ video }: { video?: Video }) {
               onChange={(e) => setShow(e.target.value)}
               list="video-shows"
               required
-              placeholder="e.g. Gh News"
+              placeholder="e.g. Ghana Newspapers"
               className={input}
             />
             <datalist id="video-shows">
@@ -189,7 +189,7 @@ export default function VideoForm({ video }: { video?: Video }) {
           <span>
             <span className="block text-sm font-medium text-zinc-900">Featured</span>
             <span className="block text-xs text-zinc-500">
-              Shown as the hero video at the top of the Gh News TV hub.
+              Shown as the hero video at the top of the Ghana Newspapers TV hub.
             </span>
           </span>
         </label>

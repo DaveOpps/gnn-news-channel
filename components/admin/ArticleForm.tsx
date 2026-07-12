@@ -150,7 +150,7 @@ export default function ArticleForm({
           <p className="mt-1 text-sm text-zinc-500">
             {isEdit
               ? "Update this story's content and publication settings."
-              : "Write a story and publish it to Gh News."}
+              : "Write a story and publish it to Ghana Newspapers."}
           </p>
         </div>
         <div className="flex items-center gap-4">

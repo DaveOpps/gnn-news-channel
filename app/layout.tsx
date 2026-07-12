@@ -22,11 +22,11 @@ const sourceSerif = Source_Serif_4({
 
 export const metadata: Metadata = {
   title: {
-    default: "Gh News — Breaking News, World, Politics, Business",
-    template: "%s | Gh News",
+    default: "Ghana Newspapers — Breaking News, World, Politics, Business",
+    template: "%s | Ghana Newspapers",
   },
   description:
-    "Gh News — breaking news and in-depth coverage of world affairs, politics, business, technology, sports, health and entertainment.",
+    "Ghana Newspapers — breaking news and in-depth coverage of world affairs, politics, business, technology, sports, health and entertainment.",
 };
 
 export default function RootLayout({

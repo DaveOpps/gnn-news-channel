@@ -162,14 +162,14 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* ---- Gh News TV ---- */}
+        {/* ---- Ghana Newspapers TV ---- */}
         {videos.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 py-12">
             <div className="flex items-center justify-between mb-7 pb-3 border-b border-hairline-strong">
               <div className="flex items-center gap-3">
                 <span className="w-1.5 h-6 bg-brand"></span>
                 <h2 className="font-semibold text-xl uppercase tracking-wide text-ink flex items-center gap-2.5">
-                  Gh News TV
+                  Ghana Newspapers TV
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>

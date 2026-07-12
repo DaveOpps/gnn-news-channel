@@ -568,7 +568,7 @@ export async function purgeArticle(id: string): Promise<boolean> {
   return result.count > 0;
 }
 
-// ---- Gh News TV videos ----
+// ---- Ghana Newspapers TV videos ----
 
 export async function getVideos(): Promise<Video[]> {
   const rows = await prisma.video.findMany({ orderBy: { publishedAt: "desc" } });

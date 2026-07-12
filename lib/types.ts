@@ -51,11 +51,11 @@ export function slugifySection(v: string): string {
     .slice(0, 32);
 }
 
-/** A Gh News TV video. youtubeId is optional — a styled placeholder stands in without it. */
+/** A Ghana Newspapers TV video. youtubeId is optional — a styled placeholder stands in without it. */
 export interface Video {
   id: string;
   title: string;
-  show: string; // playlist / programme, e.g. "Gh News", "The Big Interview"
+  show: string; // playlist / programme, e.g. "Ghana Newspapers", "The Big Interview"
   youtubeId?: string;
   duration: string; // "12:04"
   views: number;
@@ -63,9 +63,9 @@ export interface Video {
   featured?: boolean;
 }
 
-/** Gh News TV programmes, in the order they appear as filter chips. */
+/** Ghana Newspapers TV programmes, in the order they appear as filter chips. */
 export const VIDEO_SHOWS = [
-  "Gh News",
+  "Ghana Newspapers",
   "The Big Interview",
   "BizTech",
   "SportsZone",

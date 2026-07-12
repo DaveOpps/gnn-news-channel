@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const video = await getVideoById(id);
   if (!video) return { title: "Video not found" };
-  return { title: `${video.title} — Gh News TV` };
+  return { title: `${video.title} — Ghana Newspapers TV` };
 }
 
 export default async function VideoWatchPage({ params }: Props) {
@@ -61,7 +61,7 @@ export default async function VideoWatchPage({ params }: Props) {
                 }}
               >
                 <span className="text-white/10 font-black text-6xl select-none">
-                  GH
+                  GN
                 </span>
               </div>
             )}
@@ -87,7 +87,7 @@ export default async function VideoWatchPage({ params }: Props) {
               href="/video"
               className="text-sm text-white/60 hover:text-white transition-colors"
             >
-              ← Back to Gh News TV
+              ← Back to Ghana Newspapers TV
             </Link>
           </div>
         </div>
