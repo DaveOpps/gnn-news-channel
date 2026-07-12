@@ -2,14 +2,14 @@ import { Article } from "@/lib/types";
 import { categoryMeta } from "@/lib/types";
 import { getSections } from "@/lib/store";
 
-export default function ArticleImage({
+export default async function ArticleImage({
   article,
   className = "",
 }: {
   article: Article;
   className?: string;
 }) {
-  const meta = categoryMeta(article.category, getSections());
+  const meta = categoryMeta(article.category, await getSections());
 
   if (article.imageUrl) {
     return (

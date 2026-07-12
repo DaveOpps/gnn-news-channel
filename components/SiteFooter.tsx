@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getSections } from "@/lib/store";
 
-export default function SiteFooter() {
-  const CATEGORIES = getSections();
+export default async function SiteFooter() {
+  const CATEGORIES = await getSections();
   return (
     <footer className="bg-ink text-white mt-20">
       <div className="max-w-7xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">

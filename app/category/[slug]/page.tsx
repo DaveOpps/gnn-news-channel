@@ -14,15 +14,15 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const cat = getSections().find((c) => c.slug === slug);
+  const cat = (await getSections()).find((c) => c.slug === slug);
   if (!cat) notFound();
 
-  const articles = getByCategory(slug);
+  const articles = await getByCategory(slug);
 
   return (
     <div className="flex flex-col min-h-screen bg-paper">
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-10">
         <div className="px-1 py-8 mb-8 border-b-2" style={{ borderColor: cat.color }}>

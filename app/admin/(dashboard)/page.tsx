@@ -15,9 +15,9 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default function AdminDashboard() {
-  const all = getAll();
-  const CATEGORIES = getSections();
+export default async function AdminDashboard() {
+  const all = await getAll();
+  const CATEGORIES = await getSections();
   const published = all.filter((a) => a.status === "published");
   const drafts = all.filter((a) => a.status === "draft");
   const breaking = published.filter((a) => a.isBreaking);
@@ -25,8 +25,8 @@ export default function AdminDashboard() {
   const recent = all.slice(0, 6);
   const topStory = [...published].sort((a, b) => b.views - a.views)[0];
 
-  const pendingComments = countPendingComments();
-  const subscriberCount = getSubscribers().length;
+  const pendingComments = await countPendingComments();
+  const subscriberCount = (await getSubscribers()).length;
 
   const rated = all.filter((a) => (a.rating ?? 0) > 0);
   const avgRating = rated.length

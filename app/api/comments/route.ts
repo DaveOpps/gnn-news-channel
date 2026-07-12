@@ -7,7 +7,7 @@ export async function GET() {
   if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(getAllComments());
+  return NextResponse.json(await getAllComments());
 }
 
 // Public: submit a comment (goes into the moderation queue)
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const name = String(body?.name ?? "").trim();
   const text = String(body?.text ?? "").trim();
 
-  if (!articleId || !getById(articleId)) {
+  if (!articleId || !(await getById(articleId))) {
     return NextResponse.json({ error: "Unknown article" }, { status: 400 });
   }
   if (!name || !text) {
@@ -26,6 +26,6 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const comment = addComment(articleId, name, text);
+  const comment = await addComment(articleId, name, text);
   return NextResponse.json(comment, { status: 201 });
 }

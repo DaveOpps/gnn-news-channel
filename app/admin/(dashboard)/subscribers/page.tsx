@@ -3,6 +3,6 @@ import { getSubscribers } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminSubscribersPage() {
-  return <SubscribersManager initial={getSubscribers()} />;
+export default async function AdminSubscribersPage() {
+  return <SubscribersManager initial={await getSubscribers()} />;
 }

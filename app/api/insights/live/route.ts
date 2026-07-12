@@ -10,10 +10,15 @@ export async function GET() {
   }
 
   const perArticle = readersByArticle();
-  const stories = Object.entries(perArticle)
-    .map(([id, readers]) => ({ id, readers, title: getById(id)?.title ?? "Unknown" }))
-    .sort((a, b) => b.readers - a.readers)
-    .slice(0, 5);
+  const stories = await Promise.all(
+    Object.entries(perArticle).map(async ([id, readers]) => ({
+      id,
+      readers,
+      title: (await getById(id))?.title ?? "Unknown",
+    }))
+  );
+  stories.sort((a, b) => b.readers - a.readers);
+  const top = stories.slice(0, 5);
 
-  return NextResponse.json({ readers: activeReaders(), stories });
+  return NextResponse.json({ readers: activeReaders(), stories: top });
 }

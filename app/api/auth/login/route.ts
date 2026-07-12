@@ -3,7 +3,7 @@ import { verifyCredentials, sessionValue, SESSION_COOKIE } from "@/lib/auth";
 
 export async function POST(req: Request) {
   const { username, password } = await req.json().catch(() => ({}));
-  const editor = verifyCredentials(String(username ?? "").trim(), String(password ?? ""));
+  const editor = await verifyCredentials(String(username ?? "").trim(), String(password ?? ""));
   if (!editor) {
     return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
   }

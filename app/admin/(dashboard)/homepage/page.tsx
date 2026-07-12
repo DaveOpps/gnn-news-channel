@@ -11,10 +11,10 @@ export default async function AdminHomepagePage() {
   // The front page is the shop window — admins only.
   if (me.role !== "admin") redirect("/admin");
 
-  const curation = getCuration();
-  const { isCurated } = getHomepage();
+  const curation = await getCuration();
+  const { isCurated } = await getHomepage();
 
-  const published = getPublished().map((a) => ({
+  const published = (await getPublished()).map((a) => ({
     id: a.id,
     title: a.title,
     slug: a.slug,
@@ -29,7 +29,7 @@ export default async function AdminHomepagePage() {
       initialHeroId={curation?.heroId}
       initialTopIds={curation?.topStoryIds ?? []}
       isCurated={isCurated}
-      sections={getSections()}
+      sections={await getSections()}
     />
   );
 }

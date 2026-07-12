@@ -12,7 +12,7 @@ export async function PUT(req: Request, { params }: Params) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  if (!getEditorById(id)) {
+  if (!(await getEditorById(id))) {
     return NextResponse.json({ error: "Editor not found" }, { status: 404 });
   }
 
@@ -29,7 +29,7 @@ export async function PUT(req: Request, { params }: Params) {
   // otherwise a borrowed session is enough to lock the real owner out.
   // An admin resetting someone else's password does not need it.
   if (body.password && isSelf) {
-    const stored = getEditorById(id)!;
+    const stored = (await getEditorById(id))!;
     if (!verifyPassword(String(body.currentPassword ?? ""), stored.passwordHash)) {
       return NextResponse.json(
         { error: "Your current password is incorrect" },
@@ -38,7 +38,7 @@ export async function PUT(req: Request, { params }: Params) {
     }
   }
 
-  const result = updateEditor(id, {
+  const result = await updateEditor(id, {
     name: body.name !== undefined ? String(body.name) : undefined,
     username: body.username !== undefined ? String(body.username) : undefined,
     password: body.password ? String(body.password) : undefined,
@@ -67,7 +67,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "You can't remove your own account" }, { status: 400 });
   }
 
-  const result = deleteEditor(id);
+  const result = await deleteEditor(id);
   if (!result.ok) return NextResponse.json({ error: result.reason }, { status: 400 });
   return NextResponse.json({ ok: true });
 }

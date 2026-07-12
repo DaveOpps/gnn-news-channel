@@ -26,7 +26,7 @@ export async function PUT(req: Request, { params }: Params) {
   const { slug } = await params;
   const body = await req.json().catch(() => ({}));
 
-  const updated = updateSection(slug, {
+  const updated = await updateSection(slug, {
     label: body?.label !== undefined ? String(body.label) : undefined,
     color: body?.color !== undefined ? String(body.color) : undefined,
   });
@@ -39,10 +39,10 @@ export async function DELETE(_req: Request, { params }: Params) {
   if ("error" in guard) return guard.error;
 
   const { slug } = await params;
-  const result = deleteSection(slug);
+  const result = await deleteSection(slug);
   if (!result.ok) return NextResponse.json({ error: result.reason }, { status: 409 });
 
-  logActivity({
+  await logActivity({
     action: "article.updated",
     editorId: guard.me.id,
     editorName: guard.me.name,

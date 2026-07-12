@@ -14,10 +14,10 @@ async function guard(updateId: string) {
   const me = await getCurrentEditor();
   if (!me) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
 
-  const update = getLiveUpdateById(updateId);
+  const update = await getLiveUpdateById(updateId);
   if (!update) return { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
 
-  const article = getById(update.articleId);
+  const article = await getById(update.articleId);
   if (!article) return { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
 
   if (!canEditArticle(me, article)) {
@@ -38,7 +38,7 @@ export async function PUT(req: Request, { params }: Params) {
   if ("error" in g) return g.error;
 
   const body = await req.json().catch(() => ({}));
-  const updated = setLiveUpdateKey(updateId, Boolean(body?.isKey));
+  const updated = await setLiveUpdateKey(updateId, Boolean(body?.isKey));
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(updated);
 }
@@ -48,10 +48,10 @@ export async function DELETE(_req: Request, { params }: Params) {
   const g = await guard(updateId);
   if ("error" in g) return g.error;
 
-  if (!deleteLiveUpdate(updateId)) {
+  if (!(await deleteLiveUpdate(updateId))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  logActivity({
+  await logActivity({
     action: "live.deleted",
     editorId: g.me.id,
     editorName: g.me.name,

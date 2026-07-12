@@ -14,7 +14,7 @@ export default async function HistoryPage({
   if (!me) redirect("/admin/login");
 
   const { id } = await params;
-  const article = getById(id);
+  const article = await getById(id);
   if (!article || article.deletedAt) notFound();
   if (!canEditArticle(me, article)) redirect("/admin/articles");
 
@@ -26,7 +26,7 @@ export default async function HistoryPage({
         body: article.body,
         slug: article.slug,
       }}
-      revisions={getRevisions(article.id)}
+      revisions={await getRevisions(article.id)}
     />
   );
 }

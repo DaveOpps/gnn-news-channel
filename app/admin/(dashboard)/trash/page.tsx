@@ -11,9 +11,9 @@ export default async function AdminTrashPage() {
 
   return (
     <TrashManager
-      initial={getTrashed()}
+      initial={await getTrashed()}
       canPurge={me.role === "admin"}
-      sections={getSections()}
+      sections={await getSections()}
     />
   );
 }

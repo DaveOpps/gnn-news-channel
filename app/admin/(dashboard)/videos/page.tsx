@@ -3,6 +3,6 @@ import { getVideos } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminVideosPage() {
-  return <VideosManager initial={getVideos()} />;
+export default async function AdminVideosPage() {
+  return <VideosManager initial={await getVideos()} />;
 }

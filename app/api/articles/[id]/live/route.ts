@@ -7,11 +7,11 @@ type Params = { params: Promise<{ id: string }> };
 /** Public: the rolling feed for a story. */
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
-  const article = getById(id);
+  const article = await getById(id);
   if (!article || article.deletedAt) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(getLiveUpdates(id));
+  return NextResponse.json(await getLiveUpdates(id));
 }
 
 /** Post a new update to the feed. */
@@ -20,7 +20,7 @@ export async function POST(req: Request, { params }: Params) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const article = getById(id);
+  const article = await getById(id);
   if (!article || article.deletedAt) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -37,8 +37,8 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "An update needs some text" }, { status: 400 });
   }
 
-  const update = addLiveUpdate(id, text, me, Boolean(body?.isKey));
-  logActivity({
+  const update = await addLiveUpdate(id, text, me, Boolean(body?.isKey));
+  await logActivity({
     action: "live.posted",
     editorId: me.id,
     editorName: me.name,

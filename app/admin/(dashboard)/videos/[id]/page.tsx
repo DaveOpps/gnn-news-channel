@@ -10,7 +10,7 @@ export default async function EditVideoPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const video = getVideoById(id);
+  const video = await getVideoById(id);
   if (!video) notFound();
   return <VideoForm video={video} />;
 }

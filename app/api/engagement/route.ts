@@ -15,10 +15,10 @@ export async function POST(req: Request) {
   }
 
   const articleId = String(body?.articleId ?? "");
-  if (!articleId || !getById(articleId)) {
+  if (!articleId || !(await getById(articleId))) {
     return NextResponse.json({ error: "Unknown article" }, { status: 400 });
   }
 
-  recordEngagement(articleId, Number(body?.depth ?? 0), Number(body?.seconds ?? 0));
+  await recordEngagement(articleId, Number(body?.depth ?? 0), Number(body?.seconds ?? 0));
   return NextResponse.json({ ok: true });
 }

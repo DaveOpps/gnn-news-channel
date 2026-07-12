@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Live TV" };
 
-export default function LivePage() {
-  const breaking = getBreaking();
-  const latest = getPublished().slice(0, 8);
+export default async function LivePage() {
+  const breaking = await getBreaking();
+  const latest = (await getPublished()).slice(0, 8);
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-950 text-white">

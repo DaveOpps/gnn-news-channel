@@ -11,5 +11,5 @@ export default async function AdminEditorsPage() {
   // Managing accounts is an admin-only screen.
   if (me.role !== "admin") redirect("/admin");
 
-  return <EditorsManager initial={getPublicEditors()} currentEditorId={me.id} />;
+  return <EditorsManager initial={await getPublicEditors()} currentEditorId={me.id} />;
 }

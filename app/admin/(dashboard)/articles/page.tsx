@@ -5,8 +5,8 @@ import { isArticleLive } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminArticlesPage() {
-  const articles = getAll();
+export default async function AdminArticlesPage() {
+  const articles = await getAll();
 
   // Only unpublished stories need a preview link; signed here on the server.
   const previewTokens: Record<string, string> = {};
@@ -17,7 +17,7 @@ export default function AdminArticlesPage() {
   return (
     <ArticlesManager
       initial={articles}
-      sections={getSections()}
+      sections={await getSections()}
       previewTokens={previewTokens}
     />
   );

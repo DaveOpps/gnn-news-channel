@@ -38,7 +38,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const article = getBySlug(slug);
+  const article = await getBySlug(slug);
   if (!article) return { title: "Story not found" };
   const description = article.metaDescription?.trim() || article.excerpt;
   return {
@@ -58,10 +58,10 @@ export default async function ArticlePage({ params, searchParams }: Props) {
   const { preview } = await searchParams;
 
   // A live story is public. Anything else needs a valid, signed preview token.
-  let article = getBySlug(slug);
+  let article = await getBySlug(slug);
   let isPreview = false;
   if (!article && preview) {
-    const candidate = getBySlugForPreview(slug);
+    const candidate = await getBySlugForPreview(slug);
     if (candidate && verifyPreviewToken(candidate.id, preview)) {
       article = candidate;
       isPreview = true;
@@ -70,14 +70,14 @@ export default async function ArticlePage({ params, searchParams }: Props) {
   if (!article) notFound();
 
   // Previews are editorial, not audience — they must not inflate the count.
-  if (!isPreview) incrementViews(article.id);
+  if (!isPreview) await incrementViews(article.id);
 
-  const related = getByCategory(article.category)
+  const related = (await getByCategory(article.category))
     .filter((a) => a.id !== article.id)
     .slice(0, 3);
-  const comments = getCommentThreads(article.id);
-  const liveUpdates = article.isLiveBlog ? getLiveUpdates(article.id) : [];
-  const bylineEditor = getEditorForArticle(article);
+  const comments = await getCommentThreads(article.id);
+  const liveUpdates = article.isLiveBlog ? await getLiveUpdates(article.id) : [];
+  const bylineEditor = await getEditorForArticle(article);
   const words = article.body.split(/\s+/).length;
   const readMinutes = Math.max(1, Math.round(words / 200));
 
@@ -98,7 +98,7 @@ export default async function ArticlePage({ params, searchParams }: Props) {
       )}
 
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-10">
         <article className="bg-white border border-hairline-strong">

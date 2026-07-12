@@ -6,7 +6,7 @@ import { Card, EmptyState, Icon, PageHeader, StatCard, microLabel } from "@/comp
 export const dynamic = "force-dynamic";
 
 export default async function AdminAnalyticsPage() {
-  const stats = getEditorStats();
+  const stats = await getEditorStats();
   const me = await getCurrentEditor();
 
   const newsroomViews = stats.reduce((sum, s) => sum + s.totalViews, 0);

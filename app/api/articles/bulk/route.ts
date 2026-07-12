@@ -35,15 +35,15 @@ export async function POST(req: Request) {
   let skipped = 0;
 
   for (const id of ids) {
-    const article = getById(id);
+    const article = await getById(id);
     if (!article || article.deletedAt || !canEditArticle(me, article)) {
       skipped++;
       continue;
     }
 
     if (action === "trash") {
-      if (trashArticle(id)) {
-        recordArticleAction("article.trashed", me, article);
+      if (await trashArticle(id)) {
+        await recordArticleAction("article.trashed", me, article);
         updated++;
       } else skipped++;
       continue;
@@ -58,15 +58,15 @@ export async function POST(req: Request) {
             ? { isFeatured: true }
             : { isFeatured: false };
 
-    const result = updateArticle(id, patch);
+    const result = await updateArticle(id, patch);
     if (result) {
-      if (action === "publish") recordArticleAction("article.published", me, result);
-      if (action === "unpublish") recordArticleAction("article.unpublished", me, result);
+      if (action === "publish") await recordArticleAction("article.published", me, result);
+      if (action === "unpublish") await recordArticleAction("article.unpublished", me, result);
       updated++;
     } else skipped++;
   }
 
-  logActivity({
+  await logActivity({
     action: "article.updated",
     editorId: me.id,
     editorName: me.name,

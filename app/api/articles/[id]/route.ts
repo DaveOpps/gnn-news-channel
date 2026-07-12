@@ -19,7 +19,7 @@ export async function GET(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  const article = getById(id);
+  const article = await getById(id);
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(article);
 }
@@ -30,7 +30,7 @@ export async function PUT(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  const existing = getById(id);
+  const existing = await getById(id);
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (!canEditArticle(me, existing)) {
     return NextResponse.json({ error: "This story belongs to another editor" }, { status: 403 });
@@ -59,7 +59,7 @@ export async function PUT(req: Request, { params }: Params) {
     patch.imageUrl = String(body.imageUrl).trim() || undefined;
   if (body.metaDescription !== undefined)
     patch.metaDescription = String(body.metaDescription).trim().slice(0, 320) || undefined;
-  if (body.category !== undefined && getSections().some((c) => c.slug === body.category))
+  if (body.category !== undefined && (await getSections()).some((c) => c.slug === body.category))
     patch.category = body.category;
   if (body.status !== undefined) {
     const schedule = parseSchedule(body);
@@ -84,9 +84,9 @@ export async function PUT(req: Request, { params }: Params) {
 
   // Snapshot before the edit lands — but only when the *content* changed, so
   // toggling "breaking" doesn't bury the history in noise.
-  if (touchesContent(existing, patch)) addRevision(existing, me);
+  if (touchesContent(existing, patch)) await addRevision(existing, me);
 
-  const updated = updateArticle(id, patch);
+  const updated = await updateArticle(id, patch);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // Record the most meaningful thing that happened, not every field touched.
@@ -104,7 +104,7 @@ export async function PUT(req: Request, { params }: Params) {
       action = "article.unpublished";
     }
   }
-  recordArticleAction(action, me, updated, detail);
+  await recordArticleAction(action, me, updated, detail);
 
   return NextResponse.json(updated);
 }
@@ -115,14 +115,14 @@ export async function DELETE(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  const existing = getById(id);
+  const existing = await getById(id);
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (!canEditArticle(me, existing)) {
     return NextResponse.json({ error: "This story belongs to another editor" }, { status: 403 });
   }
-  if (!trashArticle(id)) {
+  if (!(await trashArticle(id))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  recordArticleAction("article.trashed", me, existing);
+  await recordArticleAction("article.trashed", me, existing);
   return NextResponse.json({ ok: true, trashed: true });
 }

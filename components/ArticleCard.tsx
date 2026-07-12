@@ -10,8 +10,8 @@ import EditorAvatar from "./EditorAvatar";
 // the store, and dragging `fs` into a client bundle breaks the build.
 export { timeAgo };
 
-export function CategoryBadge({ category }: { category: string }) {
-  const meta = categoryMeta(category, getSections());
+export async function CategoryBadge({ category }: { category: string }) {
+  const meta = categoryMeta(category, await getSections());
   return (
     <Link
       href={`/category/${meta.slug}`}
@@ -27,14 +27,14 @@ export function CategoryBadge({ category }: { category: string }) {
  * account matches the byline; plain text (no link) for legacy/unmatched authors.
  * `nameClassName` overrides the name's text color — pass a lighter shade on
  * dark backgrounds (the default reads too dim on near-black). */
-export function ByBadge({
+export async function ByBadge({
   article,
   nameClassName = "text-neutral-gray",
 }: {
   article: Article;
   nameClassName?: string;
 }) {
-  const editor = getEditorForArticle(article);
+  const editor = await getEditorForArticle(article);
   const name = editor?.name ?? article.author;
 
   const inner = (

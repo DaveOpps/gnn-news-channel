@@ -10,7 +10,7 @@ export async function POST(req: Request, { params }: Params) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const parent = getCommentById(id);
+  const parent = await getCommentById(id);
   if (!parent) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (parent.parentId) {
     return NextResponse.json(
@@ -25,11 +25,11 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "A reply needs some text" }, { status: 400 });
   }
 
-  const reply = addEditorReply(id, text, me);
+  const reply = await addEditorReply(id, text, me);
   if (!reply) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const article = getById(parent.articleId);
-  logActivity({
+  const article = await getById(parent.articleId);
+  await logActivity({
     action: "comment.approved",
     editorId: me.id,
     editorName: me.name,

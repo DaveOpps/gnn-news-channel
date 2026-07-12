@@ -31,7 +31,7 @@ export default async function ResourceDetailPage({ params }: Props) {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-light">
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-16 text-center">
         <ResourceIconBadge

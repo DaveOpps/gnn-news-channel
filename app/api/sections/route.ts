@@ -13,8 +13,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return NextResponse.json({
-    sections: getSections(),
-    counts: countArticlesBySection(),
+    sections: await getSections(),
+    counts: await countArticlesBySection(),
   });
 }
 
@@ -30,10 +30,10 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => null);
-  const result = createSection(String(body?.label ?? ""), String(body?.color ?? ""));
+  const result = await createSection(String(body?.label ?? ""), String(body?.color ?? ""));
   if (!result.ok) return NextResponse.json({ error: result.reason }, { status: 400 });
 
-  logActivity({
+  await logActivity({
     action: "article.updated",
     editorId: me.id,
     editorName: me.name,
@@ -59,5 +59,5 @@ export async function PUT(req: Request) {
   if (slugs.length === 0) {
     return NextResponse.json({ error: "No order supplied" }, { status: 400 });
   }
-  return NextResponse.json(reorderSections(slugs));
+  return NextResponse.json(await reorderSections(slugs));
 }

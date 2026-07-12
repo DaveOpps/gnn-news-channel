@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Article {
+  id              String    @id
+  slug            String    @unique
+  title           String
+  excerpt         String
+  body            String
+  category        String
+  author          String
+  authorId        String?
+  coAuthors       String[]  @default([])
+  imageUrl        String?
+  metaDescription String?
+  tags            String[]  @default([])
+  status          String
+  scheduledFor    DateTime?
+  deletedAt       DateTime?
+  isBreaking      Boolean   @default(false)
+  isFeatured      Boolean   @default(false)
+  isLiveBlog      Boolean   @default(false)
+  rating          Int       @default(0)
+  views           Int       @default(0)
+  publishedAt     DateTime
+  updatedAt       DateTime
+
+  corrections Correction[]
+  comments    Comment[]
+  liveUpdates LiveUpdate[]
+  revisions   Revision[]
+  viewEvents  ViewEvent[]
+  engagement  EngagementAgg?
+
+  @@index([status, deletedAt, publishedAt])
+  @@index([category])
+  @@index([authorId])
+}
+
+model Correction {
+  id         String   @id
+  articleId  String
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  at         DateTime @default(now())
+  note       String
+  editorName String
+
+  @@index([articleId])
+}
+
+model Comment {
+  id            String    @id
+  articleId     String
+  article       Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  name          String
+  text          String
+  status        String
+  parentId      String?
+  parent        Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       Comment[] @relation("Replies")
+  isEditorReply Boolean   @default(false)
+  editorId      String?
+  createdAt     DateTime  @default(now())
+
+  @@index([articleId, status])
+  @@index([parentId])
+}
+
+model Subscriber {
+  email     String   @id
+  createdAt DateTime @default(now())
+}
+
+model ActivityEvent {
+  id         String   @id
+  at         DateTime @default(now())
+  editorId   String?
+  editorName String
+  action     String
+  target     String
+  targetId   String?
+  detail     String?
+
+  @@index([at])
+}
+
+model LiveUpdate {
+  id         String   @id
+  articleId  String
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  body       String
+  isKey      Boolean  @default(false)
+  editorId   String?
+  editorName String
+  createdAt  DateTime @default(now())
+
+  @@index([articleId])
+}
+
+/// Singleton — one row, fixed id "singleton".
+model Curation {
+  id          String   @id @default("singleton")
+  heroId      String?
+  topStoryIds String[] @default([])
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+}
+
+model MediaItem {
+  filename   String   @id
+  url        String
+  size       Int
+  alt        String?
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+}
+
+model Revision {
+  id              String   @id
+  articleId       String
+  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  at              DateTime @default(now())
+  editorId        String?
+  editorName      String
+  title           String
+  slug            String
+  excerpt         String
+  body            String
+  category        String
+  tags            String[] @default([])
+  imageUrl        String?
+  metaDescription String?
+
+  @@index([articleId, at])
+}
+
+/// Singleton — one row, fixed id "singleton".
+model ModerationSettings {
+  id           String   @id @default("singleton")
+  blockedTerms String[] @default([])
+  blockedNames String[] @default([])
+}
+
+model Section {
+  slug  String @id
+  label String
+  color String
+  order Int
+}
+
+/// High-volume, append-only. No required FK — a purge doesn't cascade-delete
+/// view history, matching the JSON store's existing behavior.
+model ViewEvent {
+  id        BigInt   @id @default(autoincrement())
+  articleId String?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  t         DateTime @default(now())
+
+  @@index([t])
+  @@index([articleId, t])
+}
+
+model Video {
+  id          String   @id
+  title       String
+  show        String
+  youtubeId   String?
+  duration    String
+  views       Int      @default(0)
+  publishedAt DateTime
+  featured    Boolean  @default(false)
+
+  @@index([show])
+  @@index([publishedAt])
+}
+
+/// One row per article, upserted on every recordEngagement() call.
+model EngagementAgg {
+  articleId  String  @id
+  article    Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  samples    Int     @default(0)
+  depthSum   Int     @default(0)
+  secondsSum Int     @default(0)
+  completed  Int     @default(0)
+}
+
+model Editor {
+  id           String   @id
+  name         String
+  username     String   @unique
+  passwordHash String
+  photoUrl     String?
+  title        String?
+  bio          String?
+  role         String
+  createdAt    DateTime @default(now())
+}

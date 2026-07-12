@@ -9,13 +9,13 @@ export default async function AdminCommentsPage() {
   const me = await getCurrentEditor();
   if (!me) redirect("/admin/login");
 
-  const articles = getAll().map((a) => ({ id: a.id, title: a.title, slug: a.slug }));
+  const articles = (await getAll()).map((a) => ({ id: a.id, title: a.title, slug: a.slug }));
 
   return (
     <CommentsManager
-      initial={getAllComments()}
+      initial={await getAllComments()}
       articles={articles}
-      moderation={getModerationSettings()}
+      moderation={await getModerationSettings()}
       isAdmin={me.role === "admin"}
     />
   );

@@ -14,7 +14,7 @@ export async function GET() {
   if (!(await getCurrentEditor())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(getAll());
+  return NextResponse.json(await getAll());
 }
 
 export async function POST(req: Request) {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   if (!body?.title?.trim() || !body?.body?.trim()) {
     return NextResponse.json({ error: "Title and body are required" }, { status: 400 });
   }
-  const sections = getSections();
+  const sections = await getSections();
   const category: Category = sections.some((c) => c.slug === body.category)
     ? body.category
     : sections[0].slug;
@@ -40,10 +40,10 @@ export async function POST(req: Request) {
   // behalf by passing authorId; everyone else is credited to themselves.
   let author = me;
   if (body.authorId && me.role === "admin") {
-    author = getEditorById(String(body.authorId)) ?? me;
+    author = (await getEditorById(String(body.authorId))) ?? me;
   }
 
-  const article = createArticle({
+  const article = await createArticle({
     title: String(body.title).trim(),
     slug: body.slug ? String(body.slug) : undefined,
     excerpt: String(body.excerpt ?? "").trim(),
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     rating: Math.max(0, Math.min(5, Math.round(Number(body.rating) || 0))),
   });
 
-  recordArticleAction(
+  await recordArticleAction(
     schedule.status === "scheduled" ? "article.scheduled" : "article.created",
     me,
     article,

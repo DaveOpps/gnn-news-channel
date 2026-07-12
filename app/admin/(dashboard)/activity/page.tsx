@@ -19,8 +19,12 @@ function toneFor(action: ActivityAction): string {
   return "bg-zinc-300";
 }
 
-export default function AdminActivityPage() {
-  const events = getActivity(150);
+export default async function AdminActivityPage() {
+  const events = await getActivity(150);
+  const targetIds = [...new Set(events.map((e) => e.targetId).filter((id): id is string => Boolean(id)))];
+  const articles = new Map(
+    (await Promise.all(targetIds.map(async (id) => [id, await getById(id)] as const)))
+  );
 
   return (
     <div className="space-y-6">
@@ -39,7 +43,7 @@ export default function AdminActivityPage() {
         ) : (
           <ul className="divide-y divide-zinc-100">
             {events.map((e) => {
-              const article = e.targetId ? getById(e.targetId) : undefined;
+              const article = e.targetId ? articles.get(e.targetId) : undefined;
               return (
                 <li
                   key={e.id}

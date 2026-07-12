@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentEditor } from "@/lib/auth";
-import { deleteMediaFile, getMediaUsage, setMediaAlt } from "@/lib/store";
+import { deleteMediaFile, getMediaItems, getMediaUsage, setMediaAlt } from "@/lib/store";
 
 type Params = { params: Promise<{ filename: string }> };
 
@@ -11,7 +11,7 @@ export async function PUT(req: Request, { params }: Params) {
 
   const { filename } = await params;
   const body = await req.json().catch(() => ({}));
-  setMediaAlt(decodeURIComponent(filename), String(body?.alt ?? ""));
+  await setMediaAlt(decodeURIComponent(filename), String(body?.alt ?? ""));
   return NextResponse.json({ ok: true });
 }
 
@@ -30,7 +30,12 @@ export async function DELETE(_req: Request, { params }: Params) {
   }
 
   const filename = decodeURIComponent((await params).filename);
-  const usage = getMediaUsage(`/uploads/${filename}`);
+  const item = (await getMediaItems()).find((m) => m.filename === filename);
+  if (!item) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const usage = await getMediaUsage(item.url);
   if (usage.length > 0) {
     return NextResponse.json(
       {
@@ -43,7 +48,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     );
   }
 
-  if (!deleteMediaFile(filename)) {
+  if (!(await deleteMediaFile(filename))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   return NextResponse.json({ ok: true });

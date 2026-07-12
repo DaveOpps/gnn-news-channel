@@ -9,5 +9,5 @@ export default async function AdminMediaPage() {
   const me = await getCurrentEditor();
   if (!me) redirect("/admin/login");
 
-  return <MediaManager initial={getMediaWithUsage()} canDelete={me.role === "admin"} />;
+  return <MediaManager initial={await getMediaWithUsage()} canDelete={me.role === "admin"} />;
 }

@@ -11,13 +11,13 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Resources — GNN" };
 
-export default function ResourcesPage() {
+export default async function ResourcesPage() {
   const groups = resourcesByGroup();
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-light">
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full">
         <div className="bg-ink text-white">

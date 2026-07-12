@@ -18,10 +18,10 @@ export default async function InsightsPage() {
   const me = await getCurrentEditor();
   if (!me) redirect("/admin/login");
 
-  const days = getViewsByDay(14);
-  const trending = getTrendingByVelocity(6, 6);
-  const engagement = getEngagementMap();
-  const published = getPublished();
+  const days = await getViewsByDay(14);
+  const trending = await getTrendingByVelocity(6, 6);
+  const engagement = await getEngagementMap();
+  const published = await getPublished();
 
   const last7 = days.slice(-7).reduce((s, d) => s + d.count, 0);
   const prev7 = days.slice(0, 7).reduce((s, d) => s + d.count, 0);

@@ -21,12 +21,12 @@ export async function PUT(req: Request, { params }: Params) {
   const raw = String(body?.status ?? "");
   const status: CommentStatus =
     raw === "approved" ? "approved" : raw === "spam" ? "spam" : "pending";
-  const updated = setCommentStatus(id, status);
+  const updated = await setCommentStatus(id, status);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   if (status === "approved") {
-    const article = getById(updated.articleId);
-    logActivity({
+    const article = await getById(updated.articleId);
+    await logActivity({
       action: "comment.approved",
       editorId: me.id,
       editorName: me.name,
@@ -45,14 +45,14 @@ export async function DELETE(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  const existing = getCommentById(id);
-  if (!deleteComment(id)) {
+  const existing = await getCommentById(id);
+  if (!(await deleteComment(id))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   if (existing) {
-    const article = getById(existing.articleId);
-    logActivity({
+    const article = await getById(existing.articleId);
+    await logActivity({
       action: "comment.deleted",
       editorId: me.id,
       editorName: me.name,

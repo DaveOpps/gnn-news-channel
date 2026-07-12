@@ -18,7 +18,7 @@ export default async function VideoHubPage({
   searchParams: Promise<{ show?: string }>;
 }) {
   const { show } = await searchParams;
-  const videos = getVideos();
+  const videos = await getVideos();
   const featured = videos.find((v) => v.featured) ?? videos[0];
   const rest = videos.filter((v) => v.id !== featured?.id);
   const filtered = show ? rest.filter((v) => v.show === show) : rest;
@@ -26,7 +26,7 @@ export default async function VideoHubPage({
   return (
     <div className="flex flex-col min-h-screen bg-neutral-light">
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full">
         {/* Hero band */}

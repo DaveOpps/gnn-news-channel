@@ -21,16 +21,16 @@ import { formatByline } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
-  const published = getPublished();
-  const breaking = getBreaking();
-  const trending = getTrending(6);
-  const featured = getFeatured();
+export default async function HomePage() {
+  const published = await getPublished();
+  const breaking = await getBreaking();
+  const trending = await getTrending(6);
+  const featured = await getFeatured();
 
   // Honours the curation board, falling back to automatic ordering.
-  const { hero, topStories: heroSide, latest } = getHomepage();
-  const CATEGORIES = getSections();
-  const videos = getVideos().slice(0, 4);
+  const { hero, topStories: heroSide, latest } = await getHomepage();
+  const CATEGORIES = await getSections();
+  const videos = (await getVideos()).slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">

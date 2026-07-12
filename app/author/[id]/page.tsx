@@ -13,7 +13,7 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const editor = getPublicEditorById(id);
+  const editor = await getPublicEditorById(id);
   if (!editor) return { title: "Editor not found" };
   return {
     title: editor.name,
@@ -23,15 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AuthorPage({ params }: Props) {
   const { id } = await params;
-  const editor = getPublicEditorById(id);
+  const editor = await getPublicEditorById(id);
   if (!editor) notFound();
 
-  const articles = getPublishedByEditor(id);
+  const articles = await getPublishedByEditor(id);
 
   return (
     <div className="flex flex-col min-h-screen bg-paper">
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-12">
         {/* Profile header */}

@@ -7,7 +7,7 @@ export async function GET() {
   if (!(await getCurrentEditor())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(getVideos());
+  return NextResponse.json(await getVideos());
 }
 
 export async function POST(req: Request) {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const video = createVideo({
+  const video = await createVideo({
     title: String(body.title).trim(),
     show: String(body.show).trim(),
     youtubeId: id,

@@ -10,7 +10,7 @@ export async function POST(_req: Request, { params }: Params) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const existing = getById(id);
+  const existing = await getById(id);
   if (!existing || !existing.deletedAt) {
     return NextResponse.json({ error: "Not in trash" }, { status: 404 });
   }
@@ -21,10 +21,10 @@ export async function POST(_req: Request, { params }: Params) {
     );
   }
 
-  const restored = restoreArticle(id);
+  const restored = await restoreArticle(id);
   if (!restored) return NextResponse.json({ error: "Not in trash" }, { status: 404 });
 
-  recordArticleAction("article.restored", me, restored);
+  await recordArticleAction("article.restored", me, restored);
   return NextResponse.json(restored);
 }
 
@@ -40,14 +40,14 @@ export async function DELETE(_req: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const existing = getById(id);
+  const existing = await getById(id);
   if (!existing || !existing.deletedAt) {
     return NextResponse.json({ error: "Not in trash" }, { status: 404 });
   }
 
-  if (!purgeArticle(id)) {
+  if (!(await purgeArticle(id))) {
     return NextResponse.json({ error: "Not in trash" }, { status: 404 });
   }
-  recordArticleAction("article.purged", me, existing);
+  await recordArticleAction("article.purged", me, existing);
   return NextResponse.json({ ok: true });
 }

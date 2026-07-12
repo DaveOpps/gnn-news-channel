@@ -13,12 +13,12 @@ export default async function SearchPage({
 }) {
   const { q } = await searchParams;
   const query = (q ?? "").trim();
-  const results = query ? searchArticles(query) : [];
+  const results = query ? await searchArticles(query) : [];
 
   return (
     <div className="flex flex-col min-h-screen bg-paper">
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-10">
         <h1 className="headline text-3xl mb-2 text-ink">Search</h1>

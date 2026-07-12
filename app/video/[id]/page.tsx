@@ -16,27 +16,30 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const video = getVideoById(id);
+  const video = await getVideoById(id);
   if (!video) return { title: "Video not found" };
   return { title: `${video.title} — GNN TV` };
 }
 
 export default async function VideoWatchPage({ params }: Props) {
   const { id } = await params;
-  const video = getVideoById(id);
+  const video = await getVideoById(id);
   if (!video) notFound();
 
-  incrementVideoViews(video.id);
+  await incrementVideoViews(video.id);
 
-  const more = getVideosByShow(video.show)
+  const more = (await getVideosByShow(video.show))
     .filter((v) => v.id !== video.id)
     .slice(0, 4);
-  const others = more.length > 0 ? more : getVideos().filter((v) => v.id !== video.id).slice(0, 4);
+  const others =
+    more.length > 0
+      ? more
+      : (await getVideos()).filter((v) => v.id !== video.id).slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-950 text-white">
       <SiteHeader />
-      <BreakingTicker articles={getBreaking()} />
+      <BreakingTicker articles={await getBreaking()} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -147,7 +150,7 @@ export default async function VideoWatchPage({ params }: Props) {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-            {getVideos()
+            {(await getVideos())
               .filter((v) => v.id !== video.id)
               .slice(0, 4)
               .map((v) => (

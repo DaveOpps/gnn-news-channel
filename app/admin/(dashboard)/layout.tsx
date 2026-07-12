@@ -36,8 +36,8 @@ export default async function AdminLayout({
 
         <SidebarNav
           isAdmin={me.role === "admin"}
-          pendingComments={countPendingComments()}
-          trashedCount={getTrashed().length}
+          pendingComments={await countPendingComments()}
+          trashedCount={(await getTrashed()).length}
         />
 
         <div className="space-y-1 border-t border-zinc-800/80 p-3">

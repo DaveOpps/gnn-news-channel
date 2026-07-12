@@ -54,8 +54,8 @@ export function verifyPreviewToken(articleId: string, token: string | undefined)
 }
 
 /** Returns the editor when the credentials are valid, otherwise null. */
-export function verifyCredentials(username: string, password: string): Editor | null {
-  const editor = getEditorByUsername(username);
+export async function verifyCredentials(username: string, password: string): Promise<Editor | null> {
+  const editor = await getEditorByUsername(username);
   if (!editor) return null;
   if (!verifyPassword(password, editor.passwordHash)) return null;
   return editor;
@@ -66,7 +66,7 @@ export async function getCurrentEditor(): Promise<Editor | null> {
   const store = await cookies();
   const id = editorIdFromSession(store.get(SESSION_COOKIE)?.value);
   if (!id) return null;
-  return getEditorById(id) ?? null;
+  return (await getEditorById(id)) ?? null;
 }
 
 export async function isAuthenticated(): Promise<boolean> {

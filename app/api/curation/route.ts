@@ -6,7 +6,7 @@ export async function GET() {
   if (!(await getCurrentEditor())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(getCuration());
+  return NextResponse.json(await getCuration());
 }
 
 /** Save the manual front-page arrangement. Admins only — it's the shop window. */
@@ -28,8 +28,8 @@ export async function PUT(req: Request) {
     ? body.topStoryIds.map((id: unknown) => String(id)).filter(Boolean)
     : [];
 
-  const curation = setCuration(heroId, topStoryIds, me.name);
-  logActivity({
+  const curation = await setCuration(heroId, topStoryIds, me.name);
+  await logActivity({
     action: "homepage.curated",
     editorId: me.id,
     editorName: me.name,
@@ -50,8 +50,8 @@ export async function DELETE() {
     );
   }
 
-  clearCuration();
-  logActivity({
+  await clearCuration();
+  await logActivity({
     action: "homepage.reset",
     editorId: me.id,
     editorName: me.name,

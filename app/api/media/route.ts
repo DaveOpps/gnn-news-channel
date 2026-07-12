@@ -6,5 +6,5 @@ export async function GET() {
   if (!(await getCurrentEditor())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(getMediaWithUsage());
+  return NextResponse.json(await getMediaWithUsage());
 }

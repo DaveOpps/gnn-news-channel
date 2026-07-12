@@ -6,7 +6,7 @@ export async function GET() {
   if (!(await getCurrentEditor())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(getModerationSettings());
+  return NextResponse.json(await getModerationSettings());
 }
 
 /** Word filters shape what reaches the queue — admins only. */
@@ -32,7 +32,7 @@ export async function PUT(req: Request) {
           .filter(Boolean);
 
   return NextResponse.json(
-    setModerationSettings({
+    await setModerationSettings({
       blockedTerms: toList(body.blockedTerms),
       blockedNames: toList(body.blockedNames),
     })

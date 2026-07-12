@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
 import path from "path";
 import { getCurrentEditor } from "@/lib/auth";
-import { recordMedia } from "@/lib/store";
+import { put, recordMedia } from "@/lib/store";
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 const MAX_BYTES = 8 * 1024 * 1024; // 8 MB
@@ -35,19 +34,17 @@ export async function POST(req: Request) {
     .slice(0, 40);
   const filename = `${Date.now()}-${safeBase || "image"}${ext}`;
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  fs.mkdirSync(uploadDir, { recursive: true });
-  fs.writeFileSync(path.join(uploadDir, filename), Buffer.from(await file.arrayBuffer()));
+  const blob = await put(filename, file, { access: "public", addRandomSuffix: false });
 
   const item = {
     filename,
-    url: `/uploads/${filename}`,
+    url: blob.url,
     size: file.size,
     alt: typeof form?.get("alt") === "string" ? String(form.get("alt")) : undefined,
     uploadedBy: me.name,
     createdAt: new Date().toISOString(),
   };
-  recordMedia(item);
+  await recordMedia(item);
 
   return NextResponse.json(item, { status: 201 });
 }

@@ -10,7 +10,7 @@ export async function POST(req: Request, { params }: Params) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const article = getById(id);
+  const article = await getById(id);
   if (!article || article.deletedAt) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -27,10 +27,10 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "A correction needs a note" }, { status: 400 });
   }
 
-  const updated = addCorrection(id, note, me.name);
+  const updated = await addCorrection(id, note, me.name);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  recordArticleAction("article.updated", me, updated, "published a correction");
+  await recordArticleAction("article.updated", me, updated, "published a correction");
   return NextResponse.json(updated, { status: 201 });
 }
 
@@ -47,7 +47,7 @@ export async function DELETE(req: Request, { params }: Params) {
 
   const { id } = await params;
   const correctionId = new URL(req.url).searchParams.get("correctionId") ?? "";
-  const updated = deleteCorrection(id, correctionId);
+  const updated = await deleteCorrection(id, correctionId);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(updated);
 }

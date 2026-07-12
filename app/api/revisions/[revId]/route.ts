@@ -19,10 +19,10 @@ export async function POST(_req: Request, { params }: Params) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { revId } = await params;
-  const revision = getRevisionById(revId);
+  const revision = await getRevisionById(revId);
   if (!revision) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const article = getById(revision.articleId);
+  const article = await getById(revision.articleId);
   if (!article || article.deletedAt) {
     return NextResponse.json({ error: "Story not found" }, { status: 404 });
   }
@@ -33,9 +33,9 @@ export async function POST(_req: Request, { params }: Params) {
     );
   }
 
-  addRevision(article, me);
+  await addRevision(article, me);
 
-  const updated = updateArticle(article.id, {
+  const updated = await updateArticle(article.id, {
     title: revision.title,
     slug: revision.slug,
     excerpt: revision.excerpt,
@@ -47,7 +47,7 @@ export async function POST(_req: Request, { params }: Params) {
   });
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  recordArticleAction(
+  await recordArticleAction(
     "article.updated",
     me,
     updated,

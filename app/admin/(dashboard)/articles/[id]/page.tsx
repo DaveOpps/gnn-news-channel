@@ -11,13 +11,13 @@ export default async function EditArticlePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const article = getById(id);
+  const article = await getById(id);
   if (!article) notFound();
   const me = await getCurrentEditor();
   return (
     <ArticleForm
       article={article}
-      sections={getSections()}
+      sections={await getSections()}
       canDeleteCorrections={me?.role === "admin"}
     />
   );

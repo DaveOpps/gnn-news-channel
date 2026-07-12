@@ -20,9 +20,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No comments selected" }, { status: 400 });
   }
 
-  const { updated } = bulkComments(ids, action);
+  const { updated } = await bulkComments(ids, action);
 
-  logActivity({
+  await logActivity({
     action: action === "delete" ? "comment.deleted" : "comment.approved",
     editorId: me.id,
     editorName: me.name,

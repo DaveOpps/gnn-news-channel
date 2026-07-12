@@ -11,5 +11,7 @@ export default async function AdminSectionsPage() {
   // Sections shape the public navigation — admins only.
   if (me.role !== "admin") redirect("/admin");
 
-  return <SectionsManager initial={getSections()} counts={countArticlesBySection()} />;
+  return (
+    <SectionsManager initial={await getSections()} counts={await countArticlesBySection()} />
+  );
 }
