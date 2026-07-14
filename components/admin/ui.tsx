@@ -261,6 +261,7 @@ export function StatCard({
   icon,
   href,
   emphasis = false,
+  footer,
 }: {
   label: string;
   value: string | number;
@@ -268,6 +269,7 @@ export function StatCard({
   icon?: ReactNode;
   href?: string;
   emphasis?: boolean;
+  footer?: ReactNode;
 }) {
   const body = (
     <div
@@ -290,6 +292,7 @@ export function StatCard({
         {value}
       </p>
       {hint && <p className="mt-2 text-xs text-zinc-400">{hint}</p>}
+      {footer}
     </div>
   );
 

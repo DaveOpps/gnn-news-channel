@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Video, VIDEO_SHOWS, youtubeId } from "@/lib/types";
@@ -15,11 +15,40 @@ export default function VideoForm({ video }: { video?: Video }) {
   const [youtubeUrl, setYoutubeUrl] = useState(video?.youtubeId ?? "");
   const [duration, setDuration] = useState(video?.duration ?? "");
   const [featured, setFeatured] = useState(video?.featured ?? false);
+  const [detectingDuration, setDetectingDuration] = useState(false);
 
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const parsedId = youtubeId(youtubeUrl);
+
+  // Skip the very first render so opening an existing video for editing
+  // doesn't immediately overwrite an already-correct duration.
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    if (!parsedId) return;
+
+    let cancelled = false;
+    setDetectingDuration(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/videos/duration?id=${parsedId}`);
+        const data = await res.json().catch(() => ({}));
+        if (!cancelled && res.ok && data.duration) setDuration(data.duration);
+      } finally {
+        if (!cancelled) setDetectingDuration(false);
+      }
+    }, 500);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [parsedId]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,7 +157,10 @@ export default function VideoForm({ video }: { video?: Video }) {
 
           <div>
             <label className={label}>
-              Duration <span className={hint}>— e.g. 12:04</span>
+              Duration{" "}
+              <span className={hint}>
+                {detectingDuration ? "— detecting from YouTube…" : "— filled in automatically, or edit it"}
+              </span>
             </label>
             <input
               value={duration}

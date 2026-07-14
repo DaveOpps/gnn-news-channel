@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getAll, countPendingComments, getSubscribers, getSections } from "@/lib/store";
+import { isAdmin } from "@/lib/auth";
 import { categoryMeta } from "@/lib/types";
 import { timeAgo } from "@/components/ArticleCard";
+import { ClearViewsButton } from "@/components/admin/ClearViewsButton";
 import {
   Badge,
   Card,
@@ -27,6 +29,7 @@ export default async function AdminDashboard() {
 
   const pendingComments = await countPendingComments();
   const subscriberCount = (await getSubscribers()).length;
+  const admin = await isAdmin();
 
   const rated = all.filter((a) => (a.rating ?? 0) > 0);
   const avgRating = rated.length
@@ -61,6 +64,7 @@ export default async function AdminDashboard() {
           value={totalViews.toLocaleString()}
           hint="Across all published stories"
           icon={<Icon.Trend className={iconClass} />}
+          footer={admin ? <ClearViewsButton /> : undefined}
         />
         <StatCard
           label="Comments pending"

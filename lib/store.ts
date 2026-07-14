@@ -251,6 +251,18 @@ export async function incrementViews(id: string): Promise<void> {
   if (result.count > 0) await recordViewEvent(id);
 }
 
+/**
+ * Reset the view count on every story back to zero and wipe the traffic
+ * history that feeds the analytics charts. Returns how many stories were
+ * touched. Engagement depth samples are cleared too so nothing stale lingers.
+ */
+export async function resetAllViews(): Promise<number> {
+  const result = await prisma.article.updateMany({ data: { views: 0 } });
+  await prisma.viewEvent.deleteMany({});
+  await prisma.engagementAgg.deleteMany({});
+  return result.count;
+}
+
 // ---- Traffic events ----
 
 async function recordViewEvent(articleId: string): Promise<void> {
