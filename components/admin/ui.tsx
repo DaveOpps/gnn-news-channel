@@ -153,6 +153,16 @@ export const Icon = {
       <path d="M10 8.5v7l6-3.5Z" fill="currentColor" stroke="none" />
     </svg>
   ),
+  Menu: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  ),
+  X: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  ),
 };
 
 /* ------------------------------------------------------------------ */
